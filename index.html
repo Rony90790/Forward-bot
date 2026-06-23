@@ -24,12 +24,12 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-        const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        const SUPABASE_URL = 'https://yctirvnryrzygoxbpvoy.supabase.co/rest/v1/';
+        const SUPABASE_KEY = 'sb_publishable_aBcD-atruskWwoCiLr0lWw_inT8GLoN';
         const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         const userId = tg.initDataUnsafe.user.id;
-        const botUsername = 'YOUR_BOT_USERNAME';
+        const botUsername = 'File_Unlocker_Pro_bot';
 
         async function checkReferrals() {
             let { data, error } = await supabase
