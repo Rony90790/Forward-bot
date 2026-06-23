@@ -139,7 +139,8 @@
 
         function checkUnlock(videoUrl) {
             if (unlocked) {
-                tg.openTelegramLink(videoUrl);
+                // এটি গুগল ড্রাইভ এবং যেকোনো ওয়েবসাইট লিংক ওপেন করতে পারবে
+                tg.openLink(videoUrl);
             } else {
                 document.getElementById('shareModal').style.display = 'flex';
             }
