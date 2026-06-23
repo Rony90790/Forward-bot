@@ -7,55 +7,124 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: sans-serif; background: #1a1a1a; color: white; text-align: center; padding: 20px; }
-        .btn { background: #0088cc; color: white; border: none; padding: 15px 30px; border-radius: 10px; cursor: pointer; font-size: 16px; margin-top: 20px; }
-        .status { margin-top: 20px; padding: 15px; border: 1px solid #444; border-radius: 10px; }
+        body { font-family: sans-serif; background: #121212; color: white; margin: 0; padding: 10px; }
+        
+        /* Video Grid Settings */
+        .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .video-card { background: #222; border-radius: 10px; overflow: hidden; position: relative; }
+        .video-card img { width: 100%; height: 150px; object-fit: cover; cursor: pointer; }
+        .watch-btn { background: #000000aa; color: orange; padding: 5px; font-size: 12px; position: absolute; bottom: 5px; left: 5px; border-radius: 5px;}
+        
+        /* Modal / Pop-up Settings */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: #333; padding: 20px; border-radius: 10px; width: 80%; text-align: center; box-sizing: border-box; }
+        .modal-content h3 { margin-top: 0; font-size: 16px; line-height: 1.5; }
+        .share-btn { background: #0088cc; color: white; border: none; padding: 12px 20px; border-radius: 8px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 15px; }
+        .close-btn { background: #555; color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; margin-top: 10px; cursor: pointer; }
+        
+        /* Status Bar */
+        .status-bar { text-align: center; margin-top: 10px; padding: 10px; background: #222; border-radius: 8px; color: yellow; font-weight: bold;}
     </style>
 </head>
 <body>
-    <h2>🔓 Unlock Full Video</h2>
-    <div id="content">
-        <p>ভিডিওটি দেখতে ৩ জন বন্ধুকে জয়েন করাতে হবে।</p>
-        <div class="status" id="referral-status">Loading...</div>
-        <button class="btn" onclick="shareLink()">বন্ধুদের ইনভাইট করুন</button>
+    
+    <div class="status-bar" id="referral-status">Checking Status...</div>
+
+    <!-- Video Grid -->
+    <div class="video-grid">
+        <div class="video-card" onclick="checkUnlock('video1')">
+            <img src="https://via.placeholder.com/150/FF0000/FFFFFF?text=Video+1" alt="Video">
+            <div class="watch-btn">▶ Watch Now</div>
+        </div>
+        <div class="video-card" onclick="checkUnlock('video2')">
+            <img src="https://via.placeholder.com/150/0000FF/FFFFFF?text=Video+2" alt="Video">
+            <div class="watch-btn">▶ Watch Now</div>
+        </div>
+        <div class="video-card" onclick="checkUnlock('video3')">
+            <img src="https://via.placeholder.com/150/008000/FFFFFF?text=Video+3" alt="Video">
+            <div class="watch-btn">▶ Watch Now</div>
+        </div>
+        <div class="video-card" onclick="checkUnlock('video4')">
+            <img src="https://via.placeholder.com/150/FFA500/FFFFFF?text=Video+4" alt="Video">
+            <div class="watch-btn">▶ Watch Now</div>
+        </div>
+    </div>
+
+    <!-- Pop-up Modal (Share Option) -->
+    <div class="modal" id="shareModal">
+        <div class="modal-content">
+            <h3>ভিডিওটি দেখতে, অনুগ্রহ করে অ্যাপটি ৩টি গ্রুপে বা বন্ধুদের শেয়ার করুন।</h3>
+            <button class="share-btn" onclick="shareLink()">🚀 এখনই শেয়ার করুন</button>
+            <button class="close-btn" onclick="closeModal()">বন্ধ করুন</button>
+        </div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        const SUPABASE_URL = 'https://yctirvnryrzygoxbpvoy.supabase.co/rest/v1/';
+        // আপনার ডাটাবেস লিংক ও কী
+        const SUPABASE_URL = 'https://yctirvnryrzygoxbpvoy.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_aBcD-atruskWwoCiLr0lWw_inT8GLoN';
         const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        const userId = tg.initDataUnsafe.user.id;
-        const botUsername = 'File_Unlocker_Pro_bot';
+        const userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : '123456'; 
+        const botUsername = 'File_Unlocker_Pro_bot'; // আপনার বটের ইউজারনেম
+        
+        let unlocked = false;
 
         async function checkReferrals() {
-            let { data, error } = await supabase
-                .from('referrals')
-                .select('referral_count')
-                .eq('user_id', userId)
-                .single();
+            try {
+                let { data, error } = await supabase
+                    .from('referrals')
+                    .select('referral_count')
+                    .eq('user_id', userId)
+                    .single();
 
-            const statusDiv = document.getElementById('referral-status');
-            const count = data ? data.referral_count : 0;
+                const statusDiv = document.getElementById('referral-status');
+                const count = data ? data.referral_count : 0;
 
-            if (count < 3) {
-                statusDiv.innerHTML = `ইনভাইট করা হয়েছে: ${count}/৩ জন`;
-            } else {
-                statusDiv.innerHTML = `✅ ৩ জন ইনভাইট সম্পন্ন!<br><br><span style="color: #ffcc00;">অপেক্ষা করুন... তারা আপনার লিঙ্ক থেকে জয়েন করলে ভিডিওটি অটোমেটিক আনলক হবে।</span>`;
-                // এখানে আপনি চাইলে রিফ্রেশ বাটন দিতে পারেন
+                if (count < 3) {
+                    statusDiv.innerHTML = `ইনভাইট সম্পন্ন: ${count}/৩ জন`;
+                    statusDiv.style.color = "yellow";
+                    unlocked = false;
+                } else {
+                    statusDiv.innerHTML = `✅ আনলক সম্পন্ন! এখন ভিডিও দেখতে পারবেন।`;
+                    statusDiv.style.color = "#00ff00";
+                    unlocked = true;
+                }
+            } catch (err) {
+                console.log("Error fetching data", err);
             }
         }
 
+        function checkUnlock(videoId) {
+            if (unlocked) {
+                alert("Playing " + videoId + "..."); 
+                // আনলক হয়ে গেলে এখানে আপনার আসল ভিডিও লিংক বসাতে পারেন। যেমন:
+                // window.location.href = "https://your-video-link.com/" + videoId;
+            } else {
+                // আনলক না থাকলে পপ-আপ দেখাবে
+                document.getElementById('shareModal').style.display = 'flex';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('shareModal').style.display = 'none';
+        }
+
+        // স্মার্ট শেয়ার ফাংশন (টেলিগ্রামের ডিফল্ট ফরওয়ার্ড মেনু ওপেন করবে)
         function shareLink() {
-            const shareUrl = `https://t.me/share/url?url=https://t.me/${botUsername}?start=${userId}&text=ভিডিওটি দেখতে এই লিঙ্কে ক্লিক করুন!`;
+            const shareText = "ভাইরাল ভিডিও গ্রুপে জয়েন করতে নিচের লিংকটাতে ক্লিক করো 👇👇👇";
+            const botUrl = `https://t.me/${botUsername}?start=${userId}`;
+            const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(botUrl)}&text=${encodeURIComponent(shareText)}`;
+            
+            // Telegram app এর ভেতরে ফরোয়ার্ড মেনু ওপেন করবে
             tg.openTelegramLink(shareUrl);
         }
 
         checkReferrals();
-        setInterval(checkReferrals, 5000); // প্রতি ৫ সেকেন্ড পর চেক করবে
+        setInterval(checkReferrals, 5000); // প্রতি ৫ সেকেন্ড পর পর লাইভ আপডেট নেবে
     </script>
 </body>
 </html>
