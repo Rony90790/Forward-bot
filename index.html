@@ -9,76 +9,50 @@
     <style>
         body { font-family: sans-serif; background: #121212; color: white; margin: 0; padding: 10px; }
         .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-        .video-card { background: #222; border-radius: 10px; overflow: hidden; position: relative; }
-        .video-card img { width: 100%; height: 150px; object-fit: cover; cursor: pointer; }
-        .watch-btn { background: #000000aa; color: orange; padding: 5px; font-size: 12px; position: absolute; bottom: 5px; left: 5px; border-radius: 5px; font-weight: bold;}
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: #333; padding: 20px; border-radius: 10px; width: 80%; text-align: center; box-sizing: border-box; }
-        .modal-content h3 { margin-top: 0; font-size: 16px; line-height: 1.5; color: white;}
-        .share-btn { background: #0088cc; color: white; border: none; padding: 12px 20px; border-radius: 8px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 15px; font-weight: bold;}
-        .close-btn { background: #555; color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; margin-top: 10px; cursor: pointer; }
-        .status-bar { text-align: center; margin-top: 10px; padding: 10px; background: #222; border-radius: 8px; color: yellow; font-weight: bold;}
-    </style>
-</head>
-<body>
-    
-    <div class="status-bar" id="referral-status">লোড হচ্ছে...</div>
-
-    <!-- ডাইনামিক ভিডিও গ্রিড -->
-    <div class="video-grid" id="video-container">
-        <div style="text-align:center; color:gray; grid-column: span 2; padding: 20px;">ভিডিও এবং ছবি লোড হচ্ছে, দয়া করে অপেক্ষা করুন...</div>
-    </div>
-
-    <!-- Pop-up Modal -->
-    <div class="modal" id="shareModal">
-        <div class="modal-content">
-            <h3>ভিডিওটি দেখতে, অনুগ্রহ করে অ্যাপটি ৩টি গ্রুপে বা বন্ধুদের শেয়ার করুন।</h3>
-            <button class="share-btn" onclick="shareLink()">🚀 এখনই শেয়ার করুন</button>
-            <button class="close-btn" onclick="closeModal()">বন্ধ করুন</button>
-        </div>
-    </div>
-
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Unlocker</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body { font-family: sans-serif; background: #121212; color: white; margin: 0; padding: 10px; }
-        .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
         .video-card { background: #222; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #333; }
         .video-card img { width: 100%; height: 160px; object-fit: cover; cursor: pointer; }
-        .watch-btn { background: rgba(0, 0, 0, 0.7); color: #ffaa00; padding: 6px 10px; font-size: 13px; position: absolute; bottom: 8px; left: 8px; border-radius: 5px; font-weight: bold; border: 1px solid #ffaa00; }
+        .watch-btn { background: rgba(0, 0, 0, 0.7); color: #ffaa00; padding: 6px 10px; font-size: 13px; position: absolute; bottom: 8px; left: 8px; border-radius: 5px; font-weight: bold; border: 1px solid #ffaa00; pointer-events: none;}
+        
+        /* Share Modal */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: #2a2a2a; padding: 25px; border-radius: 12px; width: 85%; text-align: center; box-sizing: border-box; border: 1px solid #444; }
         .modal-content h3 { margin-top: 0; font-size: 17px; line-height: 1.5; color: #ffffff;}
         .share-btn { background: #0088cc; color: white; border: none; padding: 12px 20px; border-radius: 8px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 15px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);}
         .close-btn { background: #555; color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; margin-top: 10px; cursor: pointer; font-weight: bold;}
+        
+        /* Video Player Modal inside Mini App */
+        .player-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; flex-direction: column;}
+        .player-header { display: flex; justify-content: flex-end; padding: 10px; background: #111; }
+        .close-player-btn { background: red; color: white; border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer;}
+        iframe { width: 100%; height: 100%; border: none; flex-grow: 1;}
+        
         .status-bar { text-align: center; margin-top: 10px; padding: 12px; background: #222; border-radius: 8px; color: yellow; font-weight: bold; border: 1px solid #444;}
     </style>
 </head>
 <body>
     
-    <div class="status-bar" id="referral-status">লোড হচ্ছে...</div>
+    <div class="status-bar" id="referral-status">ডাটা চেক করা হচ্ছে...</div>
 
     <!-- ডাইনামিক ভিডিও গ্রিড -->
     <div class="video-grid" id="video-container">
         <div style="text-align:center; color:gray; grid-column: span 2; padding: 20px;">ভিডিও লোড হচ্ছে, দয়া করে অপেক্ষা করুন...</div>
     </div>
 
-    <!-- Pop-up Modal -->
+    <!-- Share Modal -->
     <div class="modal" id="shareModal">
         <div class="modal-content">
             <h3>ভিডিওটি দেখতে, অনুগ্রহ করে অ্যাপটি ৩টি গ্রুপে বা বন্ধুদের শেয়ার করুন।</h3>
             <button class="share-btn" onclick="shareLink()">🚀 এখনই শেয়ার করুন</button>
             <button class="close-btn" onclick="closeModal()">বন্ধ করুন</button>
         </div>
+    </div>
+
+    <!-- Inside App Video Player Modal -->
+    <div class="player-modal" id="videoPlayerModal">
+        <div class="player-header">
+            <button class="close-player-btn" onclick="closePlayer()">✖ Close</button>
+        </div>
+        <iframe id="player-iframe" src="" allowfullscreen></iframe>
     </div>
 
     <script>
@@ -122,28 +96,46 @@
                 const container = document.getElementById('video-container');
                 let html = '';
                 
-                videos.forEach(vid => {
-                    html += `
-                        <div class="video-card" onclick="checkUnlock('${vid.video_url}')">
-                            <img src="${vid.thumbnail_url}" alt="Video">
-                            <div class="watch-btn">▶ Watch Now</div>
-                        </div>
-                    `;
-                });
+                if(videos.length === 0) {
+                    html = "<div style='grid-column: span 2; text-align:center;'>কোনো ভিডিও পাওয়া যায়নি! বট থেকে ভিডিও অ্যাড করুন।</div>";
+                } else {
+                    videos.forEach(vid => {
+                        html += `
+                            <div class="video-card" onclick="checkUnlock('${vid.video_url}')">
+                                <img src="${vid.thumbnail_url}" alt="Video">
+                                <div class="watch-btn">▶ Watch Now</div>
+                            </div>
+                        `;
+                    });
+                }
                 container.innerHTML = html;
             } catch (err) {
-                document.getElementById('video-container').innerHTML = "<div class='status-bar'>সার্ভার থেকে ভিডিও লোড হতে সমস্যা হচ্ছে! <br> Hugging Face স্পেসটি চালু আছে কিনা চেক করুন।</div>";
-                console.log(err);
+                document.getElementById('video-container').innerHTML = "<div class='status-bar'>সার্ভার থেকে ভিডিও লোড হতে সমস্যা হচ্ছে!</div>";
             }
         }
 
         function checkUnlock(videoUrl) {
             if (unlocked) {
-                // এটি গুগল ড্রাইভ এবং যেকোনো ওয়েবসাইট লিংক ওপেন করতে পারবে
-                tg.openLink(videoUrl);
+                // গুগল ড্রাইভ লিংককে iframe সাপোর্ট করার জন্য preview এ কনভার্ট করা
+                let embedUrl = videoUrl;
+                if(videoUrl.includes("drive.google.com") && videoUrl.includes("/view")) {
+                    embedUrl = videoUrl.replace(/\/view.*/, "/preview");
+                }
+                // ভিডিওটি প্লেয়ারের ভেতরে ওপেন হবে
+                openVideoPlayer(embedUrl);
             } else {
                 document.getElementById('shareModal').style.display = 'flex';
             }
+        }
+
+        function openVideoPlayer(url) {
+            document.getElementById('player-iframe').src = url;
+            document.getElementById('videoPlayerModal').style.display = 'flex';
+        }
+
+        function closePlayer() {
+            document.getElementById('player-iframe').src = "";
+            document.getElementById('videoPlayerModal').style.display = 'none';
         }
 
         function closeModal() { 
