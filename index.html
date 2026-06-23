@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Unlocker</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: sans-serif; background: #1a1a1a; color: white; text-align: center; padding: 20px; }
+        .btn { background: #0088cc; color: white; border: none; padding: 15px 30px; border-radius: 10px; cursor: pointer; font-size: 16px; margin-top: 20px; }
+        .status { margin-top: 20px; padding: 15px; border: 1px solid #444; border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <h2>🔓 Unlock Full Video</h2>
+    <div id="content">
+        <p>ভিডিওটি দেখতে ৩ জন বন্ধুকে জয়েন করাতে হবে।</p>
+        <div class="status" id="referral-status">Loading...</div>
+        <button class="btn" onclick="shareLink()">বন্ধুদের ইনভাইট করুন</button>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+        const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const userId = tg.initDataUnsafe.user.id;
+        const botUsername = 'YOUR_BOT_USERNAME';
+
+        async function checkReferrals() {
+            let { data, error } = await supabase
+                .from('referrals')
+                .select('referral_count')
+                .eq('user_id', userId)
+                .single();
+
+            const statusDiv = document.getElementById('referral-status');
+            const count = data ? data.referral_count : 0;
+
+            if (count < 3) {
+                statusDiv.innerHTML = `ইনভাইট করা হয়েছে: ${count}/৩ জন`;
+            } else {
+                statusDiv.innerHTML = `✅ ৩ জন ইনভাইট সম্পন্ন!<br><br><span style="color: #ffcc00;">অপেক্ষা করুন... তারা আপনার লিঙ্ক থেকে জয়েন করলে ভিডিওটি অটোমেটিক আনলক হবে।</span>`;
+                // এখানে আপনি চাইলে রিফ্রেশ বাটন দিতে পারেন
+            }
+        }
+
+        function shareLink() {
+            const shareUrl = `https://t.me/share/url?url=https://t.me/${botUsername}?start=${userId}&text=ভিডিওটি দেখতে এই লিঙ্কে ক্লিক করুন!`;
+            tg.openTelegramLink(shareUrl);
+        }
+
+        checkReferrals();
+        setInterval(checkReferrals, 5000); // প্রতি ৫ সেকেন্ড পর চেক করবে
+    </script>
+</body>
+</html>
