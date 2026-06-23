@@ -96,14 +96,29 @@
 
         function checkUnlock(videoUrl) {
             if (unlocked) {
-                // Bug fix: WebApp এর ভেতর window.location.href ব্যবহার করলে টেলিগ্রাম লিংক ঠিকমতো কাজ করে না। 
-                // তাই টেলিগ্রামের Native Method ব্যবহার করা হয়েছে।
                 tg.openTelegramLink(videoUrl);
             } else {
                 document.getElementById('shareModal').style.display = 'flex';
             }
         }
 
+        function closeModal() { 
+            document.getElementById('shareModal').style.display = 'none'; 
+        }
+
+        function shareLink() {
+            const shareText = "ভাইরাল ভিডিও গ্রুপে জয়েন করতে নিচের লিংকটাতে ক্লিক করো 👇👇👇";
+            const botUrl = `https://t.me/${botUsername}?start=${userId}`;
+            const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(botUrl)}&text=${encodeURIComponent(shareText)}`;
+            tg.openTelegramLink(shareUrl);
+        }
+
+        checkReferrals();
+        fetchVideos(); 
+        setInterval(checkReferrals, 5000); 
+    </script>
+</body>
+</html>
         function closeModal() { 
             document.getElementById('shareModal').style.display = 'none'; 
         }
