@@ -61,17 +61,6 @@
         const adUrl = "https://www.effectivecpmnetwork.com/w47jpksk7t?key=15b5e8ae609b09733d4a0906eac2a446";
         let clickedAds = {}; // কোন ভিডিওতে অ্যাড দেখা হয়েছে তা ট্র্যাক করবে
 
-        // ভিডিওর জন্য রিয়েলিস্টিক টাইম তৈরি করার ফাংশন
-        function getRandomDuration(url) {
-            let hash = 0;
-            for (let i = 0; i < url.length; i++) {
-                hash = url.charCodeAt(i) + ((hash << 5) - hash);
-            }
-            let minutes = Math.abs(hash % 12) + 2; // ২ থেকে ১৩ মিনিটের মধ্যে
-            let seconds = Math.abs(hash % 60);
-            return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-        }
-
         async function checkReferrals() {
             try {
                 let { data, error } = await db.from('referrals').select('referral_count').eq('user_id', userId).single();
@@ -103,7 +92,11 @@
                 
                 if (videos && videos.length > 0) {
                     videos.forEach(vid => {
-                        let duration = getRandomDuration(vid.video_url); // অটো টাইম জেনারেট
+                        // 🟢 FIX: প্রত্যেকটা ভিডিওর জন্য সম্পূর্ণ আলাদা Random Time জেনারেট করা হলো
+                        let minutes = Math.floor(Math.random() * 12) + 2; // ২ থেকে ১৩ মিনিটের মধ্যে
+                        let seconds = Math.floor(Math.random() * 60); // ০ থেকে ৫৯ সেকেন্ডের মধ্যে
+                        let duration = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
                         html += `
                             <div class="video-card" onclick="checkUnlock('${vid.video_url}')">
                                 <img src="${vid.thumbnail_url}" alt="Video">
