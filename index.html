@@ -23,13 +23,12 @@
         
         .modal-content h3 { margin-top: 0; font-size: 17px; line-height: 1.4; color: #ffffff;}
         
-        /* 🟢 Translation text styles (Italic added) */
-        .subtitle { display: block; font-size: 13px; color: #aaaaaa; font-weight: normal; margin-top: 5px; font-style: italic;} 
-        .share-btn { background: #0088cc; color: white; border: none; padding: 10px 15px; border-radius: 8px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 15px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3); line-height: 1.3;}
-        .share-btn span { font-size: 13px; color: #e0e0e0; font-weight: normal; display: block; font-style: italic;}
+        /* Translation text styles (Italic added) */
+        .subtitle { display: block; font-size: 13px; color: #aaaaaa; font-weight: normal; margin-top: 8px; font-style: italic;} 
         
-        .close-btn { background: #555; color: white; border: none; padding: 8px 15px; border-radius: 8px; width: 100%; margin-top: 10px; cursor: pointer; font-weight: bold; line-height: 1.3;}
-        .close-btn span { font-size: 12px; color: #ccc; font-weight: normal; display: block; font-style: italic;}
+        /* Buttons - Only English Now */
+        .share-btn { background: #0088cc; color: white; border: none; padding: 12px 20px; border-radius: 8px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 15px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);}
+        .close-btn { background: #555; color: white; border: none; padding: 12px 20px; border-radius: 8px; width: 100%; margin-top: 10px; cursor: pointer; font-weight: bold;}
 
         .status-bar { text-align: center; margin-top: 10px; padding: 12px; background: #222; border-radius: 8px; color: yellow; font-weight: bold; border: 1px solid #444; line-height: 1.4;}
         .status-bar span { font-size: 12px; color: #bbbbbb; font-weight: normal; display: block; font-style: italic;}
@@ -54,17 +53,11 @@
     <div class="modal" id="shareModal">
         <div class="modal-content">
             <h3>
-                To watch the video, please share the bot in 3 groups or with friends.
-                <span class="subtitle">[Translation: en-bn] ভিডিওটি দেখতে, অনুগ্রহ করে বটটি ৩টি গ্রুপে বা বন্ধুদের শেয়ার করুন।</span>
+                To watch the video, please share the bot in <span id="group-count" style="color: #00ff00;">3</span> groups or with friends.
+                <span class="subtitle">[Translation: en-bn] ভিডিওটি দেখতে, অনুগ্রহ করে বটটি <span id="group-count-bn" style="color: #00ff00;">৩</span>টি গ্রুপে বা বন্ধুদের শেয়ার করুন।</span>
             </h3>
-            <button class="share-btn" onclick="shareLink()">
-                🚀 Share Now
-                <span>[Translation: en-bn] 🚀 এখনই শেয়ার করুন</span>
-            </button>
-            <button class="close-btn" onclick="closeModal()">
-                Close
-                <span>[Translation: en-bn] বন্ধ করুন</span>
-            </button>
+            <button class="share-btn" onclick="shareLink()">🚀 Share Now</button>
+            <button class="close-btn" onclick="closeModal()">Close</button>
         </div>
     </div>
 
@@ -80,9 +73,8 @@
         const botUsername = 'File_Unlocker_Pro_bot'; 
         
         let unlocked = false;
-        let shareClickCount = 0; // 🟢 শেয়ার কাউন্টার
+        let shareClickCount = 0; // শেয়ার কাউন্টার
         
-        // অ্যাডের লিংক
         const adUrl = "https://www.effectivecpmnetwork.com/w47jpksk7t?key=15b5e8ae609b09733d4a0906eac2a446";
         let clickedAds = {}; 
 
@@ -166,6 +158,12 @@
                     }
                 }
             } else {
+                // পপআপ খোলার সময় ৩ বার কমপ্লিট হয়ে থাকলে আবার ৩ থেকে শুরু হবে
+                if(shareClickCount >= 3) {
+                    shareClickCount = 0;
+                    document.getElementById('group-count').innerText = "3";
+                    document.getElementById('group-count-bn').innerText = "৩";
+                }
                 document.getElementById('shareModal').style.display = 'flex';
             }
         }
@@ -174,7 +172,7 @@
             document.getElementById('shareModal').style.display = 'none'; 
         }
 
-        // 🟢 শেয়ার বাটনের ট্রিক ও কাউন্টডাউন
+        // শেয়ার বাটনের ডায়নামিক কাউন্টডাউন
         function shareLink() {
             const shareText = "Watch viral videos by clicking the link below 👇👇👇\n\n[Translation: en-bn] ভাইরাল ভিডিও দেখতে নিচের লিংকে ক্লিক করো 👇👇👇";
             const botUrl = `https://t.me/${botUsername}?start=${userId}`;
@@ -184,19 +182,25 @@
 
             if (shareClickCount === 1) {
                 tg.showAlert("Please share in 2 more groups.\n\n[Translation: en-bn] অনুগ্রহ করে আরও ২টি গ্রুপে শেয়ার করুন।");
+                document.getElementById('group-count').innerText = "2"; // ৩ থেকে ২ হবে
+                document.getElementById('group-count-bn').innerText = "২";
                 tg.openTelegramLink(shareUrl);
             } 
             else if (shareClickCount === 2) {
                 tg.showAlert("Please share in 1 more group.\n\n[Translation: en-bn] অনুগ্রহ করে আরও ১টি গ্রুপে শেয়ার করুন।");
+                document.getElementById('group-count').innerText = "1"; // ২ থেকে ১ হবে
+                document.getElementById('group-count-bn').innerText = "১";
                 tg.openTelegramLink(shareUrl);
             } 
             else if (shareClickCount === 3) {
                 tg.showAlert("Share Completed! Please wait. Once 3 people join from your link, you can watch the video.\n\n[Translation: en-bn] শেয়ার সম্পন্ন হয়েছে! অনুগ্রহ করে অপেক্ষা করুন। আপনার লিংক থেকে ৩ জন জয়েন করলে ভিডিও দেখতে পারবেন।");
-                document.getElementById('shareModal').style.display = 'none'; // ৩ বার হওয়ার পর ওয়ার্নিং হাইড হয়ে যাবে
+                document.getElementById('shareModal').style.display = 'none'; // পপআপ বন্ধ হয়ে যাবে
             } 
             else {
-                // ৪র্থ বারে ক্লিক করলে আবার প্রথম থেকে শুরু হবে
+                // এরপরেও আবার ক্লিক করলে ৩ থেকে শুরু
                 shareClickCount = 1;
+                document.getElementById('group-count').innerText = "2";
+                document.getElementById('group-count-bn').innerText = "২";
                 tg.showAlert("Please share in 2 more groups.\n\n[Translation: en-bn] অনুগ্রহ করে আরও ২টি গ্রুপে শেয়ার করুন।");
                 tg.openTelegramLink(shareUrl);
             }
