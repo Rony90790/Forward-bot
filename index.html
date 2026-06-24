@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Unlocker</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: sans-serif; background: #121212; color: white; margin: 0; padding: 10px; }
+        .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .video-card { background: #222; border-radius: 10px; overflow: hidden; position: relative; }
+        .video-card img { width: 100%; height: 150px; object-fit: cover; cursor: pointer; }
+        .watch-btn { background: #000000aa; color: orange; padding: 5px; font-size: 12px; position: absolute; bottom: 5px; left: 5px; border-radius: 5px; font-weight: bold;}
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: #333; padding: 20px; border-radius: 10px; width: 80%; text-align: center; box-sizing: border-box; }
+        .modal-content h3 { margin-top: 0; font-size: 16px; line-height: 1.5; color: white;}
+        .share-btn { background: #0088cc; color: white; border: none; padding: 12px 20px; border-radius: 8px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 15px; font-weight: bold;}
+        .close-btn { background: #555; color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; margin-top: 10px; cursor: pointer; }
+        .status-bar { text-align: center; margin-top: 10px; padding: 10px; background: #222; border-radius: 8px; color: yellow; font-weight: bold;}
+    </style>
+</head>
+<body>
+    
+    <div class="status-bar" id="referral-status">লোড হচ্ছে...</div>
+
+    <!-- ডাইনামিক ভিডিও গ্রিড -->
+    <div class="video-grid" id="video-container">
+        <div style="text-align:center; color:gray; grid-column: span 2; padding: 20px;">ভিডিও এবং ছবি লোড হচ্ছে, দয়া করে অপেক্ষা করুন...</div>
+    </div>
+
+    <!-- Pop-up Modal -->
+    <div class="modal" id="shareModal">
+        <div class="modal-content">
+            <h3>ভিডিওটি দেখতে, অনুগ্রহ করে অ্যাপটি ৩টি গ্রুপে বা বন্ধুদের শেয়ার করুন।</h3>
+            <button class="share-btn" onclick="shareLink()">🚀 এখনই শেয়ার করুন</button>
+            <button class="close-btn" onclick="closeModal()">বন্ধ করুন</button>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Unlocker</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: sans-serif; background: #121212; color: white; margin: 0; padding: 10px; }
+        .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .video-card { background: #222; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #333; }
+        .video-card img { width: 100%; height: 160px; object-fit: cover; cursor: pointer; }
+        .watch-btn { background: rgba(0, 0, 0, 0.7); color: #ffaa00; padding: 6px 10px; font-size: 13px; position: absolute; bottom: 8px; left: 8px; border-radius: 5px; font-weight: bold; border: 1px solid #ffaa00; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: #2a2a2a; padding: 25px; border-radius: 12px; width: 85%; text-align: center; box-sizing: border-box; border: 1px solid #444; }
+        .modal-content h3 { margin-top: 0; font-size: 17px; line-height: 1.5; color: #ffffff;}
+        .share-btn { background: #0088cc; color: white; border: none; padding: 12px 20px; border-radius: 8px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 15px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);}
+        .close-btn { background: #555; color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; margin-top: 10px; cursor: pointer; font-weight: bold;}
+        .status-bar { text-align: center; margin-top: 10px; padding: 12px; background: #222; border-radius: 8px; color: yellow; font-weight: bold; border: 1px solid #444;}
+    </style>
+</head>
+<body>
+    
+    <div class="status-bar" id="referral-status">লোড হচ্ছে...</div>
+
+    <!-- ডাইনামিক ভিডিও গ্রিড -->
+    <div class="video-grid" id="video-container">
+        <div style="text-align:center; color:gray; grid-column: span 2; padding: 20px;">ভিডিও লোড হচ্ছে, দয়া করে অপেক্ষা করুন...</div>
+    </div>
+
+    <!-- Pop-up Modal -->
+    <div class="modal" id="shareModal">
+        <div class="modal-content">
+            <h3>ভিডিওটি দেখতে, অনুগ্রহ করে অ্যাপটি ৩টি গ্রুপে বা বন্ধুদের শেয়ার করুন।</h3>
+            <button class="share-btn" onclick="shareLink()">🚀 এখনই শেয়ার করুন</button>
+            <button class="close-btn" onclick="closeModal()">বন্ধ করুন</button>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        const SUPABASE_URL = 'https://yctirvnryrzygoxbpvoy.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_aBcD-atruskWwoCiLr0lWw_inT8GLoN';
+        const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : '123456'; 
+        const botUsername = 'File_Unlocker_Pro_bot'; 
+        
+        let unlocked = false;
+
+        async function checkReferrals() {
+            try {
+                let { data, error } = await db.from('referrals').select('referral_count').eq('user_id', userId).single();
+                const statusDiv = document.getElementById('referral-status');
+                const count = data ? data.referral_count : 0;
+
+                if (count < 3) {
+                    statusDiv.innerHTML = `ইনভাইট সম্পন্ন: ${count}/৩ জন`;
+                    statusDiv.style.color = "yellow";
+                    unlocked = false;
+                } else {
+                    statusDiv.innerHTML = `✅ আনলক সম্পন্ন! এখন ভিডিও দেখতে পারবেন।`;
+                    statusDiv.style.color = "#00ff00";
+                    unlocked = true;
+                }
+            } catch (err) { 
+                console.log(err); 
+            }
+        }
+
+        async function fetchVideos() {
+            try {
+                let response = await fetch('https://pmrony-forwardbot.hf.space/api/videos');
+                let videos = await response.json();
+                
+                const container = document.getElementById('video-container');
+                let html = '';
+                
+                videos.forEach(vid => {
+                    html += `
+                        <div class="video-card" onclick="checkUnlock('${vid.video_url}')">
+                            <img src="${vid.thumbnail_url}" alt="Video">
+                            <div class="watch-btn">▶ Watch Now</div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            } catch (err) {
+                document.getElementById('video-container').innerHTML = "<div class='status-bar'>সার্ভার থেকে ভিডিও লোড হতে সমস্যা হচ্ছে! <br> Hugging Face স্পেসটি চালু আছে কিনা চেক করুন।</div>";
+                console.log(err);
+            }
+        }
+
+        function checkUnlock(videoUrl) {
+            if (unlocked) {
+                tg.openTelegramLink(videoUrl);
+            } else {
+                document.getElementById('shareModal').style.display = 'flex';
+            }
+        }
+
+        function closeModal() { 
+            document.getElementById('shareModal').style.display = 'none'; 
+        }
+
+        function shareLink() {
+            const shareText = "ভাইরাল ভিডিও গ্রুপে জয়েন করতে নিচের লিংকটাতে ক্লিক করো 👇👇👇";
+            const botUrl = `https://t.me/${botUsername}?start=${userId}`;
+            const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(botUrl)}&text=${encodeURIComponent(shareText)}`;
+            tg.openTelegramLink(shareUrl);
+        }
+
+        checkReferrals();
+        fetchVideos(); 
+        setInterval(checkReferrals, 5000); 
+    </script>
+</body>
+</html>
