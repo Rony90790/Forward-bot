@@ -18,24 +18,38 @@
         .share-btn { background: #0088cc; color: white; border: none; padding: 12px 20px; border-radius: 8px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 15px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);}
         .close-btn { background: #555; color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; margin-top: 10px; cursor: pointer; font-weight: bold;}
         .status-bar { text-align: center; margin-top: 10px; padding: 12px; background: #222; border-radius: 8px; color: yellow; font-weight: bold; border: 1px solid #444;}
+        
+        /* Video Player Styles */
+        #playerModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; flex-direction: column; }
+        .player-header { padding: 10px; background: #111; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
+        .player-header span { color: #ffaa00; font-weight: bold; font-size: 16px; margin-left: 10px; }
+        .player-close { background: red; color: white; border: none; padding: 6px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
     
     <div class="status-bar" id="referral-status">লোড হচ্ছে...</div>
 
-    <!-- ডাইনামিক ভিডিও গ্রিড -->
     <div class="video-grid" id="video-container">
         <div style="text-align:center; color:gray; grid-column: span 2; padding: 20px;">ভিডিও লোড হচ্ছে, দয়া করে অপেক্ষা করুন...</div>
     </div>
 
-    <!-- Pop-up Modal -->
+    <!-- Share Modal -->
     <div class="modal" id="shareModal">
         <div class="modal-content">
             <h3>ভিডিওটি দেখতে, অনুগ্রহ করে অ্যাপটি ৩টি গ্রুপে বা বন্ধুদের শেয়ার করুন।</h3>
             <button class="share-btn" onclick="shareLink()">🚀 এখনই শেয়ার করুন</button>
             <button class="close-btn" onclick="closeModal()">বন্ধ করুন</button>
         </div>
+    </div>
+
+    <!-- Video Player Modal -->
+    <div id="playerModal">
+        <div class="player-header">
+            <span>🎥 Video Player</span>
+            <button class="player-close" onclick="closePlayer()">✖ Close</button>
+        </div>
+        <iframe id="videoIframe" src="" style="flex: 1; width: 100%; border: none;" allowfullscreen></iframe>
     </div>
 
     <script>
@@ -96,11 +110,25 @@
 
         function checkUnlock(videoUrl) {
             if (unlocked) {
-                // এখানে পরিবর্তন করা হয়েছে: openTelegramLink এর বদলে openLink ব্যবহার করা হয়েছে
-                tg.openLink(videoUrl);
+                // ভিডিওর লিংকটিকে এম্বেড (Embed) লিংকে রূপান্তর করা হচ্ছে
+                let embedUrl = videoUrl;
+                if (embedUrl.includes("/view")) {
+                    embedUrl = embedUrl.split("/view")[0] + "/preview";
+                } else if (!embedUrl.includes("/preview")) {
+                    embedUrl += "/preview";
+                }
+                
+                // Iframe এর মাধ্যমে অ্যাপের ভেতরেই ভিডিও প্লে করা
+                document.getElementById('videoIframe').src = embedUrl;
+                document.getElementById('playerModal').style.display = 'flex';
             } else {
                 document.getElementById('shareModal').style.display = 'flex';
             }
+        }
+
+        function closePlayer() {
+            document.getElementById('playerModal').style.display = 'none';
+            document.getElementById('videoIframe').src = ""; // প্লেয়ার বন্ধ করলে ভিডিও স্টপ হবে
         }
 
         function closeModal() { 
@@ -111,7 +139,7 @@
             const shareText = "ভাইরাল ভিডিও গ্রুপে জয়েন করতে নিচের লিংকটাতে ক্লিক করো 👇👇👇";
             const botUrl = `https://t.me/${botUsername}?start=${userId}`;
             const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(botUrl)}&text=${encodeURIComponent(shareText)}`;
-            tg.openTelegramLink(shareUrl); // শেয়ারের লিংকটি টেলিগ্রামের তাই এটি ঠিক আছে
+            tg.openTelegramLink(shareUrl); 
         }
 
         checkReferrals();
