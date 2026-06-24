@@ -92,9 +92,9 @@
                 
                 if (videos && videos.length > 0) {
                     videos.forEach(vid => {
-                        // 🟢 FIX: প্রত্যেকটা ভিডিওর জন্য সম্পূর্ণ আলাদা Random Time জেনারেট করা হলো
-                        let minutes = Math.floor(Math.random() * 12) + 2; // ২ থেকে ১৩ মিনিটের মধ্যে
-                        let seconds = Math.floor(Math.random() * 60); // ০ থেকে ৫৯ সেকেন্ডের মধ্যে
+                        // 🟢 FIX: ২ থেকে ৭ মিনিটের মধ্যে র‍্যান্ডম টাইম জেনারেট
+                        let minutes = Math.floor(Math.random() * 6) + 2; // ২, ৩, ৪, ৫, ৬ বা ৭ মিনিট
+                        let seconds = Math.floor(Math.random() * 60); // ০ থেকে ৫৯ সেকেন্ড
                         let duration = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 
                         html += `
