@@ -11,7 +11,13 @@
         .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
         .video-card { background: #222; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #333; }
         .video-card img { width: 100%; height: 160px; object-fit: cover; cursor: pointer; }
+        
+        /* Watch Now Button - Left Side */
         .watch-btn { background: rgba(0, 0, 0, 0.7); color: #ffaa00; padding: 6px 10px; font-size: 13px; position: absolute; bottom: 8px; left: 8px; border-radius: 5px; font-weight: bold; border: 1px solid #ffaa00; }
+        
+        /* Duration Badge - Right Side */
+        .duration-badge { background: rgba(0, 0, 0, 0.85); color: white; padding: 4px 6px; font-size: 12px; position: absolute; bottom: 8px; right: 8px; border-radius: 5px; font-weight: bold; border: 1px solid #444; }
+
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: #2a2a2a; padding: 25px; border-radius: 12px; width: 85%; text-align: center; box-sizing: border-box; border: 1px solid #444; }
         .modal-content h3 { margin-top: 0; font-size: 17px; line-height: 1.5; color: #ffffff;}
@@ -50,6 +56,21 @@
         const botUsername = 'File_Unlocker_Pro_bot'; 
         
         let unlocked = false;
+        
+        // অ্যাডের লিংক
+        const adUrl = "https://www.effectivecpmnetwork.com/w47jpksk7t?key=15b5e8ae609b09733d4a0906eac2a446";
+        let clickedAds = {}; // কোন ভিডিওতে অ্যাড দেখা হয়েছে তা ট্র্যাক করবে
+
+        // ভিডিওর জন্য রিয়েলিস্টিক টাইম তৈরি করার ফাংশন
+        function getRandomDuration(url) {
+            let hash = 0;
+            for (let i = 0; i < url.length; i++) {
+                hash = url.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            let minutes = Math.abs(hash % 12) + 2; // ২ থেকে ১৩ মিনিটের মধ্যে
+            let seconds = Math.abs(hash % 60);
+            return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
 
         async function checkReferrals() {
             try {
@@ -71,7 +92,6 @@
             }
         }
 
-        // 🟢 FIX: সরাসরি Supabase থেকে ভিডিও লোড করা হয়েছে (Flask API দরকার নেই)
         async function fetchVideos() {
             try {
                 let { data: videos, error } = await db.from('videos').select('*').order('id', { ascending: false });
@@ -83,10 +103,12 @@
                 
                 if (videos && videos.length > 0) {
                     videos.forEach(vid => {
+                        let duration = getRandomDuration(vid.video_url); // অটো টাইম জেনারেট
                         html += `
                             <div class="video-card" onclick="checkUnlock('${vid.video_url}')">
                                 <img src="${vid.thumbnail_url}" alt="Video">
                                 <div class="watch-btn">▶ Watch Now</div>
+                                <div class="duration-badge">${duration}</div>
                             </div>
                         `;
                     });
@@ -102,7 +124,18 @@
 
         function checkUnlock(videoUrl) {
             if (unlocked) {
-                tg.openTelegramLink(videoUrl);
+                // যদি এই ভিডিওতে আগে অ্যাড ক্লিক না করা হয়ে থাকে
+                if (!clickedAds[videoUrl]) {
+                    clickedAds[videoUrl] = true; // অ্যাড দেখা মার্ক করা হলো
+                    tg.openLink(adUrl); // Ad লিংক ওপেন হবে
+                } else {
+                    // ২য় বারে আসল ভিডিও ওপেন হবে
+                    if (videoUrl.includes('t.me') || videoUrl.includes('telegram.me')) {
+                        tg.openTelegramLink(videoUrl); 
+                    } else {
+                        tg.openLink(videoUrl); 
+                    }
+                }
             } else {
                 document.getElementById('shareModal').style.display = 'flex';
             }
