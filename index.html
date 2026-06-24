@@ -7,10 +7,20 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: sans-serif; background: #121212; color: white; margin: 0; padding: 10px; }
+        body { 
+            font-family: sans-serif; background: #121212; color: white; margin: 0; padding: 10px; 
+            /* 🟢 ছবি এবং টেক্সট সিলেক্ট করা বন্ধ */
+            -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+        }
         .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-        .video-card { background: #222; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #333; }
-        .video-card img { width: 100%; height: 160px; object-fit: cover; cursor: pointer; }
+        .video-card { background: #222; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #333; cursor: pointer; }
+        
+        .video-card img { 
+            width: 100%; height: 160px; object-fit: cover; 
+            /* 🟢 ছবির ওপর ক্লিক বা ড্র্যাগ করা বন্ধ */
+            pointer-events: none; 
+            -webkit-touch-callout: none; 
+        }
         
         /* Views Badge - Top Right Side */
         .views-badge { background: rgba(0, 0, 0, 0.6); color: white; padding: 4px 6px; font-size: 11px; position: absolute; top: 8px; right: 8px; border-radius: 5px; font-weight: bold; display: flex; align-items: center; gap: 4px; border: 1px solid #444;}
@@ -25,11 +35,8 @@
         .modal-content { background: #2a2a2a; padding: 25px; border-radius: 12px; width: 85%; text-align: center; box-sizing: border-box; border: 1px solid #444; }
         
         .modal-content h3 { margin-top: 0; font-size: 17px; line-height: 1.4; color: #ffffff;}
-        
-        /* Translation text styles (Italic added) */
         .subtitle { display: block; font-size: 13px; color: #aaaaaa; font-weight: normal; margin-top: 8px; font-style: italic;} 
         
-        /* Buttons - Only English Now */
         .share-btn { background: #0088cc; color: white; border: none; padding: 12px 20px; border-radius: 8px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 15px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);}
         .close-btn { background: #555; color: white; border: none; padding: 12px 20px; border-radius: 8px; width: 100%; margin-top: 10px; cursor: pointer; font-weight: bold;}
 
@@ -37,7 +44,7 @@
         .status-bar span { font-size: 12px; color: #bbbbbb; font-weight: normal; display: block; font-style: italic;}
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;"> <!-- 🟢 রাইট ক্লিক বন্ধ -->
     
     <div class="status-bar" id="referral-status">
         Loading...
@@ -76,7 +83,7 @@
         const botUsername = 'File_Unlocker_Pro_bot'; 
         
         let unlocked = false;
-        let shareClickCount = 0; // শেয়ার কাউন্টার
+        let shareClickCount = 0; 
         
         const adUrl = "https://www.effectivecpmnetwork.com/w47jpksk7t?key=15b5e8ae609b09733d4a0906eac2a446";
         let clickedAds = {}; 
@@ -117,18 +124,15 @@
                 
                 if (videos && videos.length > 0) {
                     videos.forEach(vid => {
-                        // ২ থেকে ৭ মিনিটের মধ্যে র‍্যান্ডম টাইম জেনারেট
                         let minutes = Math.floor(Math.random() * 6) + 2; 
                         let seconds = Math.floor(Math.random() * 60); 
                         let duration = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-
-                        // 🟢 ৫০০ থেকে ৬০০ এর মধ্যে র‍্যান্ডম ভিউ জেনারেট
                         let views = Math.floor(Math.random() * 101) + 500; 
 
                         html += `
                             <div class="video-card" onclick="checkUnlock('${vid.video_url}')">
-                                <img src="${vid.thumbnail_url}" alt="Video">
-                                <div class="views-badge">👁️ ${views}</div> <!-- Views Icon Added -->
+                                <img src="${vid.thumbnail_url}" alt="Video" draggable="false"> <!-- 🟢 ড্র্যাগ বন্ধ -->
+                                <div class="views-badge">👁️ ${views}</div> 
                                 <div class="watch-btn">▶ Watch Now</div>
                                 <div class="duration-badge">${duration}</div>
                             </div>
