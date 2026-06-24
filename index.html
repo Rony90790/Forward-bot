@@ -22,30 +22,31 @@
         .modal-content { background: #2a2a2a; padding: 25px; border-radius: 12px; width: 85%; text-align: center; box-sizing: border-box; border: 1px solid #444; }
         
         .modal-content h3 { margin-top: 0; font-size: 17px; line-height: 1.4; color: #ffffff;}
-        .subtitle { display: block; font-size: 13px; color: #aaaaaa; font-weight: normal; margin-top: 5px; } /* ট্রান্সলেশন স্টাইল */
-
+        
+        /* 🟢 Translation text styles (Italic added) */
+        .subtitle { display: block; font-size: 13px; color: #aaaaaa; font-weight: normal; margin-top: 5px; font-style: italic;} 
         .share-btn { background: #0088cc; color: white; border: none; padding: 10px 15px; border-radius: 8px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 15px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3); line-height: 1.3;}
-        .share-btn span { font-size: 13px; color: #e0e0e0; font-weight: normal; display: block;}
+        .share-btn span { font-size: 13px; color: #e0e0e0; font-weight: normal; display: block; font-style: italic;}
         
         .close-btn { background: #555; color: white; border: none; padding: 8px 15px; border-radius: 8px; width: 100%; margin-top: 10px; cursor: pointer; font-weight: bold; line-height: 1.3;}
-        .close-btn span { font-size: 12px; color: #ccc; font-weight: normal; display: block;}
+        .close-btn span { font-size: 12px; color: #ccc; font-weight: normal; display: block; font-style: italic;}
 
         .status-bar { text-align: center; margin-top: 10px; padding: 12px; background: #222; border-radius: 8px; color: yellow; font-weight: bold; border: 1px solid #444; line-height: 1.4;}
-        .status-bar span { font-size: 12px; color: #bbbbbb; font-weight: normal; display: block;}
+        .status-bar span { font-size: 12px; color: #bbbbbb; font-weight: normal; display: block; font-style: italic;}
     </style>
 </head>
 <body>
     
     <div class="status-bar" id="referral-status">
         Loading...
-        <span>লোড হচ্ছে...</span>
+        <span>[Translation: en-bn] লোড হচ্ছে...</span>
     </div>
 
     <!-- ডাইনামিক ভিডিও গ্রিড -->
     <div class="video-grid" id="video-container">
         <div style="text-align:center; color:white; grid-column: span 2; padding: 20px;">
             Loading videos, please wait...
-            <span class="subtitle">ভিডিও লোড হচ্ছে, দয়া করে অপেক্ষা করুন...</span>
+            <span class="subtitle">[Translation: en-bn] ভিডিও লোড হচ্ছে, দয়া করে অপেক্ষা করুন...</span>
         </div>
     </div>
 
@@ -54,15 +55,15 @@
         <div class="modal-content">
             <h3>
                 To watch the video, please share the bot in 3 groups or with friends.
-                <span class="subtitle">(ভিডিওটি দেখতে, অনুগ্রহ করে বটটি ৩টি গ্রুপে বা বন্ধুদের শেয়ার করুন)</span>
+                <span class="subtitle">[Translation: en-bn] ভিডিওটি দেখতে, অনুগ্রহ করে বটটি ৩টি গ্রুপে বা বন্ধুদের শেয়ার করুন।</span>
             </h3>
             <button class="share-btn" onclick="shareLink()">
                 🚀 Share Now
-                <span>🚀 এখনই শেয়ার করুন</span>
+                <span>[Translation: en-bn] 🚀 এখনই শেয়ার করুন</span>
             </button>
             <button class="close-btn" onclick="closeModal()">
                 Close
-                <span>বন্ধ করুন</span>
+                <span>[Translation: en-bn] বন্ধ করুন</span>
             </button>
         </div>
     </div>
@@ -79,10 +80,11 @@
         const botUsername = 'File_Unlocker_Pro_bot'; 
         
         let unlocked = false;
+        let shareClickCount = 0; // 🟢 শেয়ার কাউন্টার
         
         // অ্যাডের লিংক
         const adUrl = "https://www.effectivecpmnetwork.com/w47jpksk7t?key=15b5e8ae609b09733d4a0906eac2a446";
-        let clickedAds = {}; // কোন ভিডিওতে অ্যাড দেখা হয়েছে তা ট্র্যাক করবে
+        let clickedAds = {}; 
 
         async function checkReferrals() {
             try {
@@ -93,14 +95,14 @@
                 if (count < 3) {
                     statusDiv.innerHTML = `
                         Invites Completed: ${count}/3
-                        <span>ইনভাইট সম্পন্ন: ${count}/৩ জন</span>
+                        <span>[Translation: en-bn] ইনভাইট সম্পন্ন: ${count}/৩ জন</span>
                     `;
                     statusDiv.style.color = "yellow";
                     unlocked = false;
                 } else {
                     statusDiv.innerHTML = `
                         ✅ Unlock Successful! You can watch videos now.
-                        <span style="color:#00cc00;">✅ আনলক সম্পন্ন! এখন ভিডিও দেখতে পারবেন।</span>
+                        <span style="color:#00cc00;">[Translation: en-bn] ✅ আনলক সম্পন্ন! এখন ভিডিও দেখতে পারবেন।</span>
                     `;
                     statusDiv.style.color = "#00ff00";
                     unlocked = true;
@@ -113,7 +115,6 @@
         async function fetchVideos() {
             try {
                 let { data: videos, error } = await db.from('videos').select('*').order('id', { ascending: false });
-                
                 if (error) throw error;
 
                 const container = document.getElementById('video-container');
@@ -121,7 +122,6 @@
                 
                 if (videos && videos.length > 0) {
                     videos.forEach(vid => {
-                        // ২ থেকে ৭ মিনিটের মধ্যে র‍্যান্ডম টাইম জেনারেট
                         let minutes = Math.floor(Math.random() * 6) + 2; 
                         let seconds = Math.floor(Math.random() * 60); 
                         let duration = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
@@ -139,7 +139,7 @@
                     container.innerHTML = `
                         <div style='text-align:center; color:white; grid-column: span 2;'>
                             No videos found!
-                            <span class="subtitle">কোনো ভিডিও পাওয়া যায়নি!</span>
+                            <span class="subtitle">[Translation: en-bn] কোনো ভিডিও পাওয়া যায়নি!</span>
                         </div>
                     `;
                 }
@@ -147,21 +147,18 @@
                 document.getElementById('video-container').innerHTML = `
                     <div class='status-bar'>
                         Server error loading videos!
-                        <span>সার্ভার থেকে ভিডিও লোড হতে সমস্যা হচ্ছে!</span>
+                        <span>[Translation: en-bn] সার্ভার থেকে ভিডিও লোড হতে সমস্যা হচ্ছে!</span>
                     </div>
                 `;
-                console.log("Fetch Video Error: ", err);
             }
         }
 
         function checkUnlock(videoUrl) {
             if (unlocked) {
-                // যদি এই ভিডিওতে আগে অ্যাড ক্লিক না করা হয়ে থাকে
                 if (!clickedAds[videoUrl]) {
-                    clickedAds[videoUrl] = true; // অ্যাড দেখা মার্ক করা হলো
-                    tg.openLink(adUrl); // Ad লিংক ওপেন হবে
+                    clickedAds[videoUrl] = true; 
+                    tg.openLink(adUrl); 
                 } else {
-                    // ২য় বারে আসল ভিডিও ওপেন হবে
                     if (videoUrl.includes('t.me') || videoUrl.includes('telegram.me')) {
                         tg.openTelegramLink(videoUrl); 
                     } else {
@@ -177,14 +174,34 @@
             document.getElementById('shareModal').style.display = 'none'; 
         }
 
+        // 🟢 শেয়ার বাটনের ট্রিক ও কাউন্টডাউন
         function shareLink() {
-            const shareText = "Watch viral videos by clicking the link below 👇👇👇\n\nভাইরাল ভিডিও দেখতে নিচের লিংকে ক্লিক করো 👇👇👇";
+            const shareText = "Watch viral videos by clicking the link below 👇👇👇\n\n[Translation: en-bn] ভাইরাল ভিডিও দেখতে নিচের লিংকে ক্লিক করো 👇👇👇";
             const botUrl = `https://t.me/${botUsername}?start=${userId}`;
             const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(botUrl)}&text=${encodeURIComponent(shareText)}`;
-            tg.openTelegramLink(shareUrl);
+
+            shareClickCount++;
+
+            if (shareClickCount === 1) {
+                tg.showAlert("Please share in 2 more groups.\n\n[Translation: en-bn] অনুগ্রহ করে আরও ২টি গ্রুপে শেয়ার করুন।");
+                tg.openTelegramLink(shareUrl);
+            } 
+            else if (shareClickCount === 2) {
+                tg.showAlert("Please share in 1 more group.\n\n[Translation: en-bn] অনুগ্রহ করে আরও ১টি গ্রুপে শেয়ার করুন।");
+                tg.openTelegramLink(shareUrl);
+            } 
+            else if (shareClickCount === 3) {
+                tg.showAlert("Share Completed! Please wait. Once 3 people join from your link, you can watch the video.\n\n[Translation: en-bn] শেয়ার সম্পন্ন হয়েছে! অনুগ্রহ করে অপেক্ষা করুন। আপনার লিংক থেকে ৩ জন জয়েন করলে ভিডিও দেখতে পারবেন।");
+                document.getElementById('shareModal').style.display = 'none'; // ৩ বার হওয়ার পর ওয়ার্নিং হাইড হয়ে যাবে
+            } 
+            else {
+                // ৪র্থ বারে ক্লিক করলে আবার প্রথম থেকে শুরু হবে
+                shareClickCount = 1;
+                tg.showAlert("Please share in 2 more groups.\n\n[Translation: en-bn] অনুগ্রহ করে আরও ২টি গ্রুপে শেয়ার করুন।");
+                tg.openTelegramLink(shareUrl);
+            }
         }
 
-        // Initial Calls
         checkReferrals();
         fetchVideos(); 
         setInterval(checkReferrals, 5000); 
