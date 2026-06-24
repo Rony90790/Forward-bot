@@ -3,53 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Unlocker</title>
+    <title>Video Unlocker Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: sans-serif; background: #121212; color: white; margin: 0; padding: 10px; }
+        body { font-family: sans-serif; background: #000; color: white; margin: 0; padding: 10px; }
         .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
         .video-card { background: #222; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #333; }
         .video-card img { width: 100%; height: 160px; object-fit: cover; cursor: pointer; }
         .watch-btn { background: rgba(0, 0, 0, 0.7); color: #ffaa00; padding: 6px 10px; font-size: 13px; position: absolute; bottom: 8px; left: 8px; border-radius: 5px; font-weight: bold; border: 1px solid #ffaa00; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: #2a2a2a; padding: 25px; border-radius: 12px; width: 85%; text-align: center; box-sizing: border-box; border: 1px solid #444; }
-        .modal-content h3 { margin-top: 0; font-size: 17px; line-height: 1.5; color: #ffffff;}
-        .share-btn { background: #0088cc; color: white; border: none; padding: 12px 20px; border-radius: 8px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 15px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);}
-        .close-btn { background: #555; color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; margin-top: 10px; cursor: pointer; font-weight: bold;}
-        .status-bar { text-align: center; margin-top: 10px; padding: 12px; background: #222; border-radius: 8px; color: yellow; font-weight: bold; border: 1px solid #444;}
         
-        /* Video Player Styles */
-        #playerModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; flex-direction: column; }
-        .player-header { padding: 10px; background: #111; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
-        .player-header span { color: #ffaa00; font-weight: bold; font-size: 16px; margin-left: 10px; }
-        .player-close { background: red; color: white; border: none; padding: 6px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        /* Status Bar */
+        .status-bar { text-align: center; margin-bottom: 10px; padding: 12px; background: #111; border-radius: 8px; color: yellow; font-weight: bold; border: 1px solid #333;}
+
+        /* Modern Native Player Modal */
+        #playerModal { 
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: #000; 
+            z-index: 2000; 
+            flex-direction: column; 
+            justify-content: center;
+        }
+        .player-header { 
+            position: absolute; top: 0; width: 100%;
+            padding: 15px; background: rgba(0,0,0,0.6); 
+            display: flex; justify-content: space-between; align-items: center;
+            box-sizing: border-box; z-index: 2010;
+        }
+        .player-close { background: #ff4444; color: white; border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer;}
+        
+        video { width: 100%; max-height: 100vh; background: #000; }
+
+        /* Share Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: #2a2a2a; padding: 25px; border-radius: 12px; width: 85%; text-align: center; border: 1px solid #444; }
+        .share-btn { background: #0088cc; color: white; border: none; padding: 12px 20px; border-radius: 8px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 15px; font-weight: bold; }
+        .close-btn { background: #555; color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; margin-top: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
     
     <div class="status-bar" id="referral-status">লোড হচ্ছে...</div>
-
-    <div class="video-grid" id="video-container">
-        <div style="text-align:center; color:gray; grid-column: span 2; padding: 20px;">ভিডিও লোড হচ্ছে, দয়া করে অপেক্ষা করুন...</div>
-    </div>
+    <div class="video-grid" id="video-container"></div>
 
     <!-- Share Modal -->
     <div class="modal" id="shareModal">
         <div class="modal-content">
-            <h3>ভিডিওটি দেখতে, অনুগ্রহ করে অ্যাপটি ৩টি গ্রুপে বা বন্ধুদের শেয়ার করুন।</h3>
+            <h3>ভিডিওটি দেখতে, ৩টি গ্রুপে শেয়ার করুন।</h3>
             <button class="share-btn" onclick="shareLink()">🚀 এখনই শেয়ার করুন</button>
             <button class="close-btn" onclick="closeModal()">বন্ধ করুন</button>
         </div>
     </div>
 
-    <!-- Video Player Modal -->
+    <!-- Native Player Modal (No Iframe) -->
     <div id="playerModal">
         <div class="player-header">
-            <span>🎥 Video Player</span>
+            <span style="color: #ffaa00; font-weight: bold;">🎥 Full Screen Player</span>
             <button class="player-close" onclick="closePlayer()">✖ Close</button>
         </div>
-        <iframe id="videoIframe" src="" style="flex: 1; width: 100%; border: none;" allowfullscreen></iframe>
+        <!-- সরাসরি ভিডিও ট্যাগ, এতে গুগল ড্রাইভের কোনো ইন্টারফেস আসবে না -->
+        <video id="mainVideo" controls playsinline controlsList="nodownload"></video>
     </div>
 
     <script>
@@ -62,89 +78,81 @@
 
         const userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : '123456'; 
         const botUsername = 'File_Unlocker_Pro_bot'; 
-        
         let unlocked = false;
 
         async function checkReferrals() {
             try {
-                let { data, error } = await db.from('referrals').select('referral_count').eq('user_id', userId).single();
+                let { data } = await db.from('referrals').select('referral_count').eq('user_id', userId).single();
                 const statusDiv = document.getElementById('referral-status');
                 const count = data ? data.referral_count : 0;
-
                 if (count < 3) {
                     statusDiv.innerHTML = `ইনভাইট সম্পন্ন: ${count}/৩ জন`;
                     statusDiv.style.color = "yellow";
                     unlocked = false;
                 } else {
-                    statusDiv.innerHTML = `✅ আনলক সম্পন্ন! এখন ভিডিও দেখতে পারবেন।`;
+                    statusDiv.innerHTML = `✅ আনলক সম্পন্ন! এখন ভিডিও দেখুন।`;
                     statusDiv.style.color = "#00ff00";
                     unlocked = true;
                 }
-            } catch (err) { 
-                console.log(err); 
-            }
+            } catch (err) {}
         }
 
         async function fetchVideos() {
             try {
                 let response = await fetch('https://pmrony-forwardbot.hf.space/api/videos');
                 let videos = await response.json();
-                
                 const container = document.getElementById('video-container');
-                let html = '';
-                
-                videos.forEach(vid => {
-                    html += `
-                        <div class="video-card" onclick="checkUnlock('${vid.video_url}')">
-                            <img src="${vid.thumbnail_url}" alt="Video">
-                            <div class="watch-btn">▶ Watch Now</div>
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
-            } catch (err) {
-                document.getElementById('video-container').innerHTML = "<div class='status-bar'>সার্ভার থেকে ভিডিও লোড হতে সমস্যা হচ্ছে! <br> আপনার API লিংকটি চেক করুন।</div>";
-                console.log(err);
-            }
+                container.innerHTML = videos.map(vid => `
+                    <div class="video-card" onclick="checkUnlock('${vid.video_url}')">
+                        <img src="${vid.thumbnail_url}">
+                        <div class="watch-btn">▶ Watch Now</div>
+                    </div>
+                `).join('');
+            } catch (err) {}
         }
 
         function checkUnlock(videoUrl) {
             if (unlocked) {
-                // ভিডিওর লিংকটিকে এম্বেড (Embed) লিংকে রূপান্তর করা হচ্ছে
-                let embedUrl = videoUrl;
-                if (embedUrl.includes("/view")) {
-                    embedUrl = embedUrl.split("/view")[0] + "/preview";
-                } else if (!embedUrl.includes("/preview")) {
-                    embedUrl += "/preview";
+                let fileId = "";
+                // গুগল ড্রাইভ লিংক থেকে ID বের করা
+                if(videoUrl.includes("/d/")) {
+                    fileId = videoUrl.split("/d/")[1].split("/")[0];
+                } else if(videoUrl.includes("id=")) {
+                    fileId = videoUrl.split("id=")[1].split("&")[0];
                 }
-                
-                // Iframe এর মাধ্যমে অ্যাপের ভেতরেই ভিডিও প্লে করা
-                document.getElementById('videoIframe').src = embedUrl;
-                document.getElementById('playerModal').style.display = 'flex';
+
+                if(fileId) {
+                    // ডাইরেক্ট ভিডিও স্ট্রিমিং লিংক (গুগল ড্রাইভ প্লেয়ার বাইপাস)
+                    const directUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+                    const video = document.getElementById('mainVideo');
+                    video.src = directUrl;
+                    document.getElementById('playerModal').style.display = 'flex';
+                    video.play();
+                } else {
+                    tg.openLink(videoUrl);
+                }
             } else {
                 document.getElementById('shareModal').style.display = 'flex';
             }
         }
 
         function closePlayer() {
+            const video = document.getElementById('mainVideo');
+            video.pause();
+            video.src = "";
             document.getElementById('playerModal').style.display = 'none';
-            document.getElementById('videoIframe').src = ""; // প্লেয়ার বন্ধ করলে ভিডিও স্টপ হবে
         }
 
-        function closeModal() { 
-            document.getElementById('shareModal').style.display = 'none'; 
-        }
+        function closeModal() { document.getElementById('shareModal').style.display = 'none'; }
 
         function shareLink() {
-            const shareText = "ভাইরাল ভিডিও গ্রুপে জয়েন করতে নিচের লিংকটাতে ক্লিক করো 👇👇👇";
             const botUrl = `https://t.me/${botUsername}?start=${userId}`;
-            const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(botUrl)}&text=${encodeURIComponent(shareText)}`;
-            tg.openTelegramLink(shareUrl); 
+            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(botUrl)}&text=ভাইরাল ভিডিও দেখতে এখানে ক্লিক করো 👇`);
         }
 
         checkReferrals();
-        fetchVideos(); 
-        setInterval(checkReferrals, 5000); 
+        fetchVideos();
+        setInterval(checkReferrals, 5000);
     </script>
 </body>
 </html>
