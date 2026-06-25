@@ -140,23 +140,41 @@
         }
 
         function checkUnlock(element) {
-            const videoUrl = element.getAttribute('data-url');
-            currentNeededRef = parseInt(element.getAttribute('data-needed-ref') || "3");
+    const videoUrl = element.getAttribute('data-url');
+    currentNeededRef = parseInt(element.getAttribute('data-needed-ref') || "3");
 
-            if (currentNeededRef === 0 || dbRefcount >= currentNeededRef) {
-                if (!clickedAds[videoUrl]) { clickedAds[videoUrl] = true; tg.openLink(adUrl); } 
-                else {
-                    const playerWrapper = document.getElementById('player-wrapper');
-                    playerWrapper.innerHTML = `
-                        <button class="close-player-btn" onclick="closePlayer()">❌ Close Video</button>
-                        <iframe src="${videoUrl}" allowfullscreen="true" scrolling="no"></iframe>
-                    `;
-                    playerWrapper.style.display = 'block';
-                }
+    if (currentNeededRef === 0 || dbRefcount >= currentNeededRef) {
+        if (!clickedAds[videoUrl]) { 
+            clickedAds[videoUrl] = true; 
+            tg.openLink(adUrl); // আপনার নিজের অ্যাড ওপেন হবে
+        } else {
+            const playerWrapper = document.getElementById('player-wrapper');
+            
+            // 🟢 চেক করা হচ্ছে এটি ডাইরেক্ট লিঙ্ক (.mp4) নাকি ডুডস্ট্রিম লিঙ্ক
+            const isDirect = videoUrl.toLowerCase().includes('.mp4') || videoUrl.includes('drive.google');
+
+            if (isDirect) {
+                // 🚀 ডাইরেক্ট লিঙ্কের জন্য ক্লিন প্লেয়ার (No Ads)
+                playerWrapper.innerHTML = `
+                    <button class="close-player-btn" onclick="closePlayer()">❌ Close Video</button>
+                    <video controls autoplay style="width:100%; height:100%; background:#000; border-radius:0;">
+                        <source src="${videoUrl}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                `;
             } else {
-                resetInviteModal(); document.getElementById('shareModal').style.display = 'flex';
+                // ⚠️ ডুডস্ট্রিম বা ইমবেড লিঙ্কের জন্য (Ads থাকতে পারে)
+                playerWrapper.innerHTML = `
+                    <button class="close-player-btn" onclick="closePlayer()">❌ Close Video</button>
+                    <iframe src="${videoUrl}" allowfullscreen="true" scrolling="no"></iframe>
+                `;
             }
+            playerWrapper.style.display = 'block';
         }
+    } else {
+        resetInviteModal(); document.getElementById('shareModal').style.display = 'flex';
+    }
+}
 
         function closePlayer() {
             document.getElementById('player-wrapper').style.display = 'none';
