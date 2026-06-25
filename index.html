@@ -42,7 +42,7 @@
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: #1f1f1f; padding: 25px; border-radius: 20px; width: 85%; text-align: center; border: 1px solid #444; }
         .share-btn { background: linear-gradient(90deg, #0088cc, #00aaff); color: white; border: none; padding: 14px; border-radius: 10px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 15px; font-weight: bold; }
-        .close-btn { background: transparent; color: #888; border: none; margin-top: 15px; cursor: pointer; font-size: 14px; text-decoration: underline;}
+        .close-btn { background: #333; color: #fff; border: 1px solid #444; padding: 10px; border-radius: 8px; width: 100%; margin-top: 15px; cursor: pointer; font-size: 14px; font-weight: bold;}
         .subtitle { display: block; font-size: 12px; color: #888; margin-top: 5px; }
     </style>
 </head>
@@ -67,13 +67,8 @@
 
     <!-- Share Modal -->
     <div class="modal" id="shareModal">
-        <div class="modal-content">
-            <h3 id="modal-main-text" style="font-size: 18px; line-height: 1.4;">
-                Complete <span id="needed-count" style="color: #ffaa00; font-size: 22px;">3</span> more invites to watch!
-                <span class="subtitle" style="color: #bbb;">ভিডিওটি দেখতে আরও <span id="needed-count-bn">৩</span> জনকে ইনভাইট করুন।</span>
-            </h3>
-            <button class="share-btn" id="share-btn-id" onclick="shareLink()">🚀 Share to Groups / Friends</button>
-            <button class="close-btn" id="close-btn-id" onclick="closeModal()">Maybe Later</button>
+        <div class="modal-content" id="modal-box">
+            <!-- Content will be injected by JavaScript -->
         </div>
     </div>
 
@@ -89,13 +84,12 @@
         const botUsername = 'File_Unlocker_Pro_bot'; 
         
         let unlocked = false;
-        let dbRefcount = 0; // ডাটাবেজ থেকে আসা রিয়েল রেফারাল সংখ্যা
-        let sessionShareClicks = 0; // এই সেশনে ইউজার কতবার শেয়ার বাটনে ক্লিক করল
+        let dbRefcount = 0; 
+        let sessionShareClicks = 0; 
 
         const adUrl = "https://www.effectivecpmnetwork.com/w47jpksk7t?key=15b5e8ae609b09733d4a0906eac2a446";
         let clickedAds = {}; 
 
-        // লাইভ অনলাইন কাউন্টার
         function updateOnlineCount() {
             document.getElementById('online-count').innerText = (1200 + Math.floor(Math.random() * 100)).toLocaleString();
         }
@@ -107,7 +101,6 @@
                 let { data } = await db.from('referrals').select('referral_count').eq('user_id', userId).single();
                 dbRefcount = data ? data.referral_count : 0;
                 
-                // প্রগ্রেস বার আপডেট (রিয়েল ডাটা অনুযায়ী)
                 const percentage = Math.min((dbRefcount / 3) * 100, 100);
                 document.getElementById('bar-fill').style.width = percentage + "%";
                 document.getElementById('progress-text').innerText = `Unlock Progress: ${dbRefcount}/3`;
@@ -116,7 +109,7 @@
                     document.getElementById('referral-status-text').innerHTML = "✅ All Videos Unlocked! <span class='subtitle' style='color:#00ff00;'>সব ভিডিও আনলক হয়েছে!</span>";
                     document.getElementById('referral-status-text').style.color = "#00ff00";
                     unlocked = true;
-                    closeModal(); // আনলক হয়ে গেলে অটো মোডাল বন্ধ হবে
+                    closeModal();
                 }
             } catch (err) { console.log(err); }
         }
@@ -144,10 +137,22 @@
                 if (!clickedAds[videoUrl]) { clickedAds[videoUrl] = true; tg.openLink(adUrl); }
                 else { if (videoUrl.includes('t.me')) tg.openTelegramLink(videoUrl); else tg.openLink(videoUrl); }
             } else {
-                // যদি ৩ বার ক্লিক করে ফেলে থাকে তবে সরাসরি ওয়েট মেসেজ দেখাবে
-                if (sessionShareClicks >= 3) { showWaitingMessage(); }
+                // ভিডিওতে ক্লিক করলেই পপআপ রিসেট হয়ে আগের অবস্থায় যাবে
+                resetInviteModal();
                 document.getElementById('shareModal').style.display = 'flex';
             }
+        }
+
+        function resetInviteModal() {
+            sessionShareClicks = 0; // সেশন ক্লিক রিসেট
+            document.getElementById('modal-box').innerHTML = `
+                <h3 style="font-size: 18px; line-height: 1.4;">
+                    Complete <span id="needed-count" style="color: #ffaa00; font-size: 22px;">3</span> more invites to watch!
+                    <span class="subtitle" style="color: #bbb;">ভিডিওটি দেখতে আরও <span id="needed-count-bn">৩</span> জনকে ইনভাইট করুন।</span>
+                </h3>
+                <button class="share-btn" onclick="shareLink()">🚀 Share to Groups / Friends</button>
+                <button class="close-btn" onclick="closeModal()">Close</button>
+            `;
         }
 
         function shareLink() {
@@ -163,25 +168,27 @@
             const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(botUrl)}&text=${encodeURIComponent(randomMsg)}`;
 
             if (sessionShareClicks < 3) {
-                // নাম্বার কমবে (৩ -> ২ -> ১)
                 const remaining = 3 - sessionShareClicks;
                 document.getElementById('needed-count').innerText = remaining;
                 document.getElementById('needed-count-bn').innerText = remaining;
                 tg.openTelegramLink(shareUrl);
             } else {
-                // ৩ বার ক্লিক পূর্ণ হলে
                 showWaitingMessage();
                 tg.openTelegramLink(shareUrl);
             }
         }
 
         function showWaitingMessage() {
-            document.getElementById('modal-main-text').innerHTML = `
-                <span style="color:#00ff00; font-size:20px;">✅ Share Completed!</span><br><br>
-                Please wait. Once 3 people join from your link, the videos will be unlocked automatically.
-                <span class="subtitle" style="color: #bbb;">শেয়ার সম্পন্ন হয়েছে! আপনার লিংক থেকে ৩ জন জয়েন করলেই ভিডিও অটোমেটিক আনলক হয়ে যাবে।</span>
+            document.getElementById('modal-box').innerHTML = `
+                <h2 style="color:#00ff00; font-size:22px; margin-bottom: 10px;">✅ Share Completed!</h2>
+                <p style="font-size: 16px; line-height: 1.5; color: #fff;">
+                    Please wait. Once 3 people join from your link, the videos will be unlocked automatically.
+                </p>
+                <span class="subtitle" style="color: #bbb; margin-top: 10px; font-size: 13px;">
+                    শেয়ার সম্পন্ন হয়েছে! আপনার লিংক থেকে ৩ জন জয়েন করলেই ভিডিও অটোমেটিক আনলক হয়ে যাবে।
+                </span>
+                <button class="close-btn" onclick="closeModal()">Close</button>
             `;
-            document.getElementById('share-btn-id').style.display = 'none';
         }
 
         function closeModal() { document.getElementById('shareModal').style.display = 'none'; }
