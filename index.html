@@ -27,18 +27,21 @@
         .video-card:active { transform: scale(0.96); }
         .video-card img { width: 100%; height: 140px; object-fit: cover; pointer-events: none; }
         
-        .views-badge { background: rgba(0, 0, 0, 0.85); color: #ffaa00; padding: 5px 8px; font-size: 11px; position: absolute; top: 8px; right: 8px; border-radius: 6px; border: 1px solid #ffaa00; font-weight: bold;}
+        .views-badge { background: rgba(0, 0, 0, 0.85); color: #ffaa00; padding: 5px 8px; font-size: 11px; position: absolute; top: 8px; right: 8px; border-radius: 6px; border: 1px solid #ffaa00; font-weight: bold; z-index: 2;}
         .free-badge { background: rgba(0, 255, 0, 0.2); color: #00ff00; border: 1px solid #00ff00; }
         
-        .watch-btn { background: rgba(255, 170, 0, 0.9); color: #000; padding: 5px 10px; font-size: 12px; position: absolute; bottom: 8px; left: 8px; border-radius: 6px; font-weight: bold; }
+        .watch-btn { background: rgba(255, 170, 0, 0.9); color: #000; padding: 5px 10px; font-size: 12px; position: absolute; bottom: 8px; left: 8px; border-radius: 6px; font-weight: bold; z-index: 2;}
 
-        /* Modal & Player */
+        /* Modal */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: #1f1f1f; padding: 25px; border-radius: 20px; width: 85%; text-align: center; border: 1px solid #444; }
         .share-btn { background: linear-gradient(90deg, #0088cc, #00aaff); color: white; border: none; padding: 14px; border-radius: 10px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 15px; font-weight: bold; }
-        .close-btn { background: #333; color: #fff; border: 1px solid #444; padding: 10px; border-radius: 8px; width: 100%; margin-top: 10px; cursor: pointer; font-size: 14px; font-weight: bold;}
+        .close-btn-modal { background: #333; color: #fff; border: 1px solid #444; padding: 10px; border-radius: 8px; width: 100%; margin-top: 15px; cursor: pointer; font-size: 14px; font-weight: bold;}
         
-        #player-wrapper { display: none; margin-bottom: 15px; }
+        /* 🟢 Full Screen Player Styles 🟢 */
+        #player-wrapper { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 99999; }
+        #player-wrapper iframe { width: 100%; height: 100%; border: none; }
+        .close-player-btn { position: absolute; top: 20px; right: 20px; background: rgba(255, 50, 50, 0.9); color: white; border: 2px solid #fff; padding: 10px 20px; border-radius: 10px; font-weight: bold; font-size: 14px; z-index: 100000; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -50,11 +53,11 @@
     </div>
     
     <div class="status-container">
-        <div id="progress-text" style="font-size: 14px; color: #ccc;">Total Invites: 0</div>
+        <div id="progress-text" style="font-size: 14px; color: #ccc;">Your Total Referrals: 0</div>
         <div class="progress-bg"><div class="progress-bar" id="bar-fill"></div></div>
     </div>
 
-    <!-- 🟢 DoodStream Player Wrapper -->
+    <!-- 🟢 Full Screen DoodStream Player Wrapper 🟢 -->
     <div id="player-wrapper"></div>
 
     <div class="video-grid" id="video-container"></div>
@@ -75,63 +78,83 @@
         const botUsername = 'File_Unlocker_Pro_bot'; 
         
         let dbRefcount = 0; 
+        let lastRefCount = -1; // রেফারেল ট্র্যাক করার জন্য
         let sessionShareClicks = 0; 
         let currentNeededRef = 3;
+        let allVideos = [];
+
+        // 🟢 Ad URL - Ads will show on first click
+        const adUrl = "https://www.effectivecpmnetwork.com/w47jpksk7t?key=15b5e8ae609b09733d4a0906eac2a446";
+        let clickedAds = {}; 
 
         setInterval(() => { document.getElementById('online-count').innerText = (1200 + Math.floor(Math.random() * 100)).toLocaleString(); }, 3000);
 
         async function initData() {
             try {
                 let { data } = await db.from('referrals').select('referral_count').eq('user_id', userId).single();
-                dbRefcount = data ? data.referral_count : 0;
+                let currentRef = data ? data.referral_count : 0;
                 
-                document.getElementById('bar-fill').style.width = Math.min((dbRefcount / 3) * 100, 100) + "%";
-                document.getElementById('progress-text').innerText = `Your Total Referrals: ${dbRefcount}`;
-                
-                fetchVideos();
+                // যদি ইউজারের রেফারেল বাড়ে, তবেই শুধু অ্যাপ রিফ্রেশ হবে (যাতে বারবার লাফিয়ে না ওঠে)
+                if (currentRef !== lastRefCount) {
+                    dbRefcount = currentRef;
+                    lastRefCount = dbRefcount;
+                    
+                    document.getElementById('bar-fill').style.width = Math.min((dbRefcount / 3) * 100, 100) + "%";
+                    document.getElementById('progress-text').innerText = `Your Total Referrals: ${dbRefcount}`;
+                    
+                    if(allVideos.length > 0) { renderVideos(); } 
+                    else { fetchVideos(); }
+                }
             } catch (err) { console.log(err); }
         }
 
         async function fetchVideos() {
             try {
                 let { data: videos } = await db.from('videos').select('*').order('id', { ascending: false });
-                let html = '';
-                
-                videos.forEach(vid => {
-                    // 🟢 ডাইনামিক ব্যাজ সেটআপ (Free / 1 Refer / 3 Refer)
-                    let nRef = vid.needed_ref !== undefined ? vid.needed_ref : 3; 
-                    let badgeHTML = nRef === 0 ? `<div class="views-badge free-badge">✅ FREE</div>` : `<div class="views-badge">🔒 ${nRef} Refer</div>`;
-                    
-                    html += `<div class="video-card" data-url="${vid.video_url}" data-needed-ref="${nRef}" onclick="checkUnlock(this)">
-                        <img src="${vid.thumbnail_url}">
-                        ${badgeHTML}
-                        <div class="watch-btn">▶ Watch</div>
-                    </div>`;
-                });
-                document.getElementById('video-container').innerHTML = html;
+                allVideos = videos;
+                renderVideos();
             } catch (err) { console.log(err); }
+        }
+
+        function renderVideos() {
+            let html = '';
+            allVideos.forEach(vid => {
+                let nRef = vid.needed_ref !== undefined ? vid.needed_ref : 3; 
+                
+                // 🟢 আনলক চেক (ইউজারের রেফারেল যদি শর্তের সমান বা বেশি হয়)
+                let isUnlocked = (nRef === 0 || dbRefcount >= nRef);
+                
+                let badgeHTML = isUnlocked 
+                    ? `<div class="views-badge free-badge">✅ UNLOCKED</div>` 
+                    : `<div class="views-badge">🔒 ${nRef} Refer</div>`;
+                
+                html += `<div class="video-card" data-url="${vid.video_url}" data-needed-ref="${nRef}" onclick="checkUnlock(this)">
+                    <img src="${vid.thumbnail_url}">
+                    ${badgeHTML}
+                    <div class="watch-btn">▶ Watch</div>
+                </div>`;
+            });
+            document.getElementById('video-container').innerHTML = html;
         }
 
         function checkUnlock(element) {
             const videoUrl = element.getAttribute('data-url');
             currentNeededRef = parseInt(element.getAttribute('data-needed-ref') || "3");
 
-            // 🟢 যদি ফ্রি হয় (0) অথবা ইউজার টার্গেট পূর্ণ করে
             if (currentNeededRef === 0 || dbRefcount >= currentNeededRef) {
-                
-                // 🟢 DoodStream Iframe Player
-                const playerWrapper = document.getElementById('player-wrapper');
-                playerWrapper.innerHTML = `
-                    <div style="width:100%; position:relative; background:#000; border-radius:12px; overflow:hidden; border:1px solid #444;">
-                        <iframe src="${videoUrl}" style="width:100%; height:250px; border:none;" allowfullscreen="true" scrolling="no"></iframe>
-                        <div style="padding:10px; text-align:center;">
-                            <button class="close-btn" onclick="closePlayer()" style="margin:0; background:#ff3333; border:none;">❌ Close Player</button>
-                        </div>
-                    </div>
-                `;
-                playerWrapper.style.display = 'block';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                
+                // 🟢 আনলকড ভিডিওতে প্রথম ক্লিকে অ্যাড, দ্বিতীয় ক্লিকে ভিডিও প্লেয়ার 🟢
+                if (!clickedAds[videoUrl]) { 
+                    clickedAds[videoUrl] = true; 
+                    tg.openLink(adUrl); // Open Ad
+                } else {
+                    // Open Full Screen Iframe
+                    const playerWrapper = document.getElementById('player-wrapper');
+                    playerWrapper.innerHTML = `
+                        <button class="close-player-btn" onclick="closePlayer()">❌ Close Video</button>
+                        <iframe src="${videoUrl}" allowfullscreen="true" scrolling="no"></iframe>
+                    `;
+                    playerWrapper.style.display = 'block';
+                }
             } else {
                 // আনলক না হলে রেফার করতে বলবে
                 resetInviteModal();
@@ -141,7 +164,7 @@
 
         function closePlayer() {
             document.getElementById('player-wrapper').style.display = 'none';
-            document.getElementById('player-wrapper').innerHTML = ''; // iframe মুছে ফেলবে যাতে সাউন্ড বন্ধ হয়
+            document.getElementById('player-wrapper').innerHTML = ''; // iframe মুছে সাউন্ড বন্ধ
         }
 
         function resetInviteModal() {
@@ -153,7 +176,7 @@
                 </h3>
                 <div style="font-size: 13px; color: #bbb; margin-bottom: 15px;">ভিডিওটি দেখতে আরও ${remaining} জনকে ইনভাইট করুন।</div>
                 <button class="share-btn" onclick="shareLink()">🚀 Share to Groups / Friends</button>
-                <button class="close-btn" onclick="closeModal()">Close</button>
+                <button class="close-btn-modal" onclick="closeModal()">Close</button>
             `;
         }
 
@@ -171,14 +194,14 @@
                     </h3>
                     <div style="font-size: 13px; color: #bbb; margin-bottom: 15px;">ভিডিওটি দেখতে আরও ${remainingSharesNeeded} জনকে ইনভাইট করুন।</div>
                     <button class="share-btn" onclick="shareLink()">🚀 Share to Groups / Friends</button>
-                    <button class="close-btn" onclick="closeModal()">Close</button>
+                    <button class="close-btn-modal" onclick="closeModal()">Close</button>
                 `;
                 tg.openTelegramLink(shareUrl);
             } else {
                 document.getElementById('modal-box').innerHTML = `
                     <h2 style="color:#00ff00; font-size:22px; margin-bottom: 10px;">✅ Shared!</h2>
-                    <p style="font-size: 15px; color: #fff;">Wait until ${currentNeededRef - dbRefcount} friends join.</p>
-                    <button class="close-btn" onclick="closeModal()">Close</button>
+                    <p style="font-size: 15px; color: #fff;">Wait until your friends join to unlock.</p>
+                    <button class="close-btn-modal" onclick="closeModal()">Close</button>
                 `;
                 tg.openTelegramLink(shareUrl);
             }
@@ -187,7 +210,7 @@
         function closeModal() { document.getElementById('shareModal').style.display = 'none'; }
 
         initData();
-        setInterval(initData, 8000); 
+        setInterval(initData, 5000); 
     </script>
 </body>
 </html>
