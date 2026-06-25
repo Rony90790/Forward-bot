@@ -12,52 +12,68 @@
         /* Buttons & Badges */
         .add-group-btn { background: linear-gradient(90deg, #ff0055, #ff00aa); color: white; border: none; padding: 14px; border-radius: 30px; font-weight: bold; width: 100%; cursor: pointer; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
-        .online-badge { background: rgba(0, 255, 0, 0.1); color: #00ff00; border: 1px solid #00ff00; padding: 5px 12px; border-radius: 20px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 10px; font-weight: bold; }
-        .dot { height: 8px; width: 8px; background-color: #00ff00; border-radius: 50%; display: inline-block; animation: blink 1s infinite; }
+        .online-badge { background: rgba(0, 255, 0, 0.1); color: #00ff00; border: 1px solid #00ff00; padding: 5px 12px; border-radius: 20px; font-size: 11px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 10px; font-weight: bold; }
+        .dot { height: 7px; width: 7px; background-color: #00ff00; border-radius: 50%; display: inline-block; animation: blink 1s infinite; }
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
         /* Status Bar */
         .status-container { background: #1a1a1a; padding: 15px; border-radius: 12px; border: 1px solid #333; text-align: center; margin-bottom: 15px; }
-        .progress-bg { background: #333; border-radius: 10px; height: 12px; width: 100%; overflow: hidden; margin: 10px 0; }
+        .progress-bg { background: #333; border-radius: 10px; height: 10px; width: 100%; overflow: hidden; margin: 10px 0; }
         .progress-bar { background: linear-gradient(90deg, #00ffaa, #00aaff); height: 100%; width: 0%; transition: width 0.5s ease; }
 
         /* Video Grid */
         .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-bottom: 20px;}
-        .video-card { background: #222; border-radius: 12px; overflow: hidden; position: relative; border: 1px solid #333; cursor: pointer; transition: transform 0.2s;}
-        .video-card:active { transform: scale(0.96); }
-        .video-card img { width: 100%; height: 140px; object-fit: cover; pointer-events: none; }
+        .video-card { background: #222; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #333; cursor: pointer; transition: transform 0.2s;}
+        .video-card:active { transform: scale(0.97); }
+        .video-card img { width: 100%; height: 135px; object-fit: cover; pointer-events: none; }
         
-        .views-badge { background: rgba(0, 0, 0, 0.85); color: #ffaa00; padding: 5px 8px; font-size: 11px; position: absolute; top: 8px; right: 8px; border-radius: 6px; border: 1px solid #ffaa00; font-weight: bold; z-index: 2;}
-        .free-badge { background: rgba(0, 255, 0, 0.2); color: #00ff00; border: 1px solid #00ff00; }
+        /* 👁️ Views Badge Style (Small & Clean) */
+        .views-badge { background: rgba(0, 0, 0, 0.5); color: #fff; padding: 3px 7px; font-size: 10px; position: absolute; top: 7px; right: 7px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); font-weight: 500; z-index: 2; backdrop-filter: blur(3px); }
+        .locked-text { color: #ffaa00; font-weight: bold; }
         
-        .watch-btn { background: rgba(255, 170, 0, 0.9); color: #000; padding: 5px 10px; font-size: 12px; position: absolute; bottom: 8px; left: 8px; border-radius: 6px; font-weight: bold; z-index: 2;}
+        .watch-btn { background: rgba(255, 170, 0, 0.85); color: #000; padding: 4px 8px; font-size: 11px; position: absolute; bottom: 7px; left: 7px; border-radius: 5px; font-weight: bold; z-index: 2;}
 
         /* Modal */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: #1f1f1f; padding: 25px; border-radius: 20px; width: 85%; text-align: center; border: 1px solid #444; }
         .share-btn { background: linear-gradient(90deg, #0088cc, #00aaff); color: white; border: none; padding: 14px; border-radius: 10px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 15px; font-weight: bold; }
-        .close-btn-modal { background: #333; color: #fff; border: 1px solid #444; padding: 10px; border-radius: 8px; width: 100%; margin-top: 15px; cursor: pointer; font-size: 14px; font-weight: bold;}
+        .close-btn-modal { background: transparent; color: #888; border: none; margin-top: 15px; cursor: pointer; font-size: 13px; text-decoration: underline;}
         
-        /* 🟢 Full Screen Player Styles 🟢 */
+        /* 🟢 Updated Small/Blurry Close Player Button (Bottom Right) 🟢 */
         #player-wrapper { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 99999; }
         #player-wrapper iframe { width: 100%; height: 100%; border: none; }
-        .close-player-btn { position: absolute; top: 20px; right: 20px; background: rgba(255, 50, 50, 0.9); color: white; border: 2px solid #fff; padding: 10px 20px; border-radius: 10px; font-weight: bold; font-size: 14px; z-index: 100000; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .close-player-btn { 
+            position: absolute; 
+            bottom: 25px; 
+            right: 20px; 
+            background: rgba(255, 255, 255, 0.1); 
+            color: rgba(255, 255, 255, 0.6); 
+            border: 1px solid rgba(255, 255, 255, 0.2); 
+            padding: 6px 12px; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            font-size: 11px; 
+            z-index: 100000; 
+            cursor: pointer; 
+            backdrop-filter: blur(5px); 
+            transition: 0.3s;
+        }
+        .close-player-btn:active { background: rgba(255, 50, 50, 0.3); color: white; }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
-    <div style="text-align: center; margin-top: 10px;">
+    <div style="text-align: center; margin-top: 5px;">
         <button class="add-group-btn" onclick="tg.openTelegramLink(`https://t.me/${botUsername}?startgroup=true`)">🚀 Add Bot to Group</button>
-        <div style="font-size: 11px; color: #888; margin-top: 5px; margin-bottom: 10px;">Get premium viral videos automatically!</div>
-        <div class="online-badge"><span class="dot"></span> <span id="online-count">1,240</span> people are watching now</div>
+        <div style="font-size: 10px; color: #666; margin-top: 4px; margin-bottom: 8px;">Premium viral videos updated daily!</div>
+        <div class="online-badge"><span class="dot"></span> <span id="online-count">1,240</span> watching</div>
     </div>
     
     <div class="status-container">
-        <div id="progress-text" style="font-size: 14px; color: #ccc;">Your Total Referrals: 0</div>
+        <div id="progress-text" style="font-size: 13px; color: #ccc;">Invites: 0</div>
         <div class="progress-bg"><div class="progress-bar" id="bar-fill"></div></div>
     </div>
 
-    <!-- 🟢 Full Screen DoodStream Player Wrapper 🟢 -->
     <div id="player-wrapper"></div>
 
     <div class="video-grid" id="video-container"></div>
@@ -76,16 +92,9 @@
 
         const userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : '123456'; 
         const botUsername = 'File_Unlocker_Pro_bot'; 
-        
-        let dbRefcount = 0; 
-        let lastRefCount = -1; // রেফারেল ট্র্যাক করার জন্য
-        let sessionShareClicks = 0; 
-        let currentNeededRef = 3;
-        let allVideos = [];
-
-        // 🟢 Ad URL - Ads will show on first click
         const adUrl = "https://www.effectivecpmnetwork.com/w47jpksk7t?key=15b5e8ae609b09733d4a0906eac2a446";
-        let clickedAds = {}; 
+        
+        let dbRefcount = 0, lastRefCount = -1, sessionShareClicks = 0, currentNeededRef = 3, allVideos = [], clickedAds = {}; 
 
         setInterval(() => { document.getElementById('online-count').innerText = (1200 + Math.floor(Math.random() * 100)).toLocaleString(); }, 3000);
 
@@ -93,17 +102,11 @@
             try {
                 let { data } = await db.from('referrals').select('referral_count').eq('user_id', userId).single();
                 let currentRef = data ? data.referral_count : 0;
-                
-                // যদি ইউজারের রেফারেল বাড়ে, তবেই শুধু অ্যাপ রিফ্রেশ হবে (যাতে বারবার লাফিয়ে না ওঠে)
                 if (currentRef !== lastRefCount) {
-                    dbRefcount = currentRef;
-                    lastRefCount = dbRefcount;
-                    
+                    dbRefcount = currentRef; lastRefCount = dbRefcount;
                     document.getElementById('bar-fill').style.width = Math.min((dbRefcount / 3) * 100, 100) + "%";
-                    document.getElementById('progress-text').innerText = `Your Total Referrals: ${dbRefcount}`;
-                    
-                    if(allVideos.length > 0) { renderVideos(); } 
-                    else { fetchVideos(); }
+                    document.getElementById('progress-text').innerText = `Total Invites: ${dbRefcount}`;
+                    if(allVideos.length > 0) { renderVideos(); } else { fetchVideos(); }
                 }
             } catch (err) { console.log(err); }
         }
@@ -111,8 +114,7 @@
         async function fetchVideos() {
             try {
                 let { data: videos } = await db.from('videos').select('*').order('id', { ascending: false });
-                allVideos = videos;
-                renderVideos();
+                allVideos = videos; renderVideos();
             } catch (err) { console.log(err); }
         }
 
@@ -120,13 +122,13 @@
             let html = '';
             allVideos.forEach(vid => {
                 let nRef = vid.needed_ref !== undefined ? vid.needed_ref : 3; 
-                
-                // 🟢 আনলক চেক (ইউজারের রেফারেল যদি শর্তের সমান বা বেশি হয়)
                 let isUnlocked = (nRef === 0 || dbRefcount >= nRef);
+                let views = (1200 + Math.floor(Math.random() * 800)).toLocaleString();
                 
+                // 👁️ Unlocked থাকলে শুধু চোখের আইকন আর ভিউ দেখাবে, কালার ঝাপসা হবে
                 let badgeHTML = isUnlocked 
-                    ? `<div class="views-badge free-badge">✅ UNLOCKED</div>` 
-                    : `<div class="views-badge">🔒 ${nRef} Refer</div>`;
+                    ? `<div class="views-badge">👁️ ${views}</div>` 
+                    : `<div class="views-badge locked-text">🔒 ${nRef} Refer</div>`;
                 
                 html += `<div class="video-card" data-url="${vid.video_url}" data-needed-ref="${nRef}" onclick="checkUnlock(this)">
                     <img src="${vid.thumbnail_url}">
@@ -142,12 +144,8 @@
             currentNeededRef = parseInt(element.getAttribute('data-needed-ref') || "3");
 
             if (currentNeededRef === 0 || dbRefcount >= currentNeededRef) {
-                // 🟢 আনলকড ভিডিওতে প্রথম ক্লিকে অ্যাড, দ্বিতীয় ক্লিকে ভিডিও প্লেয়ার 🟢
-                if (!clickedAds[videoUrl]) { 
-                    clickedAds[videoUrl] = true; 
-                    tg.openLink(adUrl); // Open Ad
-                } else {
-                    // Open Full Screen Iframe
+                if (!clickedAds[videoUrl]) { clickedAds[videoUrl] = true; tg.openLink(adUrl); } 
+                else {
                     const playerWrapper = document.getElementById('player-wrapper');
                     playerWrapper.innerHTML = `
                         <button class="close-player-btn" onclick="closePlayer()">❌ Close Video</button>
@@ -156,51 +154,42 @@
                     playerWrapper.style.display = 'block';
                 }
             } else {
-                // আনলক না হলে রেফার করতে বলবে
-                resetInviteModal();
-                document.getElementById('shareModal').style.display = 'flex';
+                resetInviteModal(); document.getElementById('shareModal').style.display = 'flex';
             }
         }
 
         function closePlayer() {
             document.getElementById('player-wrapper').style.display = 'none';
-            document.getElementById('player-wrapper').innerHTML = ''; // iframe মুছে সাউন্ড বন্ধ
+            document.getElementById('player-wrapper').innerHTML = '';
         }
 
         function resetInviteModal() {
             sessionShareClicks = 0; 
             const remaining = currentNeededRef - dbRefcount;
             document.getElementById('modal-box').innerHTML = `
-                <h3 style="font-size: 18px; line-height: 1.4;">
-                    Complete <span style="color: #ffaa00; font-size: 22px;">${remaining}</span> more invites to watch!
-                </h3>
-                <div style="font-size: 13px; color: #bbb; margin-bottom: 15px;">ভিডিওটি দেখতে আরও ${remaining} জনকে ইনভাইট করুন।</div>
-                <button class="share-btn" onclick="shareLink()">🚀 Share to Groups / Friends</button>
-                <button class="close-btn-modal" onclick="closeModal()">Close</button>
+                <h3 style="font-size: 17px;">Complete <span style="color: #ffaa00;">${remaining}</span> more invites!</h3>
+                <div style="font-size: 12px; color: #888; margin-bottom: 15px;">ভিডিওটি দেখতে আরও ${remaining} জনকে ইনভাইট করুন।</div>
+                <button class="share-btn" onclick="shareLink()">🚀 Share Now</button>
+                <button class="close-btn-modal" onclick="closeModal()">Maybe Later</button>
             `;
         }
 
         function shareLink() {
             sessionShareClicks++;
-            const messages = ["🔥 Watch premium viral videos FREE! 👇", "😱 New Viral Content! Watch now 👇"];
-            const shareUrl = `https://t.me/share/url?url=https://t.me/${botUsername}?start=${userId}&text=${encodeURIComponent(messages[0])}`;
+            const shareUrl = `https://t.me/share/url?url=https://t.me/${botUsername}?start=${userId}&text=${encodeURIComponent("Watch premium viral videos FREE! 👇")}`;
+            const rem = (currentNeededRef - dbRefcount) - sessionShareClicks;
 
-            const remainingSharesNeeded = (currentNeededRef - dbRefcount) - sessionShareClicks;
-
-            if (remainingSharesNeeded > 0) {
+            if (rem > 0) {
                 document.getElementById('modal-box').innerHTML = `
-                    <h3 style="font-size: 18px; line-height: 1.4;">
-                        Complete <span style="color: #ffaa00; font-size: 22px;">${remainingSharesNeeded}</span> more invites to watch!
-                    </h3>
-                    <div style="font-size: 13px; color: #bbb; margin-bottom: 15px;">ভিডিওটি দেখতে আরও ${remainingSharesNeeded} জনকে ইনভাইট করুন।</div>
-                    <button class="share-btn" onclick="shareLink()">🚀 Share to Groups / Friends</button>
+                    <h3 style="font-size: 17px;">Only <span style="color: #ffaa00;">${rem}</span> more invites left!</h3>
+                    <button class="share-btn" onclick="shareLink()">🚀 Share Now</button>
                     <button class="close-btn-modal" onclick="closeModal()">Close</button>
                 `;
                 tg.openTelegramLink(shareUrl);
             } else {
                 document.getElementById('modal-box').innerHTML = `
-                    <h2 style="color:#00ff00; font-size:22px; margin-bottom: 10px;">✅ Shared!</h2>
-                    <p style="font-size: 15px; color: #fff;">Wait until your friends join to unlock.</p>
+                    <h2 style="color:#00ff00; font-size:20px;">✅ Shared Successfully!</h2>
+                    <p style="font-size: 13px; color: #ccc;">Waiting for your friends to join...</p>
                     <button class="close-btn-modal" onclick="closeModal()">Close</button>
                 `;
                 tg.openTelegramLink(shareUrl);
