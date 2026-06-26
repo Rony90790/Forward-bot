@@ -20,9 +20,29 @@
         .progress-bar { background: linear-gradient(90deg, #00ffaa, #00aaff); height: 100%; width: 0%; transition: width 0.5s ease; }
 
         .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-bottom: 20px;}
-        .video-card { background: #222; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #333; cursor: pointer; transition: transform 0.2s;}
+        
+        /* 🚀 থাম্বনেইল কার্ড লম্বা করা হলো */
+        .video-card { 
+            background: #222; 
+            border-radius: 10px; 
+            overflow: hidden; 
+            position: relative; 
+            border: 1px solid #333; 
+            cursor: pointer; 
+            transition: transform 0.2s;
+            height: 220px; 
+        }
         .video-card:active { transform: scale(0.97); }
-        .video-card img { width: 100%; height: 135px; object-fit: cover; pointer-events: none; }
+        
+        /* 🚀 ছবি জুম করে মাত্র ৭০% দেখানো এবং লোডিংয়ের ফ্ল্যাশ অফ করা হলো */
+        .video-card img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            transform: scale(1.35); 
+            pointer-events: none; 
+            display: block;
+        }
         
         .views-badge { background: rgba(0, 0, 0, 0.6); color: #fff; padding: 3px 7px; font-size: 10px; position: absolute; top: 7px; right: 7px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); font-weight: 500; z-index: 2; backdrop-filter: blur(3px); }
         .locked-text { color: #ffaa00; font-weight: bold; }
@@ -156,7 +176,7 @@
                     if (parts[1] === 'random') {
                         displayTime = getRandomTime(); // যদি র‍্যান্ডম থাকে
                     } else {
-                        displayTime = parts[1]; // যদি অ্যাডমিন স্পেসিফিক টাইম দেয়
+                        displayTime = parts[1]; // যদি অ্যাডমিন স্পেসিফিক টাইম দেয়
                     }
                 } else {
                     displayTime = getRandomTime(); // পুরানো ভিডিওগুলোর জন্য
@@ -177,93 +197,4 @@
         }
 
         function checkUnlock(element) {
-            const videoUrl = element.getAttribute('data-url');
-            currentNeededRef = parseInt(element.getAttribute('data-needed-ref') || "3");
-
-            if (currentNeededRef === 0 || dbRefcount >= currentNeededRef) {
-                
-                if (currentNeededRef > 0 && !clickedAds[videoUrl]) { 
-                    clickedAds[videoUrl] = true; 
-                    tg.openLink(adUrl); 
-                    return; 
-                }
-                
-                const playerWrapper = document.getElementById('player-wrapper');
-                const lowerUrl = videoUrl.toLowerCase();
-
-                // 1. Telegram Link - টেলিগ্রাম অ্যাপে সবচেয়ে ফাস্ট লোড হবে!
-                if (lowerUrl.includes('t.me/') || lowerUrl.includes('telegram.me/')) {
-                    tg.openTelegramLink(videoUrl);
-                    return;
-                }
-
-                // 2. Direct .mp4 Link - Catbox স্পিড বাড়াতে preload ও autobuffer দেওয়া হয়েছে
-                if (lowerUrl.includes('.mp4')) {
-                    playerWrapper.innerHTML = `
-                        <button class="close-player-btn" onclick="closePlayer()">❌ Close</button>
-                        <video controls autoplay playsinline preload="auto" autobuffer style="width:100%; height:100%; background:#000; border-radius:0; outline:none;">
-                            <source src="${videoUrl}" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                    `;
-                    playerWrapper.style.display = 'block';
-                } 
-                // 3. Iframe
-                else {
-                    playerWrapper.innerHTML = `
-                        <button class="close-player-btn" onclick="closePlayer()">❌ Close</button>
-                        <iframe src="${videoUrl}" sandbox="allow-scripts allow-same-origin allow-presentation" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no"></iframe>
-                    `;
-                    playerWrapper.style.display = 'block';
-                }
-                
-            } else {
-                resetInviteModal(); document.getElementById('shareModal').style.display = 'flex';
-            }
-        }
-
-        function closePlayer() {
-            document.getElementById('player-wrapper').style.display = 'none';
-            document.getElementById('player-wrapper').innerHTML = '';
-        }
-
-        function resetInviteModal() {
-            sessionShareClicks = 0; 
-            const remaining = currentNeededRef - dbRefcount;
-            document.getElementById('modal-box').innerHTML = `
-                <h3 style="font-size: 17px;">Complete <span style="color: #ffaa00;">${remaining}</span> more invites!</h3>
-                <div style="font-size: 12px; color: #888; margin-bottom: 15px;">ভিডিওটি দেখতে আরও ${remaining} জনকে ইনভাইট করুন।</div>
-                <button class="share-btn" onclick="shareLink()">🚀 Share Now</button>
-                <button class="close-btn-modal" onclick="closeModal()">Maybe Later</button>
-            `;
-        }
-
-        function shareLink() {
-            sessionShareClicks++;
-            const shareUrl = `https://t.me/share/url?url=https://t.me/${botUsername}?start=${userId}&text=${encodeURIComponent("Watch premium viral videos FREE! 👇")}`;
-            const rem = (currentNeededRef - dbRefcount) - sessionShareClicks;
-
-            if (rem > 0) {
-                document.getElementById('modal-box').innerHTML = `
-                    <h3 style="font-size: 17px;">Only <span style="color: #ffaa00;">${rem}</span> more invites left!</h3>
-                    <button class="share-btn" onclick="shareLink()">🚀 Share Now</button>
-                    <button class="close-btn-modal" onclick="closeModal()">Close</button>
-                `;
-                tg.openTelegramLink(shareUrl);
-            } else {
-                document.getElementById('modal-box').innerHTML = `
-                    <h2 style="color:#00ff00; font-size:20px;">✅ Shared Successfully!</h2>
-                    <p style="font-size: 13px; color: #ccc;">Waiting for your friends to join...</p>
-                    <button class="close-btn-modal" onclick="closeModal()">Close</button>
-                `;
-                tg.openTelegramLink(shareUrl);
-            }
-        }
-
-        function closeModal() { document.getElementById('shareModal').style.display = 'none'; }
-
-        initData();
-        setInterval(initData, 5000); 
-    </script>
-</body>
-</html>
+            const videoUrl = element.ge
