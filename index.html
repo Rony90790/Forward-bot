@@ -207,6 +207,7 @@
 
             if (currentNeededRef === 0 || dbRefcount >= currentNeededRef) {
                 
+                // Ad Click Logic (You still make money!)
                 if (currentNeededRef > 0 && !clickedAds[videoUrl]) { 
                     clickedAds[videoUrl] = true; 
                     tg.openLink(adUrl); 
@@ -216,11 +217,19 @@
                 const playerWrapper = document.getElementById('player-wrapper');
                 const lowerUrl = videoUrl.toLowerCase();
 
+                // 1. Telegram Link
                 if (lowerUrl.includes('t.me/') || lowerUrl.includes('telegram.me/')) {
                     tg.openTelegramLink(videoUrl);
                     return;
                 }
 
+                // 2. Stripchat / Live Sites - Open directly in Telegram's internal browser popup
+                if (lowerUrl.includes('stripchat.com') || lowerUrl.includes('bongacams') || lowerUrl.includes('chaturbate')) {
+                    tg.openLink(videoUrl);
+                    return;
+                }
+
+                // 3. Direct MP4
                 if (lowerUrl.includes('.mp4')) {
                     playerWrapper.innerHTML = `
                         <button class="close-player-btn" onclick="closePlayer()">Close</button>
@@ -229,15 +238,16 @@
                         </video>
                     `;
                     playerWrapper.style.display = 'block';
+                    return;
                 } 
-                else {
-                    // 🚀 FIX: Removed 'sandbox' completely so external streams (like Stripchat) can run without being blocked
-                    playerWrapper.innerHTML = `
-                        <button class="close-player-btn" onclick="closePlayer()">Close</button>
-                        <iframe src="${videoUrl}" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no" frameborder="0" style="width:100%; height:100%; background:#000; border:none;"></iframe>
-                    `;
-                    playerWrapper.style.display = 'block';
-                }
+                
+                // 4. Default Iframe
+                playerWrapper.innerHTML = `
+                    <button class="close-player-btn" onclick="closePlayer()">Close</button>
+                    <iframe src="${videoUrl}" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no" frameborder="0" style="width:100%; height:100%; background:#000; border:none;"></iframe>
+                `;
+                playerWrapper.style.display = 'block';
+                
             } else {
                 resetInviteModal(); document.getElementById('shareModal').style.display = 'flex';
             }
