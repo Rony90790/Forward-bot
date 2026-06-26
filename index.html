@@ -19,30 +19,21 @@
         .progress-bg { background: #333; border-radius: 10px; height: 10px; width: 100%; overflow: hidden; margin: 10px 0; }
         .progress-bar { background: linear-gradient(90deg, #00ffaa, #00aaff); height: 100%; width: 0%; transition: width 0.5s ease; }
 
+        /* 🚀 UPDATED: Filter Buttons CSS - Size reduced */
+        .filter-container { display: flex; gap: 8px; margin-bottom: 15px; }
+        .filter-btn { flex: 1; padding: 8px 5px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 12px; }
+        .btn-active { background: linear-gradient(90deg, #00ffaa, #00aaff); color: #000; box-shadow: 0 2px 10px rgba(0, 255, 170, 0.3); }
+        .btn-inactive { background: #333; color: #fff; border: 1px solid #444; }
+        .empty-msg { grid-column: span 2; text-align: center; color: #888; padding: 30px 10px; font-size: 14px; }
+
         .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-bottom: 20px;}
         
-        /* 🚀 থাম্বনেইল কার্ড লম্বা করা হলো */
-        .video-card { 
-            background: #222; 
-            border-radius: 10px; 
-            overflow: hidden; 
-            position: relative; 
-            border: 1px solid #333; 
-            cursor: pointer; 
-            transition: transform 0.2s;
-            height: 220px; 
-        }
+        /* 🚀 UPDATED: Video Card fixed height to prevent layout shift & make it taller */
+        .video-card { background: #111; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #333; cursor: pointer; transition: transform 0.2s; height: 190px; }
         .video-card:active { transform: scale(0.97); }
         
-        /* 🚀 ছবি জুম করে মাত্র ৭০% দেখানো এবং লোডিংয়ের ফ্ল্যাশ অফ করা হলো */
-        .video-card img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; 
-            transform: scale(1.35); 
-            pointer-events: none; 
-            display: block;
-        }
+        /* 🚀 UPDATED: Image height set to 100% of card and display block to prevent flashing */
+        .video-card img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; display: block; background-color: #1a1a1a; }
         
         .views-badge { background: rgba(0, 0, 0, 0.6); color: #fff; padding: 3px 7px; font-size: 10px; position: absolute; top: 7px; right: 7px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); font-weight: 500; z-index: 2; backdrop-filter: blur(3px); }
         .locked-text { color: #ffaa00; font-weight: bold; }
@@ -77,6 +68,13 @@
     </div>
 
     <div id="player-wrapper"></div>
+    
+    <!-- 🚀 UPDATED: Filter Buttons Name & Size -->
+    <div class="filter-container">
+        <button id="btn-all" class="filter-btn btn-active" onclick="setFilter('all')">📺 All Videos</button>
+        <button id="btn-unlocked" class="filter-btn btn-inactive" onclick="setFilter('unlocked')">🔓 Unlocked Videos</button>
+    </div>
+
     <div class="video-grid" id="video-container"></div>
 
     <div class="modal" id="shareModal">
@@ -95,7 +93,7 @@
         const botUsername = 'File_Unlocker_Pro_bot'; 
         const adUrl = "https://www.effectivecpmnetwork.com/w47jpksk7t?key=15b5e8ae609b09733d4a0906eac2a446";
         
-        let dbRefcount = 0, lastRefCount = -1, sessionShareClicks = 0, currentNeededRef = 3, allVideos = [], clickedAds = {}; 
+        let dbRefcount = 0, lastRefCount = -1, sessionShareClicks = 0, currentNeededRef = 3, allVideos = [], clickedAds = {}, filterMode = 'all'; 
 
         setInterval(() => { document.getElementById('online-count').innerText = (1200 + Math.floor(Math.random() * 100)).toLocaleString(); }, 3000);
 
@@ -117,69 +115,73 @@
                 let { data: videos } = await db.from('videos').select('*').order('id', { ascending: false });
                 allVideos = videos; 
                 renderVideos();
-                
-                // 🚀 ভিডিও লোড হওয়ার পর স্মার্ট প্রি-লোডিং শুরু হবে
                 preloadFreeContent(allVideos);
             } catch (err) { console.log(err); }
         }
 
-        // 🚀 স্মার্ট প্রি-লোডার ফাংশন (ব্যাকগ্রাউন্ডে ছবি ও ভিডিওর কিছু অংশ লোড করবে)
         function preloadFreeContent(videos) {
             videos.forEach(vid => {
                 let nRef = vid.needed_ref !== undefined ? vid.needed_ref : 3; 
                 
-                // শুধুমাত্র ০ রেফারের (ফ্রি) ভিডিওগুলোর জন্য কাজ করবে
                 if (nRef === 0) {
-                    
-                    // ১. থাম্বনেইল (ছবি) ফুল প্রি-লোড করা হচ্ছে
                     let thumbUrl = vid.thumbnail_url;
                     if (thumbUrl && thumbUrl.includes('||')) {
-                        thumbUrl = thumbUrl.split('||')[0]; // যদি টাইম অ্যাড করা থাকে, সেটা বাদ দিয়ে শুধু লিংক নেবে
+                        thumbUrl = thumbUrl.split('||')[0]; 
                     }
                     let imgPreload = new Image();
-                    imgPreload.src = thumbUrl; // অ্যাপ ওপেন হলেই ছবি মেমোরিতে সেভ হয়ে যাবে
+                    imgPreload.src = thumbUrl; 
 
-                    // ২. .mp4 ভিডিওর ক্ষেত্রে ব্রাউজারকে বলা হচ্ছে আগে থেকেই ডাটা রেডি রাখতে
                     let videoUrl = vid.video_url.toLowerCase();
                     if (videoUrl.includes('.mp4')) {
                         let linkPreload = document.createElement('link');
                         linkPreload.rel = 'preload';
                         linkPreload.as = 'video';
-                        linkPreload.href = vid.video_url; // অরিজিনাল লিংক
+                        linkPreload.href = vid.video_url; 
                         document.head.appendChild(linkPreload);
                     }
                 }
             });
         }
 
-        // 🕒 ১ থেকে ৭ মিনিটের মধ্যে র‍্যান্ডম টাইম জেনারেটর
         function getRandomTime() {
             let minutes = Math.floor(Math.random() * 7) + 1; 
             let seconds = Math.floor(Math.random() * 60);
             return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
         }
 
+        function setFilter(mode) {
+            filterMode = mode;
+            document.getElementById('btn-all').className = mode === 'all' ? 'filter-btn btn-active' : 'filter-btn btn-inactive';
+            document.getElementById('btn-unlocked').className = mode === 'unlocked' ? 'filter-btn btn-active' : 'filter-btn btn-inactive';
+            renderVideos();
+        }
+
         function renderVideos() {
             let html = '';
+            let hasVisibleVideos = false;
+
             allVideos.forEach(vid => {
                 let nRef = vid.needed_ref !== undefined ? vid.needed_ref : 3; 
                 let isUnlocked = (nRef === 0 || dbRefcount >= nRef);
+                
+                if (filterMode === 'unlocked' && !isUnlocked) return;
+                
+                hasVisibleVideos = true;
                 let views = (1200 + Math.floor(Math.random() * 800)).toLocaleString();
                 
-                // 🚀 ডাটাবেজ থেকে টাইম ডিকোড করা হচ্ছে
                 let thumbUrl = vid.thumbnail_url;
                 let displayTime = "HD";
                 
                 if (thumbUrl && thumbUrl.includes('||')) {
                     let parts = thumbUrl.split('||');
-                    thumbUrl = parts[0]; // আসল ছবির লিংক
+                    thumbUrl = parts[0]; 
                     if (parts[1] === 'random') {
-                        displayTime = getRandomTime(); // যদি র‍্যান্ডম থাকে
+                        displayTime = getRandomTime(); 
                     } else {
-                        displayTime = parts[1]; // যদি অ্যাডমিন স্পেসিফিক টাইম দেয়
+                        displayTime = parts[1]; 
                     }
                 } else {
-                    displayTime = getRandomTime(); // পুরানো ভিডিওগুলোর জন্য
+                    displayTime = getRandomTime(); 
                 }
                 
                 let badgeHTML = isUnlocked 
@@ -187,14 +189,105 @@
                     : `<div class="views-badge locked-text">🔒 ${nRef} Refer</div>`;
                 
                 html += `<div class="video-card" data-url="${vid.video_url}" data-needed-ref="${nRef}" onclick="checkUnlock(this)">
-                    <img src="${thumbUrl}">
+                    <img src="${thumbUrl}" loading="lazy">
                     ${badgeHTML}
                     <div class="time-badge">${displayTime}</div>
                     <div class="watch-btn">▶ Watch</div>
                 </div>`;
             });
+
+            if (!hasVisibleVideos && filterMode === 'unlocked') {
+                html = `<div class="empty-msg">😢 You haven't unlocked any paid videos yet. Share your link to unlock!</div>`;
+            }
+
             document.getElementById('video-container').innerHTML = html;
         }
 
         function checkUnlock(element) {
-            const videoUrl = element.ge
+            const videoUrl = element.getAttribute('data-url');
+            currentNeededRef = parseInt(element.getAttribute('data-needed-ref') || "3");
+
+            if (currentNeededRef === 0 || dbRefcount >= currentNeededRef) {
+                
+                if (currentNeededRef > 0 && !clickedAds[videoUrl]) { 
+                    clickedAds[videoUrl] = true; 
+                    tg.openLink(adUrl); 
+                    return; 
+                }
+                
+                const playerWrapper = document.getElementById('player-wrapper');
+                const lowerUrl = videoUrl.toLowerCase();
+
+                if (lowerUrl.includes('t.me/') || lowerUrl.includes('telegram.me/')) {
+                    tg.openTelegramLink(videoUrl);
+                    return;
+                }
+
+                if (lowerUrl.includes('.mp4')) {
+                    playerWrapper.innerHTML = `
+                        <button class="close-player-btn" onclick="closePlayer()">❌ Close</button>
+                        <video controls autoplay playsinline preload="auto" autobuffer style="width:100%; height:100%; background:#000; border-radius:0; outline:none;">
+                            <source src="${videoUrl}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    `;
+                    playerWrapper.style.display = 'block';
+                } 
+                else {
+                    playerWrapper.innerHTML = `
+                        <button class="close-player-btn" onclick="closePlayer()">❌ Close</button>
+                        <iframe src="${videoUrl}" sandbox="allow-scripts allow-same-origin allow-presentation" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no"></iframe>
+                    `;
+                    playerWrapper.style.display = 'block';
+                }
+                
+            } else {
+                resetInviteModal(); document.getElementById('shareModal').style.display = 'flex';
+            }
+        }
+
+        function closePlayer() {
+            document.getElementById('player-wrapper').style.display = 'none';
+            document.getElementById('player-wrapper').innerHTML = '';
+        }
+
+        function resetInviteModal() {
+            sessionShareClicks = 0; 
+            const remaining = currentNeededRef - dbRefcount;
+            document.getElementById('modal-box').innerHTML = `
+                <h3 style="font-size: 17px;">Complete <span style="color: #ffaa00;">${remaining}</span> more invites!</h3>
+                <div style="font-size: 12px; color: #888; margin-bottom: 15px;">ভিডিওটি দেখতে আরও ${remaining} জনকে ইনভাইট করুন।</div>
+                <button class="share-btn" onclick="shareLink()">🚀 Share Now</button>
+                <button class="close-btn-modal" onclick="closeModal()">Maybe Later</button>
+            `;
+        }
+
+        function shareLink() {
+            sessionShareClicks++;
+            const shareUrl = `https://t.me/share/url?url=https://t.me/${botUsername}?start=${userId}&text=${encodeURIComponent("Watch premium viral videos FREE! 👇")}`;
+            const rem = (currentNeededRef - dbRefcount) - sessionShareClicks;
+
+            if (rem > 0) {
+                document.getElementById('modal-box').innerHTML = `
+                    <h3 style="font-size: 17px;">Only <span style="color: #ffaa00;">${rem}</span> more invites left!</h3>
+                    <button class="share-btn" onclick="shareLink()">🚀 Share Now</button>
+                    <button class="close-btn-modal" onclick="closeModal()">Close</button>
+                `;
+                tg.openTelegramLink(shareUrl);
+            } else {
+                document.getElementById('modal-box').innerHTML = `
+                    <h2 style="color:#00ff00; font-size:20px;">✅ Shared Successfully!</h2>
+                    <p style="font-size: 13px; color: #ccc;">Waiting for your friends to join...</p>
+                    <button class="close-btn-modal" onclick="closeModal()">Close</button>
+                `;
+                tg.openTelegramLink(shareUrl);
+            }
+        }
+
+        function closeModal() { document.getElementById('shareModal').style.display = 'none'; }
+
+        initData();
+        setInterval(initData, 5000); 
+    </script>
+</body>
+</html>
