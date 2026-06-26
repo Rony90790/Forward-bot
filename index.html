@@ -202,7 +202,7 @@
         }
 
         function checkUnlock(element) {
-            const videoUrl = element.getAttribute('data-url');
+            let videoUrl = element.getAttribute('data-url').trim();
             currentNeededRef = parseInt(element.getAttribute('data-needed-ref') || "3");
 
             if (currentNeededRef === 0 || dbRefcount >= currentNeededRef) {
@@ -215,41 +215,38 @@
                 
                 const playerWrapper = document.getElementById('player-wrapper');
                 const lowerUrl = videoUrl.toLowerCase();
-                let finalUrl = videoUrl;
 
-                // 🚀 MAGIC FIX: Stripchat এর লিংক থেকে অটোমেটিক /embed/ রিমুভ করে দিবে! 
-                if (finalUrl.includes('stripchat.com/embed/')) {
-                    finalUrl = finalUrl.replace('/embed/', '/');
+                // 🚀 ADVANCED CLEANER: Stripchat/Live sites-এর লিংক একদম ফ্রেশ করে নিবে
+                let cleanUrl = videoUrl;
+                if (lowerUrl.includes('stripchat.com') || lowerUrl.includes('bongacams') || lowerUrl.includes('chaturbate')) {
+                    // Remove /embed/, trailing slashes and spaces
+                    cleanUrl = cleanUrl.replace('/embed/', '/').replace(/\/+$/, "").trim();
+                    tg.openLink(cleanUrl);
+                    return;
                 }
 
                 // 1. Telegram Link
                 if (lowerUrl.includes('t.me/') || lowerUrl.includes('telegram.me/')) {
-                    tg.openTelegramLink(finalUrl);
+                    tg.openTelegramLink(cleanUrl);
                     return;
                 }
 
-                // 2. Stripchat / Live Sites - Open directly in Telegram's internal browser popup
-                if (lowerUrl.includes('stripchat.com') || lowerUrl.includes('bongacams') || lowerUrl.includes('chaturbate')) {
-                    tg.openLink(finalUrl);
-                    return;
-                }
-
-                // 3. Direct MP4
+                // 2. Direct MP4
                 if (lowerUrl.includes('.mp4')) {
                     playerWrapper.innerHTML = `
                         <button class="close-player-btn" onclick="closePlayer()">Close</button>
                         <video controls autoplay playsinline style="width:100%; height:100%; background:#000; border-radius:0; outline:none;">
-                            <source src="${finalUrl}" type="video/mp4">
+                            <source src="${cleanUrl}" type="video/mp4">
                         </video>
                     `;
                     playerWrapper.style.display = 'block';
                     return;
                 } 
                 
-                // 4. Default Iframe
+                // 3. Default Iframe (YouTube or others)
                 playerWrapper.innerHTML = `
                     <button class="close-player-btn" onclick="closePlayer()">Close</button>
-                    <iframe src="${finalUrl}" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no" frameborder="0" style="width:100%; height:100%; background:#000; border:none;"></iframe>
+                    <iframe src="${cleanUrl}" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no" frameborder="0" style="width:100%; height:100%; background:#000; border:none;"></iframe>
                 `;
                 playerWrapper.style.display = 'block';
                 
