@@ -9,55 +9,37 @@
     <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0f0f0f; color: white; margin: 0; padding: 10px; user-select: none; }
         
-        /* Buttons & Badges */
         .add-group-btn { background: linear-gradient(90deg, #ff0055, #ff00aa); color: white; border: none; padding: 14px; border-radius: 30px; font-weight: bold; width: 100%; cursor: pointer; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
         .online-badge { background: rgba(0, 255, 0, 0.1); color: #00ff00; border: 1px solid #00ff00; padding: 5px 12px; border-radius: 20px; font-size: 11px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 10px; font-weight: bold; }
         .dot { height: 7px; width: 7px; background-color: #00ff00; border-radius: 50%; display: inline-block; animation: blink 1s infinite; }
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
-        /* Status Bar */
         .status-container { background: #1a1a1a; padding: 15px; border-radius: 12px; border: 1px solid #333; text-align: center; margin-bottom: 15px; }
         .progress-bg { background: #333; border-radius: 10px; height: 10px; width: 100%; overflow: hidden; margin: 10px 0; }
         .progress-bar { background: linear-gradient(90deg, #00ffaa, #00aaff); height: 100%; width: 0%; transition: width 0.5s ease; }
 
-        /* Video Grid */
         .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-bottom: 20px;}
         .video-card { background: #222; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #333; cursor: pointer; transition: transform 0.2s;}
         .video-card:active { transform: scale(0.97); }
         .video-card img { width: 100%; height: 135px; object-fit: cover; pointer-events: none; }
         
-        /* Views Badge Style */
-        .views-badge { background: rgba(0, 0, 0, 0.5); color: #fff; padding: 3px 7px; font-size: 10px; position: absolute; top: 7px; right: 7px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); font-weight: 500; z-index: 2; backdrop-filter: blur(3px); }
+        .views-badge { background: rgba(0, 0, 0, 0.6); color: #fff; padding: 3px 7px; font-size: 10px; position: absolute; top: 7px; right: 7px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); font-weight: 500; z-index: 2; backdrop-filter: blur(3px); }
         .locked-text { color: #ffaa00; font-weight: bold; }
         
-        .watch-btn { background: rgba(255, 170, 0, 0.85); color: #000; padding: 4px 8px; font-size: 11px; position: absolute; bottom: 7px; left: 7px; border-radius: 5px; font-weight: bold; z-index: 2;}
+        /* 🕒 Time Badge */
+        .time-badge { background: rgba(0, 0, 0, 0.8); color: #fff; padding: 3px 6px; font-size: 10px; position: absolute; bottom: 7px; right: 7px; border-radius: 4px; font-weight: bold; z-index: 2; }
+        
+        .watch-btn { background: rgba(255, 170, 0, 0.9); color: #000; padding: 4px 8px; font-size: 11px; position: absolute; bottom: 7px; left: 7px; border-radius: 5px; font-weight: bold; z-index: 2;}
 
-        /* Modal */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: #1f1f1f; padding: 25px; border-radius: 20px; width: 85%; text-align: center; border: 1px solid #444; }
         .share-btn { background: linear-gradient(90deg, #0088cc, #00aaff); color: white; border: none; padding: 14px; border-radius: 10px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 15px; font-weight: bold; }
         .close-btn-modal { background: transparent; color: #888; border: none; margin-top: 15px; cursor: pointer; font-size: 13px; text-decoration: underline;}
         
-        /* Video Player Wrapper */
         #player-wrapper { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 99999; }
         #player-wrapper iframe { width: 100%; height: 100%; border: none; }
-        .close-player-btn { 
-            position: absolute; 
-            bottom: 25px; 
-            right: 20px; 
-            background: rgba(255, 255, 255, 0.1); 
-            color: rgba(255, 255, 255, 0.6); 
-            border: 1px solid rgba(255, 255, 255, 0.2); 
-            padding: 6px 12px; 
-            border-radius: 8px; 
-            font-weight: bold; 
-            font-size: 11px; 
-            z-index: 100000; 
-            cursor: pointer; 
-            backdrop-filter: blur(5px); 
-            transition: 0.3s;
-        }
+        .close-player-btn { position: absolute; bottom: 25px; right: 20px; background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.6); border: 1px solid rgba(255, 255, 255, 0.2); padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 11px; z-index: 100000; cursor: pointer; backdrop-filter: blur(5px); transition: 0.3s;}
         .close-player-btn:active { background: rgba(255, 50, 50, 0.3); color: white; }
     </style>
 </head>
@@ -75,7 +57,6 @@
     </div>
 
     <div id="player-wrapper"></div>
-
     <div class="video-grid" id="video-container"></div>
 
     <div class="modal" id="shareModal">
@@ -118,6 +99,13 @@
             } catch (err) { console.log(err); }
         }
 
+        // 🕒 ১ থেকে ৭ মিনিটের মধ্যে র‍্যান্ডম টাইম জেনারেটর
+        function getRandomTime() {
+            let minutes = Math.floor(Math.random() * 7) + 1; 
+            let seconds = Math.floor(Math.random() * 60);
+            return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
         function renderVideos() {
             let html = '';
             allVideos.forEach(vid => {
@@ -125,13 +113,30 @@
                 let isUnlocked = (nRef === 0 || dbRefcount >= nRef);
                 let views = (1200 + Math.floor(Math.random() * 800)).toLocaleString();
                 
+                // 🚀 ডাটাবেজ থেকে টাইম ডিকোড করা হচ্ছে
+                let thumbUrl = vid.thumbnail_url;
+                let displayTime = "HD";
+                
+                if (thumbUrl && thumbUrl.includes('||')) {
+                    let parts = thumbUrl.split('||');
+                    thumbUrl = parts[0]; // আসল ছবির লিংক
+                    if (parts[1] === 'random') {
+                        displayTime = getRandomTime(); // যদি র‍্যান্ডম থাকে
+                    } else {
+                        displayTime = parts[1]; // যদি অ্যাডমিন স্পেসিফিক টাইম দেয়
+                    }
+                } else {
+                    displayTime = getRandomTime(); // পুরানো ভিডিওগুলোর জন্য
+                }
+                
                 let badgeHTML = isUnlocked 
                     ? `<div class="views-badge">👁️ ${views}</div>` 
                     : `<div class="views-badge locked-text">🔒 ${nRef} Refer</div>`;
                 
                 html += `<div class="video-card" data-url="${vid.video_url}" data-needed-ref="${nRef}" onclick="checkUnlock(this)">
-                    <img src="${vid.thumbnail_url}">
+                    <img src="${thumbUrl}">
                     ${badgeHTML}
+                    <div class="time-badge">${displayTime}</div>
                     <div class="watch-btn">▶ Watch</div>
                 </div>`;
             });
@@ -144,39 +149,37 @@
 
             if (currentNeededRef === 0 || dbRefcount >= currentNeededRef) {
                 
-                // ১. যদি 0 রেফারের ভিডিও হয়, তবে অ্যাড ওপেন হবে না!
-                // ২. 0 এর বেশি রেফার লাগলে প্রথম ক্লিকে অ্যাড ওপেন হবে।
                 if (currentNeededRef > 0 && !clickedAds[videoUrl]) { 
                     clickedAds[videoUrl] = true; 
-                    tg.openLink(adUrl); // অ্যাড ওপেন হবে
-                    return; // এখানেই থেমে যাবে। ইউজারকে ব্যাক করে আবার ক্লিক করতে হবে।
+                    tg.openLink(adUrl); 
+                    return; 
                 }
                 
                 const playerWrapper = document.getElementById('player-wrapper');
                 const lowerUrl = videoUrl.toLowerCase();
 
-                // লজিক ১: টেলিগ্রামের লিংক হলে ডিরেক্ট টেলিগ্রাম অ্যাপে ওপেন হবে (কোনো প্লেয়ার আসবে না)
+                // 1. Telegram Link - টেলিগ্রাম অ্যাপে সবচেয়ে ফাস্ট লোড হবে!
                 if (lowerUrl.includes('t.me/') || lowerUrl.includes('telegram.me/')) {
                     tg.openTelegramLink(videoUrl);
                     return;
                 }
 
-                // লজিক ২: ডাইরেক্ট .mp4 লিংক হলে ক্লিন ভিডিও প্লেয়ারে চলবে
+                // 2. Direct .mp4 Link - Catbox স্পিড বাড়াতে preload ও autobuffer দেওয়া হয়েছে
                 if (lowerUrl.includes('.mp4')) {
                     playerWrapper.innerHTML = `
-                        <button class="close-player-btn" onclick="closePlayer()">❌ Close Video</button>
-                        <video controls autoplay style="width:100%; height:100%; background:#000; border-radius:0;">
+                        <button class="close-player-btn" onclick="closePlayer()">❌ Close</button>
+                        <video controls autoplay playsinline preload="auto" autobuffer style="width:100%; height:100%; background:#000; border-radius:0; outline:none;">
                             <source src="${videoUrl}" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>
                     `;
                     playerWrapper.style.display = 'block';
                 } 
-                // লজিক ৩: গুগল ড্রাইভ, ডুডস্ট্রিম বা অন্য সব লিংকের জন্য Iframe প্লেয়ার
+                // 3. Iframe
                 else {
                     playerWrapper.innerHTML = `
-                        <button class="close-player-btn" onclick="closePlayer()">❌ Close Video</button>
-                        <iframe src="${videoUrl}" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no"></iframe>
+                        <button class="close-player-btn" onclick="closePlayer()">❌ Close</button>
+                        <iframe src="${videoUrl}" sandbox="allow-scripts allow-same-origin allow-presentation" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no"></iframe>
                     `;
                     playerWrapper.style.display = 'block';
                 }
