@@ -27,7 +27,7 @@
         .video-card:active { transform: scale(0.97); }
         .video-card img { width: 100%; height: 135px; object-fit: cover; pointer-events: none; }
         
-        /* 👁️ Views Badge Style (Small & Clean) */
+        /* Views Badge Style */
         .views-badge { background: rgba(0, 0, 0, 0.5); color: #fff; padding: 3px 7px; font-size: 10px; position: absolute; top: 7px; right: 7px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); font-weight: 500; z-index: 2; backdrop-filter: blur(3px); }
         .locked-text { color: #ffaa00; font-weight: bold; }
         
@@ -39,7 +39,7 @@
         .share-btn { background: linear-gradient(90deg, #0088cc, #00aaff); color: white; border: none; padding: 14px; border-radius: 10px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 15px; font-weight: bold; }
         .close-btn-modal { background: transparent; color: #888; border: none; margin-top: 15px; cursor: pointer; font-size: 13px; text-decoration: underline;}
         
-        /* 🟢 Updated Small/Blurry Close Player Button (Bottom Right) 🟢 */
+        /* Video Player Wrapper */
         #player-wrapper { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 99999; }
         #player-wrapper iframe { width: 100%; height: 100%; border: none; }
         .close-player-btn { 
@@ -125,7 +125,6 @@
                 let isUnlocked = (nRef === 0 || dbRefcount >= nRef);
                 let views = (1200 + Math.floor(Math.random() * 800)).toLocaleString();
                 
-                // 👁️ Unlocked থাকলে শুধু চোখের আইকন আর ভিউ দেখাবে, কালার ঝাপসা হবে
                 let badgeHTML = isUnlocked 
                     ? `<div class="views-badge">👁️ ${views}</div>` 
                     : `<div class="views-badge locked-text">🔒 ${nRef} Refer</div>`;
@@ -140,41 +139,52 @@
         }
 
         function checkUnlock(element) {
-    const videoUrl = element.getAttribute('data-url');
-    currentNeededRef = parseInt(element.getAttribute('data-needed-ref') || "3");
+            const videoUrl = element.getAttribute('data-url');
+            currentNeededRef = parseInt(element.getAttribute('data-needed-ref') || "3");
 
-    if (currentNeededRef === 0 || dbRefcount >= currentNeededRef) {
-        if (!clickedAds[videoUrl]) { 
-            clickedAds[videoUrl] = true; 
-            tg.openLink(adUrl); // আপনার নিজের অ্যাড ওপেন হবে
-        } else {
-            const playerWrapper = document.getElementById('player-wrapper');
-            
-            // 🟢 চেক করা হচ্ছে এটি ডাইরেক্ট লিঙ্ক (.mp4) নাকি ডুডস্ট্রিম লিঙ্ক
-            const isDirect = videoUrl.toLowerCase().includes('.mp4') || videoUrl.includes('drive.google');
+            if (currentNeededRef === 0 || dbRefcount >= currentNeededRef) {
+                
+                // ১. যদি 0 রেফারের ভিডিও হয়, তবে অ্যাড ওপেন হবে না!
+                // ২. 0 এর বেশি রেফার লাগলে প্রথম ক্লিকে অ্যাড ওপেন হবে।
+                if (currentNeededRef > 0 && !clickedAds[videoUrl]) { 
+                    clickedAds[videoUrl] = true; 
+                    tg.openLink(adUrl); // অ্যাড ওপেন হবে
+                    return; // এখানেই থেমে যাবে। ইউজারকে ব্যাক করে আবার ক্লিক করতে হবে।
+                }
+                
+                const playerWrapper = document.getElementById('player-wrapper');
+                const lowerUrl = videoUrl.toLowerCase();
 
-            if (isDirect) {
-                // 🚀 ডাইরেক্ট লিঙ্কের জন্য ক্লিন প্লেয়ার (No Ads)
-                playerWrapper.innerHTML = `
-                    <button class="close-player-btn" onclick="closePlayer()">❌ Close Video</button>
-                    <video controls autoplay style="width:100%; height:100%; background:#000; border-radius:0;">
-                        <source src="${videoUrl}" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                `;
+                // লজিক ১: টেলিগ্রামের লিংক হলে ডিরেক্ট টেলিগ্রাম অ্যাপে ওপেন হবে (কোনো প্লেয়ার আসবে না)
+                if (lowerUrl.includes('t.me/') || lowerUrl.includes('telegram.me/')) {
+                    tg.openTelegramLink(videoUrl);
+                    return;
+                }
+
+                // লজিক ২: ডাইরেক্ট .mp4 লিংক হলে ক্লিন ভিডিও প্লেয়ারে চলবে
+                if (lowerUrl.includes('.mp4')) {
+                    playerWrapper.innerHTML = `
+                        <button class="close-player-btn" onclick="closePlayer()">❌ Close Video</button>
+                        <video controls autoplay style="width:100%; height:100%; background:#000; border-radius:0;">
+                            <source src="${videoUrl}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    `;
+                    playerWrapper.style.display = 'block';
+                } 
+                // লজিক ৩: গুগল ড্রাইভ, ডুডস্ট্রিম বা অন্য সব লিংকের জন্য Iframe প্লেয়ার
+                else {
+                    playerWrapper.innerHTML = `
+                        <button class="close-player-btn" onclick="closePlayer()">❌ Close Video</button>
+                        <iframe src="${videoUrl}" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no"></iframe>
+                    `;
+                    playerWrapper.style.display = 'block';
+                }
+                
             } else {
-                // ⚠️ ডুডস্ট্রিম বা ইমবেড লিঙ্কের জন্য (Ads থাকতে পারে)
-                playerWrapper.innerHTML = `
-                    <button class="close-player-btn" onclick="closePlayer()">❌ Close Video</button>
-                    <iframe src="${videoUrl}" allowfullscreen="true" scrolling="no"></iframe>
-                `;
+                resetInviteModal(); document.getElementById('shareModal').style.display = 'flex';
             }
-            playerWrapper.style.display = 'block';
         }
-    } else {
-        resetInviteModal(); document.getElementById('shareModal').style.display = 'flex';
-    }
-}
 
         function closePlayer() {
             document.getElementById('player-wrapper').style.display = 'none';
