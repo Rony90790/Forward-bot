@@ -4,19 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Video Unlocker Pro</title>
+    <!-- শুধুমাত্র টেলিগ্রাম স্ক্রিপ্ট রাখা হয়েছে, Supabase JS মুছে ফেলা হয়েছে অ্যাপ ফাস্ট করার জন্য -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0f0f0f; color: white; margin: 0; padding: 10px; user-select: none; touch-action: manipulation; }
         
-        .add-group-btn { background: linear-gradient(90deg, #ff0055, #ff00aa); color: white; border: none; padding: 14px; border-radius: 30px; font-weight: bold; width: 100%; cursor: pointer; animation: pulse 2s infinite; }
+        .add-group-btn { background: linear-gradient(90deg, #ff0055, #ff00aa); color: white; border: none; padding: 14px; border-radius: 30px; font-weight: bold; width: 100%; cursor: pointer; animation: pulse 2s infinite; transform: translateZ(0); }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+        
         .online-badge { background: rgba(0, 255, 0, 0.1); color: #00ff00; border: 1px solid #00ff00; padding: 5px 12px; border-radius: 20px; font-size: 11px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 10px; font-weight: bold; }
         .dot { height: 7px; width: 7px; background-color: #00ff00; border-radius: 50%; display: inline-block; animation: blink 1s infinite; }
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
         .status-container { background: #1a1a1a; padding: 15px; border-radius: 12px; border: 1px solid #333; text-align: center; margin-bottom: 15px; }
-        .progress-bg { background: #333; border-radius: 10px; height: 10px; width: 100%; overflow: hidden; margin: 10px 0; }
+        .progress-bg { background: #333; border-radius: 10px; height: 10px; width: 100%; overflow: hidden; margin: 10px 0; transform: translateZ(0); }
         .progress-bar { background: linear-gradient(90deg, #00ffaa, #00aaff); height: 100%; width: 0%; transition: width 0.5s ease; }
 
         .filter-container { display: flex; gap: 8px; margin-bottom: 15px; }
@@ -27,29 +28,30 @@
 
         .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-bottom: 20px;}
         
-        /* 🚀 UPDATED: Frame 190px এবং overflow hidden */
-        .video-card { background: #111; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #333; cursor: pointer; transition: transform 0.2s; height: 190px; }
+        .shimmer-card { height: 190px; border-radius: 10px; background: #222; background-image: linear-gradient(90deg, #222 0px, #333 40px, #222 80px); background-size: 200%; animation: shine 1.5s infinite; border: 1px solid #333; transform: translateZ(0); }
+        @keyframes shine { to { background-position: -200%; } }
+
+        .video-card { background: #111; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #333; cursor: pointer; height: 190px; transform: translateZ(0); }
         .video-card:active { transform: scale(0.97); }
         
-        /* 🚀 FIX FOR FLASHING: Transform বাদ দিয়ে Absolute পজিশনে ১২০% জুম করা হয়েছে */
         .video-card img { 
             position: absolute;
-            top: -10%; 
-            left: -10%; 
-            width: 120%; 
-            height: 120%; 
+            top: -10%; left: -10%; 
+            width: 120%; height: 120%; 
             object-fit: cover; 
             pointer-events: none; 
             background-color: #1a1a1a; 
             z-index: 1;
+            will-change: transform;
         }
         
-        .views-badge { background: rgba(0, 0, 0, 0.6); color: #fff; padding: 3px 7px; font-size: 10px; position: absolute; top: 7px; right: 7px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); font-weight: 500; z-index: 3; backdrop-filter: blur(3px); }
+        /* 🚀 Android Lags fix: Removed backdrop-filter */
+        .views-badge { background: rgba(0, 0, 0, 0.85); color: #fff; padding: 3px 7px; font-size: 10px; position: absolute; top: 7px; right: 7px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); font-weight: 500; z-index: 3; }
         .locked-text { color: #ffaa00; font-weight: bold; }
         
-        .time-badge { background: rgba(0, 0, 0, 0.8); color: #fff; padding: 3px 6px; font-size: 10px; position: absolute; bottom: 7px; right: 7px; border-radius: 4px; font-weight: bold; z-index: 3; }
+        .time-badge { background: rgba(0, 0, 0, 0.85); color: #fff; padding: 3px 6px; font-size: 10px; position: absolute; bottom: 7px; right: 7px; border-radius: 4px; font-weight: bold; z-index: 3; }
         
-        .watch-btn { background: rgba(255, 170, 0, 0.9); color: #000; padding: 4px 8px; font-size: 11px; position: absolute; bottom: 7px; left: 7px; border-radius: 5px; font-weight: bold; z-index: 3;}
+        .watch-btn { background: rgba(255, 170, 0, 0.95); color: #000; padding: 4px 8px; font-size: 11px; position: absolute; bottom: 7px; left: 7px; border-radius: 5px; font-weight: bold; z-index: 3;}
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: #1f1f1f; padding: 25px; border-radius: 20px; width: 85%; text-align: center; border: 1px solid #444; }
@@ -58,8 +60,7 @@
         
         #player-wrapper { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 99999; }
         #player-wrapper iframe { width: 100%; height: 100%; border: none; }
-        .close-player-btn { position: absolute; bottom: 25px; right: 20px; background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.6); border: 1px solid rgba(255, 255, 255, 0.2); padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 11px; z-index: 100000; cursor: pointer; backdrop-filter: blur(5px); transition: 0.3s;}
-        .close-player-btn:active { background: rgba(255, 50, 50, 0.3); color: white; }
+        .close-player-btn { position: absolute; bottom: 25px; right: 20px; background: rgba(255, 255, 255, 0.9); color: #000; padding: 8px 15px; border-radius: 8px; font-weight: bold; font-size: 12px; z-index: 100000; cursor: pointer; border: none;}
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -79,10 +80,15 @@
     
     <div class="filter-container">
         <button id="btn-all" class="filter-btn btn-active" onclick="setFilter('all')">📺 All Videos</button>
-        <button id="btn-unlocked" class="filter-btn btn-inactive" onclick="setFilter('unlocked')">🔓 Unlocked Videos</button>
+        <button id="btn-unlocked" class="filter-btn btn-inactive" onclick="setFilter('unlocked')">🔓 Unlocked</button>
     </div>
 
-    <div class="video-grid" id="video-container"></div>
+    <div class="video-grid" id="video-container">
+        <div class="shimmer-card"></div>
+        <div class="shimmer-card"></div>
+        <div class="shimmer-card"></div>
+        <div class="shimmer-card"></div>
+    </div>
 
     <div class="modal" id="shareModal">
         <div class="modal-content" id="modal-box"></div>
@@ -91,10 +97,17 @@
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
+        tg.ready(); // 🚀 THIS STOPS THE TELEGRAM NATIVE LOADING SPINNER INSTANTLY
 
         const SUPABASE_URL = 'https://yctirvnryrzygoxbpvoy.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_aBcD-atruskWwoCiLr0lWw_inT8GLoN';
-        const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        // 🚀 Native Fetch Headers (Super Fast)
+        const fetchHeaders = {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`,
+            'Content-Type': 'application/json'
+        };
 
         const userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : '123456'; 
         const botUsername = 'File_Unlocker_Pro_bot'; 
@@ -104,50 +117,34 @@
 
         setInterval(() => { document.getElementById('online-count').innerText = (1200 + Math.floor(Math.random() * 100)).toLocaleString(); }, 3000);
 
+        // 🚀 Super Fast Native Fetch implementation
         async function initData() {
             try {
-                let { data } = await db.from('referrals').select('referral_count').eq('user_id', userId).single();
-                let currentRef = data ? data.referral_count : 0;
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/referrals?user_id=eq.${userId}&select=referral_count`, { headers: fetchHeaders });
+                const data = await res.json();
+                
+                let currentRef = data.length > 0 ? data[0].referral_count : 0;
                 if (currentRef !== lastRefCount) {
                     dbRefcount = currentRef; lastRefCount = dbRefcount;
                     document.getElementById('bar-fill').style.width = Math.min((dbRefcount / 3) * 100, 100) + "%";
                     document.getElementById('progress-text').innerText = `Total Invites: ${dbRefcount}`;
-                    if(allVideos.length > 0) { renderVideos(); } else { fetchVideos(); }
+                    if (allVideos.length > 0) renderVideos(); 
                 }
-            } catch (err) { console.log(err); }
+            } catch (err) { console.log("User fetch error:", err); }
         }
 
         async function fetchVideos() {
             try {
-                let { data: videos } = await db.from('videos').select('*').order('id', { ascending: false });
-                allVideos = videos; 
-                renderVideos();
-                preloadFreeContent(allVideos);
-            } catch (err) { console.log(err); }
-        }
-
-        function preloadFreeContent(videos) {
-            videos.forEach(vid => {
-                let nRef = vid.needed_ref !== undefined ? vid.needed_ref : 3; 
-                
-                if (nRef === 0) {
-                    let thumbUrl = vid.thumbnail_url;
-                    if (thumbUrl && thumbUrl.includes('||')) {
-                        thumbUrl = thumbUrl.split('||')[0]; 
-                    }
-                    let imgPreload = new Image();
-                    imgPreload.src = thumbUrl; 
-
-                    let videoUrl = vid.video_url.toLowerCase();
-                    if (videoUrl.includes('.mp4')) {
-                        let linkPreload = document.createElement('link');
-                        linkPreload.rel = 'preload';
-                        linkPreload.as = 'video';
-                        linkPreload.href = vid.video_url; 
-                        document.head.appendChild(linkPreload);
-                    }
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/videos?select=*&order=id.desc`, { headers: fetchHeaders });
+                const videos = await res.json();
+                if (videos) {
+                    allVideos = videos; 
+                    renderVideos();
                 }
-            });
+            } catch (err) { 
+                console.log("Video fetch error:", err); 
+                document.getElementById('video-container').innerHTML = '<div class="empty-msg">⚠️ Failed to load videos. Check internet connection.</div>';
+            }
         }
 
         function getRandomTime() {
@@ -182,11 +179,7 @@
                 if (thumbUrl && thumbUrl.includes('||')) {
                     let parts = thumbUrl.split('||');
                     thumbUrl = parts[0]; 
-                    if (parts[1] === 'random') {
-                        displayTime = getRandomTime(); 
-                    } else {
-                        displayTime = parts[1]; 
-                    }
+                    displayTime = parts[1] === 'random' ? getRandomTime() : parts[1]; 
                 } else {
                     displayTime = getRandomTime(); 
                 }
@@ -195,9 +188,8 @@
                     ? `<div class="views-badge">👁️ ${views}</div>` 
                     : `<div class="views-badge locked-text">🔒 ${nRef} Refer</div>`;
                 
-                // 🚀 FIX: loading="lazy" রিমুভ করা হয়েছে যাতে লোডিং ডিলে না হয়
                 html += `<div class="video-card" data-url="${vid.video_url}" data-needed-ref="${nRef}" onclick="checkUnlock(this)">
-                    <img src="${thumbUrl}">
+                    <img src="${thumbUrl}" onerror="this.src='https://via.placeholder.com/300x190/111/444?text=Image+Not+Found'">
                     ${badgeHTML}
                     <div class="time-badge">${displayTime}</div>
                     <div class="watch-btn">▶ Watch</div>
@@ -205,7 +197,9 @@
             });
 
             if (!hasVisibleVideos && filterMode === 'unlocked') {
-                html = `<div class="empty-msg">😢 You haven't unlocked any paid videos yet. Share your link to unlock!</div>`;
+                html = `<div class="empty-msg">😢 You haven't unlocked any videos yet. Share your link to unlock!</div>`;
+            } else if (!hasVisibleVideos) {
+                html = `<div class="empty-msg">❌ No videos available.</div>`;
             }
 
             document.getElementById('video-container').innerHTML = html;
@@ -233,22 +227,20 @@
 
                 if (lowerUrl.includes('.mp4')) {
                     playerWrapper.innerHTML = `
-                        <button class="close-player-btn" onclick="closePlayer()">❌ Close</button>
-                        <video controls autoplay playsinline preload="auto" autobuffer style="width:100%; height:100%; background:#000; border-radius:0; outline:none;">
+                        <button class="close-player-btn" onclick="closePlayer()">Close</button>
+                        <video controls autoplay playsinline style="width:100%; height:100%; background:#000; border-radius:0; outline:none;">
                             <source src="${videoUrl}" type="video/mp4">
-                            Your browser does not support the video tag.
                         </video>
                     `;
                     playerWrapper.style.display = 'block';
                 } 
                 else {
                     playerWrapper.innerHTML = `
-                        <button class="close-player-btn" onclick="closePlayer()">❌ Close</button>
+                        <button class="close-player-btn" onclick="closePlayer()">Close</button>
                         <iframe src="${videoUrl}" sandbox="allow-scripts allow-same-origin allow-presentation" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no"></iframe>
                     `;
                     playerWrapper.style.display = 'block';
                 }
-                
             } else {
                 resetInviteModal(); document.getElementById('shareModal').style.display = 'flex';
             }
@@ -294,6 +286,8 @@
 
         function closeModal() { document.getElementById('shareModal').style.display = 'none'; }
 
+        // 🚀 Start requests immediately
+        fetchVideos();
         initData();
         setInterval(initData, 5000); 
     </script>
