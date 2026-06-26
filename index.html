@@ -56,9 +56,10 @@
         .share-btn { background: linear-gradient(90deg, #0088cc, #00aaff); color: white; border: none; padding: 14px; border-radius: 10px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 15px; font-weight: bold; }
         .close-btn-modal { background: transparent; color: #888; border: none; margin-top: 15px; cursor: pointer; font-size: 13px; text-decoration: underline;}
         
+        /* 🚀 PLAYER UI IMPROVEMENT */
         #player-wrapper { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 99999; }
-        #player-wrapper iframe { width: 100%; height: 100%; border: none; }
-        .close-player-btn { position: absolute; bottom: 25px; right: 20px; background: rgba(255, 255, 255, 0.9); color: #000; padding: 8px 15px; border-radius: 8px; font-weight: bold; font-size: 12px; z-index: 100000; cursor: pointer; border: none;}
+        #player-wrapper iframe { width: 100%; height: 100%; border: none; display: block; }
+        .close-player-btn { position: absolute; bottom: 25px; right: 20px; background: #ff3b30; color: #fff; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 14px; z-index: 100000; cursor: pointer; border: none; box-shadow: 0 4px 15px rgba(255,0,0,0.3);}
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -214,40 +215,39 @@
                 }
                 
                 const playerWrapper = document.getElementById('player-wrapper');
-                const lowerUrl = videoUrl.toLowerCase();
+                let finalUrl = videoUrl;
+                const lowerUrl = finalUrl.toLowerCase();
 
-                // 🚀 ADVANCED CLEANER: Stripchat/Live sites-এর লিংক একদম ফ্রেশ করে নিবে
-                let cleanUrl = videoUrl;
-                if (lowerUrl.includes('stripchat.com') || lowerUrl.includes('bongacams') || lowerUrl.includes('chaturbate')) {
-                    // Remove /embed/, trailing slashes and spaces
-                    cleanUrl = cleanUrl.replace('/embed/', '/').replace(/\/+$/, "").trim();
-                    tg.openLink(cleanUrl);
-                    return;
+                // 🚀 NEW: STRIPCHAT EMBED FORCE LOGIC
+                if (lowerUrl.includes('stripchat.com')) {
+                    // Extract model name from any stripchat link
+                    let modelName = finalUrl.split('/').pop().replace('?','&').split('&')[0];
+                    if (finalUrl.includes('/embed/')) {
+                         modelName = finalUrl.split('/embed/')[1].split('?')[0].split('&')[0];
+                    }
+                    finalUrl = `https://stripchat.com/embed/${modelName}?muted=1&autoPlay=1`;
                 }
 
                 // 1. Telegram Link
                 if (lowerUrl.includes('t.me/') || lowerUrl.includes('telegram.me/')) {
-                    tg.openTelegramLink(cleanUrl);
+                    tg.openTelegramLink(finalUrl);
                     return;
                 }
 
-                // 2. Direct MP4
+                // 2. Play Content Inside App Player
                 if (lowerUrl.includes('.mp4')) {
                     playerWrapper.innerHTML = `
-                        <button class="close-player-btn" onclick="closePlayer()">Close</button>
-                        <video controls autoplay playsinline style="width:100%; height:100%; background:#000; border-radius:0; outline:none;">
-                            <source src="${cleanUrl}" type="video/mp4">
+                        <button class="close-player-btn" onclick="closePlayer()">❌ Close</button>
+                        <video controls autoplay playsinline style="width:100%; height:100%; background:#000;">
+                            <source src="${finalUrl}" type="video/mp4">
                         </video>
                     `;
-                    playerWrapper.style.display = 'block';
-                    return;
-                } 
-                
-                // 3. Default Iframe (YouTube or others)
-                playerWrapper.innerHTML = `
-                    <button class="close-player-btn" onclick="closePlayer()">Close</button>
-                    <iframe src="${cleanUrl}" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no" frameborder="0" style="width:100%; height:100%; background:#000; border:none;"></iframe>
-                `;
+                } else {
+                    playerWrapper.innerHTML = `
+                        <button class="close-player-btn" onclick="closePlayer()">❌ Close</button>
+                        <iframe src="${finalUrl}" allow="autoplay; fullscreen; microphone; camera;" allowfullscreen="true" scrolling="no"></iframe>
+                    `;
+                }
                 playerWrapper.style.display = 'block';
                 
             } else {
