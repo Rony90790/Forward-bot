@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Video Unlocker Pro</title>
-    <!-- শুধুমাত্র টেলিগ্রাম স্ক্রিপ্ট রাখা হয়েছে, Supabase JS মুছে ফেলা হয়েছে অ্যাপ ফাস্ট করার জন্য -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0f0f0f; color: white; margin: 0; padding: 10px; user-select: none; touch-action: manipulation; }
@@ -45,7 +44,6 @@
             will-change: transform;
         }
         
-        /* 🚀 Android Lags fix: Removed backdrop-filter */
         .views-badge { background: rgba(0, 0, 0, 0.85); color: #fff; padding: 3px 7px; font-size: 10px; position: absolute; top: 7px; right: 7px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); font-weight: 500; z-index: 3; }
         .locked-text { color: #ffaa00; font-weight: bold; }
         
@@ -97,12 +95,11 @@
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        tg.ready(); // 🚀 THIS STOPS THE TELEGRAM NATIVE LOADING SPINNER INSTANTLY
+        tg.ready();
 
         const SUPABASE_URL = 'https://yctirvnryrzygoxbpvoy.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_aBcD-atruskWwoCiLr0lWw_inT8GLoN';
         
-        // 🚀 Native Fetch Headers (Super Fast)
         const fetchHeaders = {
             'apikey': SUPABASE_KEY,
             'Authorization': `Bearer ${SUPABASE_KEY}`,
@@ -117,7 +114,6 @@
 
         setInterval(() => { document.getElementById('online-count').innerText = (1200 + Math.floor(Math.random() * 100)).toLocaleString(); }, 3000);
 
-        // 🚀 Super Fast Native Fetch implementation
         async function initData() {
             try {
                 const res = await fetch(`${SUPABASE_URL}/rest/v1/referrals?user_id=eq.${userId}&select=referral_count`, { headers: fetchHeaders });
@@ -235,9 +231,10 @@
                     playerWrapper.style.display = 'block';
                 } 
                 else {
+                    // 🚀 FIX: Removed 'sandbox' completely so external streams (like Stripchat) can run without being blocked
                     playerWrapper.innerHTML = `
                         <button class="close-player-btn" onclick="closePlayer()">Close</button>
-                        <iframe src="${videoUrl}" sandbox="allow-scripts allow-same-origin allow-presentation" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no"></iframe>
+                        <iframe src="${videoUrl}" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no" frameborder="0" style="width:100%; height:100%; background:#000; border:none;"></iframe>
                     `;
                     playerWrapper.style.display = 'block';
                 }
@@ -286,7 +283,6 @@
 
         function closeModal() { document.getElementById('shareModal').style.display = 'none'; }
 
-        // 🚀 Start requests immediately
         fetchVideos();
         initData();
         setInterval(initData, 5000); 
