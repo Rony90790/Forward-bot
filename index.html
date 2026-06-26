@@ -95,8 +95,41 @@
         async function fetchVideos() {
             try {
                 let { data: videos } = await db.from('videos').select('*').order('id', { ascending: false });
-                allVideos = videos; renderVideos();
+                allVideos = videos; 
+                renderVideos();
+                
+                // 🚀 ভিডিও লোড হওয়ার পর স্মার্ট প্রি-লোডিং শুরু হবে
+                preloadFreeContent(allVideos);
             } catch (err) { console.log(err); }
+        }
+
+        // 🚀 স্মার্ট প্রি-লোডার ফাংশন (ব্যাকগ্রাউন্ডে ছবি ও ভিডিওর কিছু অংশ লোড করবে)
+        function preloadFreeContent(videos) {
+            videos.forEach(vid => {
+                let nRef = vid.needed_ref !== undefined ? vid.needed_ref : 3; 
+                
+                // শুধুমাত্র ০ রেফারের (ফ্রি) ভিডিওগুলোর জন্য কাজ করবে
+                if (nRef === 0) {
+                    
+                    // ১. থাম্বনেইল (ছবি) ফুল প্রি-লোড করা হচ্ছে
+                    let thumbUrl = vid.thumbnail_url;
+                    if (thumbUrl && thumbUrl.includes('||')) {
+                        thumbUrl = thumbUrl.split('||')[0]; // যদি টাইম অ্যাড করা থাকে, সেটা বাদ দিয়ে শুধু লিংক নেবে
+                    }
+                    let imgPreload = new Image();
+                    imgPreload.src = thumbUrl; // অ্যাপ ওপেন হলেই ছবি মেমোরিতে সেভ হয়ে যাবে
+
+                    // ২. .mp4 ভিডিওর ক্ষেত্রে ব্রাউজারকে বলা হচ্ছে আগে থেকেই ডাটা রেডি রাখতে
+                    let videoUrl = vid.video_url.toLowerCase();
+                    if (videoUrl.includes('.mp4')) {
+                        let linkPreload = document.createElement('link');
+                        linkPreload.rel = 'preload';
+                        linkPreload.as = 'video';
+                        linkPreload.href = vid.video_url; // অরিজিনাল লিংক
+                        document.head.appendChild(linkPreload);
+                    }
+                }
+            });
         }
 
         // 🕒 ১ থেকে ৭ মিনিটের মধ্যে র‍্যান্ডম টাইম জেনারেটর
