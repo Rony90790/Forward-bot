@@ -6,71 +6,68 @@
     <title>Video Unlocker Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0f0f0f; color: white; margin: 0; padding: 10px; user-select: none; touch-action: manipulation; overflow-x: hidden; }
+        /* 🚀 ১. জুম বন্ধ এবং স্টাইল সেটআপ */
+        body { font-family: 'Segoe UI', sans-serif; background: #000; color: white; margin: 0; padding: 10px; user-select: none; touch-action: manipulation; overflow-x: hidden; }
         
-        .add-group-btn { background: linear-gradient(90deg, #ff0055, #ff00aa); color: white; border: none; padding: 14px; border-radius: 30px; font-weight: bold; width: 100%; cursor: pointer; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+        .add-group-btn { background: linear-gradient(90deg, #ff0055, #ff00aa); color: white; border: none; padding: 14px; border-radius: 30px; font-weight: bold; width: 100%; cursor: pointer; animation: pulse 2s infinite; margin-bottom: 10px; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
         
-        .online-badge { background: rgba(0, 255, 0, 0.1); color: #00ff00; border: 1px solid #00ff00; padding: 5px 12px; border-radius: 20px; font-size: 11px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 10px; font-weight: bold; }
-        .dot { height: 7px; width: 7px; background-color: #00ff00; border-radius: 50%; display: inline-block; animation: blink 1s infinite; }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-
-        .status-container { background: #1a1a1a; padding: 15px; border-radius: 12px; border: 1px solid #333; text-align: center; margin-bottom: 15px; }
-        .progress-bg { background: #333; border-radius: 10px; height: 10px; width: 100%; overflow: hidden; margin: 10px 0; }
+        .status-container { background: #111; padding: 15px; border-radius: 12px; border: 1px solid #333; text-align: center; margin-bottom: 15px; }
+        .progress-bg { background: #333; border-radius: 10px; height: 8px; width: 100%; overflow: hidden; margin: 10px 0; }
         .progress-bar { background: linear-gradient(90deg, #00ffaa, #00aaff); height: 100%; width: 0%; transition: width 0.5s ease; }
 
         .filter-container { display: flex; gap: 8px; margin-bottom: 15px; }
-        .filter-btn { flex: 1; padding: 8px 5px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 12px; }
-        .btn-active { background: linear-gradient(90deg, #00ffaa, #00aaff); color: #000; box-shadow: 0 2px 10px rgba(0, 255, 170, 0.3); }
-        .btn-inactive { background: #333; color: #fff; border: 1px solid #444; }
+        .filter-btn { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #333; font-weight: bold; cursor: pointer; font-size: 12px; background: #222; color: #fff; }
+        .btn-active { background: linear-gradient(90deg, #00ffaa, #00aaff); color: #000; border: none; }
 
-        .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-bottom: 20px;}
+        .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-bottom: 30px; }
         
-        /* 🚀 Shimmer effect for slow network */
-        .shimmer { background: #222; background-image: linear-gradient(90deg, #222 0%, #333 50%, #222 100%); background-size: 200% 100%; animation: shimmer 1.5s infinite; height: 190px; border-radius: 10px; }
-        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-
-        .video-card { background: #111; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #333; cursor: pointer; height: 190px; }
-        /* Fixed cropping for status bars in screenshots */
-        .video-card img { position: absolute; top: -10%; left: -10%; width: 120%; height: 120%; object-fit: cover; background-color: #1a1a1a; }
+        /* 🚀 ২. স্ক্রিনশটের বার লুকানোর জন্য ইমেজ ক্রপিং (scale 1.2) */
+        .video-card { background: #111; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #222; height: 210px; cursor: pointer; }
+        .video-card img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transform: scale(1.2); transition: 0.3s; }
         
-        .views-badge { background: rgba(0, 0, 0, 0.8); color: #fff; padding: 3px 7px; font-size: 10px; position: absolute; top: 7px; right: 7px; border-radius: 4px; z-index: 3; }
-        .time-badge { background: rgba(0, 0, 0, 0.8); color: #fff; padding: 3px 6px; font-size: 10px; position: absolute; bottom: 7px; right: 7px; border-radius: 4px; z-index: 3; }
-        .watch-btn { background: rgba(255, 170, 0, 0.95); color: #000; padding: 4px 8px; font-size: 11px; position: absolute; bottom: 7px; left: 7px; border-radius: 5px; font-weight: bold; z-index: 3;}
+        .views-badge { background: rgba(0, 0, 0, 0.7); color: #fff; padding: 3px 6px; font-size: 10px; position: absolute; top: 8px; right: 8px; border-radius: 4px; z-index: 2; }
+        .time-badge { background: rgba(0, 0, 0, 0.8); color: #fff; padding: 3px 6px; font-size: 10px; position: absolute; bottom: 8px; right: 8px; border-radius: 4px; z-index: 2; font-weight: bold; }
+        .watch-btn { background: #ffaa00; color: #000; padding: 4px 8px; font-size: 11px; position: absolute; bottom: 8px; left: 8px; border-radius: 4px; font-weight: bold; z-index: 2; }
 
+        /* 🚀 ৩. স্লো নেটের জন্য শিমার অ্যানিমেশন */
+        .shimmer { background: #1a1a1a; background-image: linear-gradient(90deg, #1a1a1a 0%, #2a2a2a 50%, #1a1a1a 100%); background-size: 200% 100%; animation: shim 1.5s infinite; height: 210px; border-radius: 10px; }
+        @keyframes shim { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+        /* 🚀 ৪. ইন-অ্যাপ প্লেয়ার (লাইভ সাপোর্ট সহ) */
         #player-wrapper { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 99999; }
-        .close-player-btn { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: #ff3b30; color: #fff; padding: 12px 30px; border-radius: 50px; font-weight: bold; z-index: 100000; border: none; }
+        iframe, video { width: 100%; height: 100%; border: none; background: #000; }
+        .close-player { position: absolute; top: 20px; right: 20px; background: rgba(255, 0, 0, 0.8); color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; z-index: 100001; cursor: pointer; }
 
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: #1f1f1f; padding: 25px; border-radius: 20px; width: 85%; text-align: center; border: 1px solid #444; }
-        .share-btn { background: linear-gradient(90deg, #0088cc, #00aaff); color: white; border: none; padding: 14px; border-radius: 10px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 15px; font-weight: bold; }
+        /* মোডাল স্টাইল */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: #111; padding: 25px; border-radius: 20px; width: 80%; text-align: center; border: 1px solid #333; }
+        .share-btn { background: #0088cc; color: white; border: none; padding: 12px; border-radius: 10px; width: 100%; font-size: 16px; font-weight: bold; margin-top: 15px; }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
-    <div style="text-align: center; margin-top: 5px;">
-        <button class="add-group-btn" onclick="tg.openTelegramLink(`https://t.me/${botUsername}?startgroup=true`)">🚀 Add Bot to Group</button>
-        <div class="online-badge" style="margin-top: 10px;"><span class="dot"></span> <span id="online-count">1,240</span> watching</div>
-    </div>
+    <button class="add-group-btn" onclick="tg.openTelegramLink(`https://t.me/${botUsername}?startgroup=true`)">🚀 Add Bot to Group</button>
     
     <div class="status-container">
-        <div id="progress-text" style="font-size: 13px;">Total Invites: 0</div>
+        <div id="progress-text" style="font-size: 13px; color: #aaa;">Total Invites: 0</div>
         <div class="progress-bg"><div class="progress-bar" id="bar-fill"></div></div>
     </div>
 
-    <div id="player-wrapper"></div>
-    
     <div class="filter-container">
-        <button id="btn-all" class="filter-btn btn-active" onclick="setFilter('all')">📺 All Videos</button>
-        <button id="btn-unlocked" class="filter-btn btn-inactive" onclick="setFilter('unlocked')">🔓 Unlocked Videos</button>
+        <button id="btn-all" class="filter-btn btn-active" onclick="setFilter('all')">All Videos</button>
+        <button id="btn-unlocked" class="filter-btn" onclick="setFilter('unlocked')">Unlocked Videos</button>
     </div>
 
     <div class="video-grid" id="video-container">
-        <!-- Default shimmers for slow net -->
-        <div class="shimmer"></div>
-        <div class="shimmer"></div>
-        <div class="shimmer"></div>
-        <div class="shimmer"></div>
+        <!-- লোডিং শিমার -->
+        <div class="shimmer"></div><div class="shimmer"></div>
+        <div class="shimmer"></div><div class="shimmer"></div>
+    </div>
+
+    <div id="player-wrapper">
+        <button class="close-player" onclick="closePlayer()">CLOSE ✕</button>
+        <div id="player-content" style="width:100%; height:100%;"></div>
     </div>
 
     <div class="modal" id="shareModal">
@@ -84,115 +81,107 @@
 
         const SUPABASE_URL = 'https://yctirvnryrzygoxbpvoy.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_aBcD-atruskWwoCiLr0lWw_inT8GLoN';
-        const fetchHeaders = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' };
+        const headers = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` };
 
         const userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : '123456'; 
         const botUsername = 'File_Unlocker_Pro_bot'; 
-        const adUrl = "https://www.effectivecpmnetwork.com/w47jpksk7t?key=15b5e8ae609b09733d4a0906eac2a446";
         
-        let dbRefcount = 0, lastRefCount = -1, allVideos = [], filterMode = 'all'; 
+        let dbRefcount = 0, allVideos = [], filterMode = 'all';
 
-        async function initData() {
+        async function loadData() {
             try {
-                const res = await fetch(`${SUPABASE_URL}/rest/v1/referrals?user_id=eq.${userId}&select=referral_count`, { headers: fetchHeaders });
-                const data = await res.json();
-                let currentRef = data.length > 0 ? data[0].referral_count : 0;
-                if (currentRef !== lastRefCount) {
-                    dbRefcount = currentRef; lastRefCount = dbRefcount;
-                    document.getElementById('bar-fill').style.width = Math.min((dbRefcount / 3) * 100, 100) + "%";
-                    document.getElementById('progress-text').innerText = `Total Invites: ${dbRefcount}`;
-                    if (allVideos.length > 0) renderVideos(); 
-                }
-            } catch (err) { console.log(err); }
+                const [refRes, vidRes] = await Promise.all([
+                    fetch(`${SUPABASE_URL}/rest/v1/referrals?user_id=eq.${userId}&select=referral_count`, { headers }),
+                    fetch(`${SUPABASE_URL}/rest/v1/videos?select=*&order=id.desc`, { headers })
+                ]);
+                
+                const refData = await refRes.json();
+                dbRefcount = refData.length > 0 ? refData[0].referral_count : 0;
+                
+                allVideos = await vidRes.json();
+                render();
+            } catch (e) { console.error(e); }
         }
 
-        async function fetchVideos() {
-            try {
-                const res = await fetch(`${SUPABASE_URL}/rest/v1/videos?select=*&order=id.desc`, { headers: fetchHeaders });
-                const videos = await res.json();
-                if (videos) { allVideos = videos; renderVideos(); }
-            } catch (err) { console.log(err); }
+        function render() {
+            document.getElementById('bar-fill').style.width = Math.min((dbRefcount / 3) * 100, 100) + "%";
+            document.getElementById('progress-text').innerText = `Total Invites: ${dbRefcount}`;
+
+            let html = '';
+            allVideos.forEach(vid => {
+                let nRef = vid.needed_ref || 0;
+                let isUnlocked = (dbRefcount >= nRef);
+                if (filterMode === 'unlocked' && !isUnlocked) return;
+
+                let thumb = vid.thumbnail_url.split('||')[0];
+                let time = vid.thumbnail_url.includes('||') ? vid.thumbnail_url.split('||')[1] : "Live";
+
+                html += `<div class="video-card" onclick="playVideo('${vid.video_url}', ${nRef})">
+                    <img src="${thumb}">
+                    <div class="views-badge">${isUnlocked ? '👁️ '+(1500+Math.floor(Math.random()*500)) : '🔒 '+nRef+' Refer'}</div>
+                    <div class="time-badge">${time === 'random' ? 'Live' : time}</div>
+                    <div class="watch-btn">▶ Watch</div>
+                </div>`;
+            });
+            document.getElementById('video-container').innerHTML = html || '<p style="text-align:center;width:100%;grid-column:1/3;color:#555;">No videos found.</p>';
+        }
+
+        function playVideo(url, nRef) {
+            if (dbRefcount < nRef) {
+                showModal(nRef);
+                return;
+            }
+
+            const container = document.getElementById('player-content');
+            const wrapper = document.getElementById('player-wrapper');
+            let finalUrl = url.trim();
+
+            // 🚀 ৫. লাইভ স্ট্রীম অটো-এমবেড ফিক্স
+            if (finalUrl.includes('stripchat.com')) {
+                let model = finalUrl.split('/').pop().split('?')[0];
+                finalUrl = `https://stripchat.com/embed/${model}?autoPlay=1&muted=1`;
+            }
+
+            if (finalUrl.toLowerCase().endsWith('.mp4')) {
+                container.innerHTML = `<video controls autoplay playsinline><source src="${finalUrl}" type="video/mp4"></video>`;
+            } else {
+                container.innerHTML = `<iframe src="${finalUrl}" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+            }
+            
+            wrapper.style.display = 'block';
+        }
+
+        function closePlayer() {
+            document.getElementById('player-wrapper').style.display = 'none';
+            document.getElementById('player-content').innerHTML = '';
         }
 
         function setFilter(mode) {
             filterMode = mode;
-            document.getElementById('btn-all').className = mode === 'all' ? 'filter-btn btn-active' : 'filter-btn btn-inactive';
-            document.getElementById('btn-unlocked').className = mode === 'unlocked' ? 'filter-btn btn-active' : 'filter-btn btn-inactive';
-            renderVideos();
+            document.getElementById('btn-all').className = mode === 'all' ? 'filter-btn btn-active' : 'filter-btn';
+            document.getElementById('btn-unlocked').className = mode === 'unlocked' ? 'filter-btn btn-active' : 'filter-btn';
+            render();
         }
 
-        function renderVideos() {
-            let html = '';
-            allVideos.forEach(vid => {
-                let nRef = vid.needed_ref || 0;
-                let isUnlocked = (nRef === 0 || dbRefcount >= nRef);
-                if (filterMode === 'unlocked' && !isUnlocked) return;
-
-                let thumb = vid.thumbnail_url.split('||')[0];
-                let time = vid.thumbnail_url.includes('||') ? vid.thumbnail_url.split('||')[1] : "HD";
-                if(time === 'random') time = "Live";
-
-                html += `<div class="video-card" onclick="handlePlay('${vid.video_url}', ${nRef})">
-                    <img src="${thumb}">
-                    <div class="views-badge">${isUnlocked ? '👁️ '+(1000+Math.floor(Math.random()*500)) : '🔒 '+nRef+' Refer'}</div>
-                    <div class="time-badge">${time}</div>
-                    <div class="watch-btn">▶ Watch</div>
-                </div>`;
-            });
-            document.getElementById('video-container').innerHTML = html;
-        }
-
-        function handlePlay(url, nRef) {
-            if (nRef !== 0 && dbRefcount < nRef) {
-                showInviteModal(nRef);
-                return;
-            }
-
-            const lowerUrl = url.toLowerCase();
-
-            // 🚀 LIVE STREAM FIX: Open in Telegram Overlay Browser
-            if (lowerUrl.includes('stripchat.com') || lowerUrl.includes('bongacams') || lowerUrl.includes('chaturbate')) {
-                tg.openLink(url); 
-                return;
-            }
-
-            // Standard Video Play
-            const player = document.getElementById('player-wrapper');
-            if (lowerUrl.includes('.mp4')) {
-                player.innerHTML = `<button class="close-player-btn" onclick="closePlayer()">CLOSE PLAYER</button>
-                    <video controls autoplay playsinline style="width:100%; height:100%;"><source src="${url}" type="video/mp4"></video>`;
-            } else {
-                player.innerHTML = `<button class="close-player-btn" onclick="closePlayer()">CLOSE PLAYER</button>
-                    <iframe src="${url}" style="width:100%; height:100%; border:none;" allow="autoplay; fullscreen"></iframe>`;
-            }
-            player.style.display = 'block';
-        }
-
-        function closePlayer() {
-            const player = document.getElementById('player-wrapper');
-            player.style.display = 'none';
-            player.innerHTML = '';
-        }
-
-        function showInviteModal(needed) {
-            const remaining = needed - dbRefcount;
+        function showModal(needed) {
+            const rem = needed - dbRefcount;
             document.getElementById('modal-box').innerHTML = `
-                <h3 style="color:#ffaa00;">Complete ${remaining} more invites!</h3>
-                <p style="font-size:13px; color:#888;">To watch this live/video, you need ${needed} referrals.</p>
-                <button class="share-btn" onclick="shareLink()">🚀 Share Now</button>
-                <button onclick="document.getElementById('shareModal').style.display='none'" style="background:none; border:none; color:#666; margin-top:15px; text-decoration:underline;">Maybe Later</button>
+                <h2 style="color:#ffaa00;margin:0;">Locked!</h2>
+                <p style="color:#ccc;">To watch, you need ${rem} more invites.</p>
+                <button class="share-btn" onclick="share()">🚀 Invite Friends</button>
+                <p onclick="document.getElementById('shareModal').style.display='none'" style="margin-top:15px;color:#555;cursor:pointer;">Cancel</p>
             `;
             document.getElementById('shareModal').style.display = 'flex';
         }
 
-        function shareLink() {
-            const shareUrl = `https://t.me/share/url?url=https://t.me/${botUsername}?start=${userId}&text=${encodeURIComponent("Watch premium viral videos FREE! 👇")}`;
-            tg.openTelegramLink(shareUrl);
+        function share() {
+            const link = `https://t.me/share/url?url=https://t.me/${botUsername}?start=${userId}&text=${encodeURIComponent("Watch premium viral videos for FREE! 🔞👇")}`;
+            tg.openTelegramLink(link);
         }
 
-        fetchVideos();
-        initData();
-        setInterval(initData, 5000);
+        loadData();
+        setInterval(loadData, 8000);
     </script>
 </body>
+</html></body>
 </html>
