@@ -221,10 +221,15 @@
 
                 // 🚀 STRIPCHAT / CHATURBATE এর জন্য লাইভ সোর্স বের করার লজিক
                 if (lowerUrl.includes('stripchat.com') || lowerUrl.includes('chaturbate.com')) {
-                    tg.MainButton.setText("Connecting to VIP Live Server...").show();
+                    tg.MainButton.setText("Connecting to Secure VIP Server...").show();
                     try {
-                        const BACKEND_URL = 'https://forwt.onrender.com'; // আপনার রেন্ডার লিঙ্ক
-                        const res = await fetch(`${BACKEND_URL}/api/get_stream?url=${videoUrl}`);
+                        const BACKEND_URL = 'https://forwt.onrender.com';
+                        // টাইমআউট হ্যান্ডেল করার জন্য
+                        const controller = new AbortController();
+                        const id = setTimeout(() => controller.abort(), 15000); // ১৫ সেকেন্ড সময় দিবে
+
+                        const res = await fetch(`${BACKEND_URL}/api/get_stream?url=${videoUrl}`, { signal: controller.signal });
+                        clearTimeout(id);
                         const data = await res.json();
                         
                         if (data.stream_url) {
@@ -240,18 +245,17 @@
                                 hls.loadSource(data.stream_url);
                                 hls.attachMedia(video);
                                 hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-                                // যদি মডেল অফলাইন থাকে
-                                hls.on(Hls.Events.ERROR, function (event, data) {
-                                    if (data.fatal) { alert("Model is currently OFFLINE."); closePlayer(); }
+                                hls.on(Hls.Events.ERROR, (event, data) => {
+                                    if (data.fatal) { alert("Stream Error: Possible Offline."); closePlayer(); }
                                 });
                             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                                 video.src = data.stream_url;
                             }
                         } else {
-                            alert("This model is currently Offline.");
+                            alert("This model is currently Offline or in a Private Show.");
                         }
                     } catch (err) {
-                        alert("Server connection error. Please try again.");
+                        alert("Connection Timeout! Try again after 5 seconds.");
                     }
                     tg.MainButton.hide();
                     return;
