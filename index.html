@@ -213,14 +213,21 @@
                 const playerWrapper = document.getElementById('player-wrapper');
                 const lowerUrl = videoUrl.toLowerCase();
 
-                // টেলিগ্রাম লিঙ্ক হলে সরাসরি ওপেন হবে
+                // ১. টেলিগ্রাম লিঙ্ক চেক
                 if (lowerUrl.includes('t.me/') || lowerUrl.includes('telegram.me/')) {
                     tg.openTelegramLink(videoUrl);
                     return;
                 }
 
-                // 🚀 STRIPCHAT / CHATURBATE এর জন্য লাইভ সোর্স বের করার লজিক
-                if (data.stream_url) {
+                // ২. 🚀 স্ট্রিপচ্যাট বা চ্যাটুরবেট লাইভ লজিক
+                if (lowerUrl.includes('stripchat.com') || lowerUrl.includes('chaturbate.com')) {
+                    tg.MainButton.setText("Connecting to VIP Live Server...").show();
+                    try {
+                        const BACKEND_URL = 'https://forwt.onrender.com';
+                        const res = await fetch(`${BACKEND_URL}/api/get_stream?url=${videoUrl}`);
+                        const data = await res.json();
+                        
+                        if (data.stream_url) {
                             playerWrapper.innerHTML = `
                                 <button class="close-player-btn" onclick="closePlayer()">Close</button>
                                 <video id="hls-video" controls autoplay playsinline style="width:100%; height:100%; background:#000; outline:none;"></video>
@@ -229,31 +236,25 @@
                             
                             const video = document.getElementById('hls-video');
                             if (Hls.isSupported()) {
-                                const hls = new Hls({
-                                    manifestLoadingTimeOut: 10000,
-                                    manifestLoadingMaxRetry: 3,
-                                    levelLoadingTimeOut: 10000
-                                });
+                                const hls = new Hls();
                                 hls.loadSource(data.stream_url);
                                 hls.attachMedia(video);
-                                hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                                    video.play().catch(() => {
-                                        showToast("Tap screen to play sound 🔊");
-                                    });
-                                });
-                                hls.on(Hls.Events.ERROR, (event, data) => {
-                                    if (data.fatal) {
-                                        console.log("Stream Error:", data);
-                                        // যদি m3u8 কাজ না করে তবে সরাসরি এমবেড ট্রাই করবে (ব্যাকআপ)
-                                        video.parentElement.innerHTML = `<button class="close-player-btn" onclick="closePlayer()">Close</button><iframe src="${videoUrl}" allow="autoplay; fullscreen"></iframe>`;
-                                    }
-                                });
+                                hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+                                hls.on(Hls.Events.ERROR, (e, d) => { if(d.fatal) { alert("Model is currently Offline."); closePlayer(); }});
                             } else {
                                 video.src = data.stream_url;
                             }
+                        } else {
+                            alert("This model is currently Offline.");
                         }
+                    } catch (err) {
+                        alert("Connection failed! Make sure your Render server is Live.");
+                    }
+                    tg.MainButton.hide();
+                    return;
+                }
 
-                // সাধারণ MP4 ভিডিওর জন্য
+                // ৩. সাধারণ MP4 ভিডিও
                 if (lowerUrl.includes('.mp4')) {
                     playerWrapper.innerHTML = `
                         <button class="close-player-btn" onclick="closePlayer()">Close</button>
@@ -263,7 +264,7 @@
                     `;
                     playerWrapper.style.display = 'block';
                 } 
-                // অন্যান্য লিঙ্কের জন্য (Iframe)
+                // ৪. অন্যান্য লিঙ্ক (Iframe)
                 else {
                     playerWrapper.innerHTML = `
                         <button class="close-player-btn" onclick="closePlayer()">Close</button>
