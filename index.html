@@ -201,18 +201,18 @@
                     ? `<div class="views-badge">👁️ ${views}</div>` 
                     : `<div class="views-badge locked-text">🔒 Need ${nRef} Refer</div>`;
                 
-                // Randomly add Trending badge to top 5 videos
                 let trendingHTML = (index < 5 && Math.random() > 0.5) ? `<div class="trending-badge">🔥 HOT</div>` : ``;
                 
                 let lockIcon = isUnlocked ? "▶ Watch" : "🔒 Locked";
-                let btnClass = isUnlocked ? "watch-btn" : "watch-btn" style="background:#555; color:#ccc;";
+                // 🛠️ BUG FIXED HERE: 
+                let btnStyle = isUnlocked ? "" : "background:#555; color:#ccc;";
 
                 html += `<div class="video-card" data-url="${vid.video_url}" data-needed-ref="${nRef}" onclick="checkUnlock(this)">
                     <img src="${thumbUrl}" onerror="this.src='https://via.placeholder.com/300x190/111/444?text=Image+Not+Found'">
                     ${trendingHTML}
                     ${badgeHTML}
                     <div class="time-badge">${displayTime}</div>
-                    <div class="${btnClass}">${lockIcon}</div>
+                    <div class="watch-btn" style="${btnStyle}">${lockIcon}</div>
                 </div>`;
             });
 
@@ -256,7 +256,6 @@
                         </div>
                     `;
                 } else {
-                    // Fallback for Terabox/Direct links that block iframes
                     playerWrapper.innerHTML = `
                         <iframe src="${videoUrl}" sandbox="allow-scripts allow-same-origin allow-presentation" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no"></iframe>
                         <div class="player-controls">
@@ -292,7 +291,6 @@
         }
 
         function shareLink() {
-            // Highly clickable Bangla+English text
             const viralText = encodeURIComponent("🔞 দোস্ত, এই লিংকে ক্লিক করে ফ্রিতে সব প্রিমিয়াম লিক ভিডিও দেখ! 🔥 তাড়াতাড়ি জয়েন কর 👇");
             const shareUrl = `https://t.me/share/url?url=https://t.me/${botUsername}?start=${userId}&text=${viralText}`;
             tg.openTelegramLink(shareUrl);
@@ -301,7 +299,7 @@
 
         async function verifyInvites() {
             showToast("⏳ Checking database...");
-            await initData(); // Fetch fresh data
+            await initData();
             const remaining = currentNeededRef - dbRefcount;
             
             if (remaining <= 0) {
@@ -315,10 +313,8 @@
 
         function closeModal() { document.getElementById('shareModal').style.display = 'none'; }
 
-        // Initial fetch
         fetchVideos();
         initData();
-        // Check real-time invite updates every 10 seconds silently
         setInterval(initData, 10000); 
     </script>
 </body>
