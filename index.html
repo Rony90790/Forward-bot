@@ -4,142 +4,319 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Video Unlocker Pro</title>
+    <!-- টেলিগ্রাম এবং লাইভ স্ট্রিম চালানোর (hls.js) স্ক্রিপ্ট -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
-        body { font-family: sans-serif; background: #000; color: #fff; margin: 0; padding: 10px; user-select: none; }
-        .header { text-align: center; margin-bottom: 15px; }
-        .progress-box { background: #111; padding: 15px; border-radius: 12px; border: 1px solid #333; margin-bottom: 20px; }
-        .bar-bg { background: #333; height: 10px; border-radius: 5px; margin-top: 10px; overflow: hidden; }
-        .bar-fill { background: #00ffaa; height: 100%; width: 0%; transition: 0.5s; }
-        .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .card { background: #111; border-radius: 10px; overflow: hidden; border: 1px solid #222; position: relative; height: 180px; }
-        .card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.6; }
-        .card-info { position: absolute; bottom: 8px; left: 8px; z-index: 2; }
-        .card-info span { background: #00ffaa; color: #000; font-size: 11px; padding: 3px 8px; border-radius: 4px; font-weight: bold; }
-        .lock-icon { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.8); padding: 4px; border-radius: 50%; font-size: 12px; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0f0f0f; color: white; margin: 0; padding: 10px; user-select: none; touch-action: manipulation; }
         
-        /* Full Screen Player */
-        #player-wrapper { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; }
-        video { width: 100%; height: 100%; }
-        .close-btn { position: absolute; top: 20px; right: 20px; background: red; color: #fff; border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; z-index: 10000; }
-        .player-label { position: absolute; top: 20px; left: 20px; color: #00ffaa; font-weight: bold; font-size: 14px; z-index: 10000; text-shadow: 0 0 5px #000; }
+        .add-group-btn { background: linear-gradient(90deg, #ff0055, #ff00aa); color: white; border: none; padding: 14px; border-radius: 30px; font-weight: bold; width: 100%; cursor: pointer; animation: pulse 2s infinite; transform: translateZ(0); }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+        
+        .online-badge { background: rgba(0, 255, 0, 0.1); color: #00ff00; border: 1px solid #00ff00; padding: 5px 12px; border-radius: 20px; font-size: 11px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 10px; font-weight: bold; }
+        .dot { height: 7px; width: 7px; background-color: #00ff00; border-radius: 50%; display: inline-block; animation: blink 1s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        .status-container { background: #1a1a1a; padding: 15px; border-radius: 12px; border: 1px solid #333; text-align: center; margin-bottom: 15px; }
+        .progress-bg { background: #333; border-radius: 10px; height: 10px; width: 100%; overflow: hidden; margin: 10px 0; transform: translateZ(0); }
+        .progress-bar { background: linear-gradient(90deg, #00ffaa, #00aaff); height: 100%; width: 0%; transition: width 0.5s ease; }
+
+        .filter-container { display: flex; gap: 8px; margin-bottom: 15px; }
+        .filter-btn { flex: 1; padding: 8px 5px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 12px; }
+        .btn-active { background: linear-gradient(90deg, #00ffaa, #00aaff); color: #000; box-shadow: 0 2px 10px rgba(0, 255, 170, 0.3); }
+        .btn-inactive { background: #333; color: #fff; border: 1px solid #444; }
+        .empty-msg { grid-column: span 2; text-align: center; color: #888; padding: 30px 10px; font-size: 14px; }
+
+        .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-bottom: 20px;}
+        
+        .shimmer-card { height: 190px; border-radius: 10px; background: #222; background-image: linear-gradient(90deg, #222 0px, #333 40px, #222 80px); background-size: 200%; animation: shine 1.5s infinite; border: 1px solid #333; transform: translateZ(0); }
+        @keyframes shine { to { background-position: -200%; } }
+
+        .video-card { background: #111; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #333; cursor: pointer; height: 190px; transform: translateZ(0); }
+        .video-card:active { transform: scale(0.97); }
+        
+        .video-card img { position: absolute; top: -10%; left: -10%; width: 120%; height: 120%; object-fit: cover; pointer-events: none; background-color: #1a1a1a; z-index: 1; will-change: transform; }
+        
+        .views-badge { background: rgba(0, 0, 0, 0.85); color: #fff; padding: 3px 7px; font-size: 10px; position: absolute; top: 7px; right: 7px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); font-weight: 500; z-index: 3; }
+        .locked-text { color: #ffaa00; font-weight: bold; }
+        
+        .time-badge { background: rgba(0, 0, 0, 0.85); color: #fff; padding: 3px 6px; font-size: 10px; position: absolute; bottom: 7px; right: 7px; border-radius: 4px; font-weight: bold; z-index: 3; }
+        .watch-btn { background: rgba(255, 170, 0, 0.95); color: #000; padding: 4px 8px; font-size: 11px; position: absolute; bottom: 7px; left: 7px; border-radius: 5px; font-weight: bold; z-index: 3;}
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: #1f1f1f; padding: 25px; border-radius: 20px; width: 85%; text-align: center; border: 1px solid #444; }
+        .share-btn { background: linear-gradient(90deg, #0088cc, #00aaff); color: white; border: none; padding: 14px; border-radius: 10px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 15px; font-weight: bold; }
+        .close-btn-modal { background: transparent; color: #888; border: none; margin-top: 15px; cursor: pointer; font-size: 13px; text-decoration: underline;}
+        
+        #player-wrapper { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 99999; }
+        #player-wrapper iframe, #player-wrapper video { width: 100%; height: 100%; border: none; background: #000; }
+        .close-player-btn { position: absolute; bottom: 25px; right: 20px; background: rgba(255, 255, 255, 0.9); color: #000; padding: 8px 15px; border-radius: 8px; font-weight: bold; font-size: 12px; z-index: 100000; cursor: pointer; border: none;}
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
-    <div class="header">
-        <h3 style="color:#00ffaa; margin:0;">Premium Video Unlocker</h3>
-        <p style="font-size:10px; color:#888;">Invite friends to unlock VIP content</p>
+    <div style="text-align: center; margin-top: 5px;">
+        <button class="add-group-btn" onclick="tg.openTelegramLink(`https://t.me/${botUsername}?startgroup=true`)">🚀 Add Bot to Group</button>
+        <div style="font-size: 10px; color: #666; margin-top: 4px; margin-bottom: 8px;">Premium viral videos updated daily!</div>
+        <div class="online-badge"><span class="dot"></span> <span id="online-count">1,240</span> watching</div>
+    </div>
+    
+    <div class="status-container">
+        <div id="progress-text" style="font-size: 13px; color: #ccc;">Invites: 0</div>
+        <div class="progress-bg"><div class="progress-bar" id="bar-fill"></div></div>
     </div>
 
-    <div class="progress-box">
-        <div id="status-text" style="font-size:14px;">My Invites: 0/3</div>
-        <div class="bar-bg"><div class="bar-fill" id="bar-fill"></div></div>
+    <div id="player-wrapper"></div>
+    
+    <div class="filter-container">
+        <button id="btn-all" class="filter-btn btn-active" onclick="setFilter('all')">📺 All Videos</button>
+        <button id="btn-unlocked" class="filter-btn btn-inactive" onclick="setFilter('unlocked')">🔓 Unlocked</button>
     </div>
 
     <div class="video-grid" id="video-container">
-        <!-- Videos auto load here -->
+        <div class="shimmer-card"></div>
+        <div class="shimmer-card"></div>
+        <div class="shimmer-card"></div>
+        <div class="shimmer-card"></div>
     </div>
 
-    <div id="player-wrapper">
-        <div class="player-label">🛡️ PRIVATE VIP SERVER ACTIVE</div>
-        <button class="close-btn" onclick="closePlayer()">CLOSE</button>
-        <video id="video-player" controls autoplay playsinline></video>
+    <div class="modal" id="shareModal">
+        <div class="modal-content" id="modal-box"></div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
+        tg.ready();
 
         const SUPABASE_URL = 'https://yctirvnryrzygoxbpvoy.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_aBcD-atruskWwoCiLr0lWw_inT8GLoN';
         
-        // ⚠️ আপনার Render বটের লিঙ্ক এখানে দিন (যেমন: https://mybot.onrender.com)
-        const BACKEND_URL = 'https://আপনার-বট-লিঙ্ক.onrender.com'; 
+        // ⚠️ আপনার পাইথন বটের Render লিংটি এখানে দিন
+        const BACKEND_URL = 'http://de3.bot-hosting.net:20495'; 
+
+        const fetchHeaders = {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`,
+            'Content-Type': 'application/json'
+        };
+
+        const userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : '123456'; 
+        const botUsername = 'File_Unlocker_Pro_bot'; 
+        const adUrl = "https://www.effectivecpmnetwork.com/w47jpksk7t?key=15b5e8ae609b09733d4a0906eac2a446";
         
-        const userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : '123456';
-        let dbRefcount = 0;
+        let dbRefcount = 0, lastRefCount = -1, sessionShareClicks = 0, currentNeededRef = 3, allVideos = [], clickedAds = {}, filterMode = 'all'; 
 
-        async function initApp() {
+        setInterval(() => { document.getElementById('online-count').innerText = (1200 + Math.floor(Math.random() * 100)).toLocaleString(); }, 3000);
+
+        async function initData() {
             try {
-                const res = await fetch(`${SUPABASE_URL}/rest/v1/referrals?user_id=eq.${userId}&select=*`, {
-                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-                });
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/referrals?user_id=eq.${userId}&select=referral_count`, { headers: fetchHeaders });
                 const data = await res.json();
-                if (data.length > 0) {
-                    dbRefcount = data[0].referral_count;
+                
+                let currentRef = data.length > 0 ? data[0].referral_count : 0;
+                if (currentRef !== lastRefCount) {
+                    dbRefcount = currentRef; lastRefCount = dbRefcount;
                     document.getElementById('bar-fill').style.width = Math.min((dbRefcount / 3) * 100, 100) + "%";
-                    document.getElementById('status-text').innerText = `My Invites: ${dbRefcount}/3`;
+                    document.getElementById('progress-text').innerText = `Total Invites: ${dbRefcount}`;
+                    if (allVideos.length > 0) renderVideos(); 
                 }
-                loadVideos();
-            } catch (e) { console.log(e); }
+            } catch (err) { console.log("User fetch error:", err); }
         }
 
-        async function loadVideos() {
+        async function fetchVideos() {
             try {
-                const res = await fetch(`${SUPABASE_URL}/rest/v1/videos?select=*&order=id.desc`, {
-                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-                });
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/videos?select=*&order=id.desc`, { headers: fetchHeaders });
                 const videos = await res.json();
-                let html = '';
-                videos.forEach(v => {
-                    let locked = dbRefcount < v.needed_ref;
-                    html += `
-                        <div class="card" onclick="playVideo('${v.video_url}', ${v.needed_ref})">
-                            <img src="${v.thumbnail_url.split('||')[0]}">
-                            <div class="lock-icon">${locked ? '🔒' : '✅'}</div>
-                            <div class="card-info">
-                                <span>${locked ? 'Invite to Watch' : 'Watch Now'}</span>
-                            </div>
-                        </div>
+                if (videos) {
+                    allVideos = videos; 
+                    renderVideos();
+                }
+            } catch (err) { 
+                console.log("Video fetch error:", err); 
+                document.getElementById('video-container').innerHTML = '<div class="empty-msg">⚠️ Failed to load videos. Check internet connection.</div>';
+            }
+        }
+
+        function getRandomTime() {
+            let minutes = Math.floor(Math.random() * 7) + 1; 
+            let seconds = Math.floor(Math.random() * 60);
+            return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        function setFilter(mode) {
+            filterMode = mode;
+            document.getElementById('btn-all').className = mode === 'all' ? 'filter-btn btn-active' : 'filter-btn btn-inactive';
+            document.getElementById('btn-unlocked').className = mode === 'unlocked' ? 'filter-btn btn-active' : 'filter-btn btn-inactive';
+            renderVideos();
+        }
+
+        function renderVideos() {
+            let html = '';
+            let hasVisibleVideos = false;
+
+            allVideos.forEach(vid => {
+                let nRef = vid.needed_ref !== undefined ? vid.needed_ref : 3; 
+                let isUnlocked = (nRef === 0 || dbRefcount >= nRef);
+                
+                if (filterMode === 'unlocked' && !isUnlocked) return;
+                
+                hasVisibleVideos = true;
+                let views = (1200 + Math.floor(Math.random() * 800)).toLocaleString();
+                
+                let thumbUrl = vid.thumbnail_url;
+                let displayTime = "HD";
+                
+                if (thumbUrl && thumbUrl.includes('||')) {
+                    let parts = thumbUrl.split('||');
+                    thumbUrl = parts[0]; 
+                    displayTime = parts[1] === 'random' ? getRandomTime() : parts[1]; 
+                } else {
+                    displayTime = getRandomTime(); 
+                }
+                
+                let badgeHTML = isUnlocked 
+                    ? `<div class="views-badge">👁️ ${views}</div>` 
+                    : `<div class="views-badge locked-text">🔒 ${nRef} Refer</div>`;
+                
+                html += `<div class="video-card" data-url="${vid.video_url}" data-needed-ref="${nRef}" onclick="checkUnlock(this)">
+                    <img src="${thumbUrl}" onerror="this.src='https://via.placeholder.com/300x190/111/444?text=Image+Not+Found'">
+                    ${badgeHTML}
+                    <div class="time-badge">${displayTime}</div>
+                    <div class="watch-btn">▶ Watch</div>
+                </div>`;
+            });
+
+            if (!hasVisibleVideos && filterMode === 'unlocked') {
+                html = `<div class="empty-msg">😢 You haven't unlocked any videos yet. Share your link to unlock!</div>`;
+            } else if (!hasVisibleVideos) {
+                html = `<div class="empty-msg">❌ No videos available.</div>`;
+            }
+
+            document.getElementById('video-container').innerHTML = html;
+        }
+
+        // 🔥 checkUnlock ফাংশনটি আপডেট করা হয়েছে (আপনার আগের কোডের ওপর ভিত্তি করে)
+        async function checkUnlock(element) {
+            const videoUrl = element.getAttribute('data-url');
+            currentNeededRef = parseInt(element.getAttribute('data-needed-ref') || "3");
+
+            if (currentNeededRef === 0 || dbRefcount >= currentNeededRef) {
+                
+                if (currentNeededRef > 0 && !clickedAds[videoUrl]) { 
+                    clickedAds[videoUrl] = true; 
+                    tg.openLink(adUrl); 
+                    return; 
+                }
+                
+                const playerWrapper = document.getElementById('player-wrapper');
+                const lowerUrl = videoUrl.toLowerCase();
+
+                if (lowerUrl.includes('t.me/') || lowerUrl.includes('telegram.me/')) {
+                    tg.openTelegramLink(videoUrl);
+                    return;
+                }
+
+                // 🚀 STRIPCHAT / CHATURBATE MAGIC LOGIC
+                if (lowerUrl.includes('stripchat.com') || lowerUrl.includes('chaturbate.com')) {
+                    tg.MainButton.setText("Connecting to VIP Live Server...").show();
+                    try {
+                        const res = await fetch(`${BACKEND_URL}/api/get_stream?url=${videoUrl}`);
+                        const data = await res.json();
+                        
+                        if (data.stream_url) {
+                            playerWrapper.innerHTML = `
+                                <button class="close-player-btn" onclick="closePlayer()">Close</button>
+                                <video id="hls-video" controls autoplay playsinline style="width:100%; height:100%; background:#000; border-radius:0; outline:none;"></video>
+                            `;
+                            playerWrapper.style.display = 'block';
+                            
+                            const video = document.getElementById('hls-video');
+                            if (Hls.isSupported()) {
+                                const hls = new Hls();
+                                hls.loadSource(data.stream_url);
+                                hls.attachMedia(video);
+                                hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+                            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                                video.src = data.stream_url;
+                                video.addEventListener('loadedmetadata', () => video.play());
+                            }
+                        } else {
+                            tg.showAlert("Live stream not found or offline!");
+                        }
+                    } catch (err) {
+                        tg.showAlert("Backend connection error. Update BACKEND_URL.");
+                    }
+                    tg.MainButton.hide();
+                    return;
+                }
+
+                // ORIGINAL .MP4 LOGIC
+                if (lowerUrl.includes('.mp4')) {
+                    playerWrapper.innerHTML = `
+                        <button class="close-player-btn" onclick="closePlayer()">Close</button>
+                        <video controls autoplay playsinline style="width:100%; height:100%; background:#000; border-radius:0; outline:none;">
+                            <source src="${videoUrl}" type="video/mp4">
+                        </video>
                     `;
-                });
-                document.getElementById('video-container').innerHTML = html;
-            } catch (e) { console.log(e); }
-        }
-
-        async function playVideo(url, needed) {
-            if (dbRefcount < needed) {
-                alert(`You need ${needed} invites to unlock this video!`);
-                return;
-            }
-
-            // যদি Stripchat বা Chaturbate লিঙ্ক হয়
-            if (url.includes('stripchat.com') || url.includes('chaturbate.com')) {
-                tg.MainButton.setText("Connecting to Secure Server...").show();
-                try {
-                    const res = await fetch(`${BACKEND_URL}/api/get_stream?url=${url}`);
-                    const data = await res.json();
-                    if (data.stream_url) {
-                        startHLS(data.stream_url);
-                    } else { alert("Stream is Offline."); }
-                } catch (e) { alert("Server Error. Try again."); }
-                tg.MainButton.hide();
+                    playerWrapper.style.display = 'block';
+                } 
+                // ORIGINAL IFRAME LOGIC
+                else {
+                    playerWrapper.innerHTML = `
+                        <button class="close-player-btn" onclick="closePlayer()">Close</button>
+                        <iframe src="${videoUrl}" sandbox="allow-scripts allow-same-origin allow-presentation" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no"></iframe>
+                    `;
+                    playerWrapper.style.display = 'block';
+                }
             } else {
-                startHLS(url); // For normal MP4
+                resetInviteModal(); document.getElementById('shareModal').style.display = 'flex';
             }
-        }
-
-        function startHLS(m3u8) {
-            const wrapper = document.getElementById('player-wrapper');
-            const video = document.getElementById('video-player');
-            wrapper.style.display = 'block';
-
-            if (Hls.isSupported()) {
-                const hls = new Hls();
-                hls.loadSource(m3u8);
-                hls.attachMedia(video);
-            } else { video.src = m3u8; }
         }
 
         function closePlayer() {
-            const video = document.getElementById('video-player');
-            video.pause(); video.src = "";
             document.getElementById('player-wrapper').style.display = 'none';
+            document.getElementById('player-wrapper').innerHTML = '';
         }
 
-        initApp();
+        function resetInviteModal() {
+            sessionShareClicks = 0; 
+            const remaining = currentNeededRef - dbRefcount;
+            document.getElementById('modal-box').innerHTML = `
+                <h3 style="font-size: 17px;">Complete <span style="color: #ffaa00;">${remaining}</span> more invites!</h3>
+                <div style="font-size: 12px; color: #888; margin-bottom: 15px;">ভিডিওটি দেখতে আরও ${remaining} জনকে ইনভাইট করুন।</div>
+                <button class="share-btn" onclick="shareLink()">🚀 Share Now</button>
+                <button class="close-btn-modal" onclick="closeModal()">Maybe Later</button>
+            `;
+        }
+
+        function shareLink() {
+            sessionShareClicks++;
+            const shareUrl = `https://t.me/share/url?url=https://t.me/${botUsername}?start=${userId}&text=${encodeURIComponent("Watch premium viral videos FREE! 👇")}`;
+            const rem = (currentNeededRef - dbRefcount) - sessionShareClicks;
+
+            if (rem > 0) {
+                document.getElementById('modal-box').innerHTML = `
+                    <h3 style="font-size: 17px;">Only <span style="color: #ffaa00;">${rem}</span> more invites left!</h3>
+                    <button class="share-btn" onclick="shareLink()">🚀 Share Now</button>
+                    <button class="close-btn-modal" onclick="closeModal()">Close</button>
+                `;
+                tg.openTelegramLink(shareUrl);
+            } else {
+                document.getElementById('modal-box').innerHTML = `
+                    <h2 style="color:#00ff00; font-size:20px;">✅ Shared Successfully!</h2>
+                    <p style="font-size: 13px; color: #ccc;">Waiting for your friends to join...</p>
+                    <button class="close-btn-modal" onclick="closeModal()">Close</button>
+                `;
+                tg.openTelegramLink(shareUrl);
+            }
+        }
+
+        function closeModal() { document.getElementById('shareModal').style.display = 'none'; }
+
+        fetchVideos();
+        initData();
+        setInterval(initData, 5000); 
     </script>
 </body>
 </html>
