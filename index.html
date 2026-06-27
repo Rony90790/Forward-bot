@@ -220,19 +220,7 @@
                 }
 
                 // 🚀 STRIPCHAT / CHATURBATE এর জন্য লাইভ সোর্স বের করার লজিক
-                if (lowerUrl.includes('stripchat.com') || lowerUrl.includes('chaturbate.com')) {
-                    tg.MainButton.setText("Connecting to Secure VIP Server...").show();
-                    try {
-                        const BACKEND_URL = 'https://forwt.onrender.com';
-                        // টাইমআউট হ্যান্ডেল করার জন্য
-                        const controller = new AbortController();
-                        const id = setTimeout(() => controller.abort(), 15000); // ১৫ সেকেন্ড সময় দিবে
-
-                        const res = await fetch(`${BACKEND_URL}/api/get_stream?url=${videoUrl}`, { signal: controller.signal });
-                        clearTimeout(id);
-                        const data = await res.json();
-                        
-                        if (data.stream_url) {
+                if (data.stream_url) {
                             playerWrapper.innerHTML = `
                                 <button class="close-player-btn" onclick="closePlayer()">Close</button>
                                 <video id="hls-video" controls autoplay playsinline style="width:100%; height:100%; background:#000; outline:none;"></video>
@@ -241,25 +229,29 @@
                             
                             const video = document.getElementById('hls-video');
                             if (Hls.isSupported()) {
-                                const hls = new Hls();
+                                const hls = new Hls({
+                                    manifestLoadingTimeOut: 10000,
+                                    manifestLoadingMaxRetry: 3,
+                                    levelLoadingTimeOut: 10000
+                                });
                                 hls.loadSource(data.stream_url);
                                 hls.attachMedia(video);
-                                hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-                                hls.on(Hls.Events.ERROR, (event, data) => {
-                                    if (data.fatal) { alert("Stream Error: Possible Offline."); closePlayer(); }
+                                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                                    video.play().catch(() => {
+                                        showToast("Tap screen to play sound 🔊");
+                                    });
                                 });
-                            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                                hls.on(Hls.Events.ERROR, (event, data) => {
+                                    if (data.fatal) {
+                                        console.log("Stream Error:", data);
+                                        // যদি m3u8 কাজ না করে তবে সরাসরি এমবেড ট্রাই করবে (ব্যাকআপ)
+                                        video.parentElement.innerHTML = `<button class="close-player-btn" onclick="closePlayer()">Close</button><iframe src="${videoUrl}" allow="autoplay; fullscreen"></iframe>`;
+                                    }
+                                });
+                            } else {
                                 video.src = data.stream_url;
                             }
-                        } else {
-                            alert("This model is currently Offline or in a Private Show.");
                         }
-                    } catch (err) {
-                        alert("Connection Timeout! Try again after 5 seconds.");
-                    }
-                    tg.MainButton.hide();
-                    return;
-                }
 
                 // সাধারণ MP4 ভিডিওর জন্য
                 if (lowerUrl.includes('.mp4')) {
