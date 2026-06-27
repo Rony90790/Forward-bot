@@ -4,79 +4,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Video Unlocker Pro</title>
-    <!-- শুধুমাত্র টেলিগ্রাম স্ক্রিপ্ট রাখা হয়েছে, Supabase JS মুছে ফেলা হয়েছে অ্যাপ ফাস্ট করার জন্য -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0f0f0f; color: white; margin: 0; padding: 10px; user-select: none; touch-action: manipulation; }
         
-        .add-group-btn { background: linear-gradient(90deg, #ff0055, #ff00aa); color: white; border: none; padding: 14px; border-radius: 30px; font-weight: bold; width: 100%; cursor: pointer; animation: pulse 2s infinite; transform: translateZ(0); }
+        .add-group-btn { background: linear-gradient(90deg, #ff0055, #ff00aa); color: white; border: none; padding: 14px; border-radius: 30px; font-weight: bold; width: 100%; cursor: pointer; animation: pulse 2s infinite; transform: translateZ(0); box-shadow: 0 4px 15px rgba(255,0,85,0.4);}
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
         
-        .online-badge { background: rgba(0, 255, 0, 0.1); color: #00ff00; border: 1px solid #00ff00; padding: 5px 12px; border-radius: 20px; font-size: 11px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 10px; font-weight: bold; }
-        .dot { height: 7px; width: 7px; background-color: #00ff00; border-radius: 50%; display: inline-block; animation: blink 1s infinite; }
+        .online-badge { background: rgba(0, 255, 0, 0.1); color: #00ff00; border: 1px solid #00ff00; padding: 5px 12px; border-radius: 20px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 10px; font-weight: bold; }
+        .dot { height: 8px; width: 8px; background-color: #00ff00; border-radius: 50%; display: inline-block; animation: blink 1s infinite; box-shadow: 0 0 8px #00ff00;}
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
-        .status-container { background: #1a1a1a; padding: 15px; border-radius: 12px; border: 1px solid #333; text-align: center; margin-bottom: 15px; }
-        .progress-bg { background: #333; border-radius: 10px; height: 10px; width: 100%; overflow: hidden; margin: 10px 0; transform: translateZ(0); }
-        .progress-bar { background: linear-gradient(90deg, #00ffaa, #00aaff); height: 100%; width: 0%; transition: width 0.5s ease; }
+        .status-container { background: #1a1a1a; padding: 15px; border-radius: 12px; border: 1px solid #333; text-align: center; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);}
+        .progress-bg { background: #333; border-radius: 10px; height: 12px; width: 100%; overflow: hidden; margin: 10px 0; transform: translateZ(0); }
+        .progress-bar { background: linear-gradient(90deg, #00ffaa, #00aaff); height: 100%; width: 0%; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
 
         .filter-container { display: flex; gap: 8px; margin-bottom: 15px; }
-        .filter-btn { flex: 1; padding: 8px 5px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 12px; }
+        .filter-btn { flex: 1; padding: 10px 5px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 13px; }
         .btn-active { background: linear-gradient(90deg, #00ffaa, #00aaff); color: #000; box-shadow: 0 2px 10px rgba(0, 255, 170, 0.3); }
-        .btn-inactive { background: #333; color: #fff; border: 1px solid #444; }
-        .empty-msg { grid-column: span 2; text-align: center; color: #888; padding: 30px 10px; font-size: 14px; }
+        .btn-inactive { background: #222; color: #fff; border: 1px solid #444; }
+        
+        .empty-msg { grid-column: span 2; text-align: center; color: #aaa; padding: 40px 10px; font-size: 15px; background: #1a1a1a; border-radius: 10px; border: 1px dashed #444;}
 
         .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-bottom: 20px;}
         
-        .shimmer-card { height: 190px; border-radius: 10px; background: #222; background-image: linear-gradient(90deg, #222 0px, #333 40px, #222 80px); background-size: 200%; animation: shine 1.5s infinite; border: 1px solid #333; transform: translateZ(0); }
-        @keyframes shine { to { background-position: -200%; } }
+        .video-card { background: #111; border-radius: 12px; overflow: hidden; position: relative; border: 1px solid #333; cursor: pointer; height: 190px; transform: translateZ(0); box-shadow: 0 4px 8px rgba(0,0,0,0.6);}
+        .video-card:active { transform: scale(0.96); transition: 0.1s; }
+        
+        .video-card img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; z-index: 1; opacity: 0.85; transition: 0.3s;}
+        .video-card:hover img { opacity: 1; transform: scale(1.05);}
+        
+        .views-badge { background: rgba(0, 0, 0, 0.85); color: #fff; padding: 4px 8px; font-size: 11px; position: absolute; top: 8px; right: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); font-weight: bold; z-index: 3; }
+        .locked-text { color: #ff3366; background: rgba(0,0,0,0.9); border-color: #ff3366;}
+        
+        .trending-badge { background: linear-gradient(90deg, #ff9900, #ff3300); color: #fff; padding: 3px 6px; font-size: 10px; position: absolute; top: 8px; left: 8px; border-radius: 4px; font-weight: bold; z-index: 3; animation: pulse 2s infinite;}
 
-        .video-card { background: #111; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #333; cursor: pointer; height: 190px; transform: translateZ(0); }
-        .video-card:active { transform: scale(0.97); }
+        .time-badge { background: rgba(0, 0, 0, 0.85); color: #fff; padding: 4px 7px; font-size: 11px; position: absolute; bottom: 8px; right: 8px; border-radius: 6px; font-weight: bold; z-index: 3; }
         
-        .video-card img { 
-            position: absolute;
-            top: -10%; left: -10%; 
-            width: 120%; height: 120%; 
-            object-fit: cover; 
-            pointer-events: none; 
-            background-color: #1a1a1a; 
-            z-index: 1;
-            will-change: transform;
-        }
-        
-        /* 🚀 Android Lags fix: Removed backdrop-filter */
-        .views-badge { background: rgba(0, 0, 0, 0.85); color: #fff; padding: 3px 7px; font-size: 10px; position: absolute; top: 7px; right: 7px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); font-weight: 500; z-index: 3; }
-        .locked-text { color: #ffaa00; font-weight: bold; }
-        
-        .time-badge { background: rgba(0, 0, 0, 0.85); color: #fff; padding: 3px 6px; font-size: 10px; position: absolute; bottom: 7px; right: 7px; border-radius: 4px; font-weight: bold; z-index: 3; }
-        
-        .watch-btn { background: rgba(255, 170, 0, 0.95); color: #000; padding: 4px 8px; font-size: 11px; position: absolute; bottom: 7px; left: 7px; border-radius: 5px; font-weight: bold; z-index: 3;}
+        .watch-btn { background: linear-gradient(90deg, #00ffaa, #00aaff); color: #000; padding: 5px 10px; font-size: 12px; position: absolute; bottom: 8px; left: 8px; border-radius: 6px; font-weight: 800; z-index: 3;}
 
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: #1f1f1f; padding: 25px; border-radius: 20px; width: 85%; text-align: center; border: 1px solid #444; }
-        .share-btn { background: linear-gradient(90deg, #0088cc, #00aaff); color: white; border: none; padding: 14px; border-radius: 10px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 15px; font-weight: bold; }
-        .close-btn-modal { background: transparent; color: #888; border: none; margin-top: 15px; cursor: pointer; font-size: 13px; text-decoration: underline;}
+        /* Modal styling */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px);}
+        .modal-content { background: #1a1a1a; padding: 30px 20px; border-radius: 20px; width: 85%; max-width: 350px; text-align: center; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.8);}
+        .share-btn { background: linear-gradient(90deg, #0088cc, #00aaff); color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 20px; font-weight: bold; box-shadow: 0 4px 15px rgba(0, 170, 255, 0.4);}
+        .check-btn { background: #333; color: white; border: 1px solid #555; padding: 12px; border-radius: 12px; width: 100%; font-size: 14px; cursor: pointer; margin-top: 10px; font-weight: bold; }
+        .close-btn-modal { background: transparent; color: #888; border: none; margin-top: 15px; cursor: pointer; font-size: 14px; text-decoration: underline;}
         
+        /* Player styling */
         #player-wrapper { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 99999; }
         #player-wrapper iframe { width: 100%; height: 100%; border: none; }
-        .close-player-btn { position: absolute; bottom: 25px; right: 20px; background: rgba(255, 255, 255, 0.9); color: #000; padding: 8px 15px; border-radius: 8px; font-weight: bold; font-size: 12px; z-index: 100000; cursor: pointer; border: none;}
+        .player-controls { position: absolute; bottom: 25px; left: 0; width: 100%; display: flex; justify-content: center; gap: 15px; z-index: 100000; }
+        .action-btn { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); color: #fff; padding: 10px 20px; border-radius: 10px; font-weight: bold; font-size: 14px; cursor: pointer; border: 1px solid rgba(255,255,255,0.3);}
+        .close-player-btn { background: #ff3366; border: none;}
+
+        /* Toast Notification */
+        #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 8px; padding: 12px; position: fixed; z-index: 999999; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s, bottom 0.3s; border: 1px solid #555;}
+        #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
     <div style="text-align: center; margin-top: 5px;">
         <button class="add-group-btn" onclick="tg.openTelegramLink(`https://t.me/${botUsername}?startgroup=true`)">🚀 Add Bot to Group</button>
-        <div style="font-size: 10px; color: #666; margin-top: 4px; margin-bottom: 8px;">Premium viral videos updated daily!</div>
-        <div class="online-badge"><span class="dot"></span> <span id="online-count">1,240</span> watching</div>
+        <div style="font-size: 11px; color: #888; margin-top: 8px; margin-bottom: 8px;">🔥 Premium Leaked Videos Updated Daily!</div>
+        <div class="online-badge"><span class="dot"></span> <span id="online-count">1,240</span> users active</div>
     </div>
     
     <div class="status-container">
-        <div id="progress-text" style="font-size: 13px; color: #ccc;">Invites: 0</div>
+        <div id="progress-text" style="font-size: 15px; font-weight: bold; color: #fff;">Your Invites: <span style="color:#00ffaa">0</span>/3</div>
+        <div style="font-size: 11px; color: #888; margin-top: 4px;">Invite friends to unlock VIP videos</div>
         <div class="progress-bg"><div class="progress-bar" id="bar-fill"></div></div>
     </div>
 
     <div id="player-wrapper"></div>
+    <div id="toast">Message here</div>
     
     <div class="filter-container">
         <button id="btn-all" class="filter-btn btn-active" onclick="setFilter('all')">📺 All Videos</button>
@@ -84,10 +85,9 @@
     </div>
 
     <div class="video-grid" id="video-container">
-        <div class="shimmer-card"></div>
-        <div class="shimmer-card"></div>
-        <div class="shimmer-card"></div>
-        <div class="shimmer-card"></div>
+        <!-- Skeleton loading -->
+        <div class="video-card" style="background:#222;"><div style="padding:20px; text-align:center; color:#555; margin-top:50px;">Loading...</div></div>
+        <div class="video-card" style="background:#222;"></div>
     </div>
 
     <div class="modal" id="shareModal">
@@ -97,40 +97,54 @@
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        tg.ready(); // 🚀 THIS STOPS THE TELEGRAM NATIVE LOADING SPINNER INSTANTLY
+        tg.ready();
 
         const SUPABASE_URL = 'https://yctirvnryrzygoxbpvoy.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_aBcD-atruskWwoCiLr0lWw_inT8GLoN';
         
-        // 🚀 Native Fetch Headers (Super Fast)
-        const fetchHeaders = {
-            'apikey': SUPABASE_KEY,
-            'Authorization': `Bearer ${SUPABASE_KEY}`,
-            'Content-Type': 'application/json'
-        };
+        const fetchHeaders = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' };
 
         const userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : '123456'; 
         const botUsername = 'File_Unlocker_Pro_bot'; 
         const adUrl = "https://www.effectivecpmnetwork.com/w47jpksk7t?key=15b5e8ae609b09733d4a0906eac2a446";
         
-        let dbRefcount = 0, lastRefCount = -1, sessionShareClicks = 0, currentNeededRef = 3, allVideos = [], clickedAds = {}, filterMode = 'all'; 
+        let dbRefcount = 0;
+        let allVideos = [];
+        let clickedAds = {};
+        let filterMode = 'all'; 
+        let currentNeededRef = 3;
 
-        setInterval(() => { document.getElementById('online-count').innerText = (1200 + Math.floor(Math.random() * 100)).toLocaleString(); }, 3000);
+        // Fake live user counter
+        setInterval(() => { document.getElementById('online-count').innerText = (1200 + Math.floor(Math.random() * 200)).toLocaleString(); }, 4000);
 
-        // 🚀 Super Fast Native Fetch implementation
+        function showToast(msg) {
+            const toast = document.getElementById("toast");
+            toast.innerText = msg;
+            toast.className = "show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
         async function initData() {
             try {
                 const res = await fetch(`${SUPABASE_URL}/rest/v1/referrals?user_id=eq.${userId}&select=referral_count`, { headers: fetchHeaders });
                 const data = await res.json();
                 
-                let currentRef = data.length > 0 ? data[0].referral_count : 0;
-                if (currentRef !== lastRefCount) {
-                    dbRefcount = currentRef; lastRefCount = dbRefcount;
-                    document.getElementById('bar-fill').style.width = Math.min((dbRefcount / 3) * 100, 100) + "%";
-                    document.getElementById('progress-text').innerText = `Total Invites: ${dbRefcount}`;
-                    if (allVideos.length > 0) renderVideos(); 
+                if (data.length > 0) {
+                    let newRef = data[0].referral_count;
+                    if(newRef !== dbRefcount) {
+                        dbRefcount = newRef;
+                        updateProgressUI();
+                        if (allVideos.length > 0) renderVideos();
+                    }
                 }
             } catch (err) { console.log("User fetch error:", err); }
+        }
+
+        function updateProgressUI() {
+            let maxTarget = 3; // Default target
+            let percent = Math.min((dbRefcount / maxTarget) * 100, 100);
+            document.getElementById('bar-fill').style.width = percent + "%";
+            document.getElementById('progress-text').innerHTML = `Your Invites: <span style="color:#00ffaa">${dbRefcount}</span>`;
         }
 
         async function fetchVideos() {
@@ -142,8 +156,7 @@
                     renderVideos();
                 }
             } catch (err) { 
-                console.log("Video fetch error:", err); 
-                document.getElementById('video-container').innerHTML = '<div class="empty-msg">⚠️ Failed to load videos. Check internet connection.</div>';
+                document.getElementById('video-container').innerHTML = '<div class="empty-msg">⚠️ Failed to load videos. Check your internet connection.</div>';
             }
         }
 
@@ -164,14 +177,14 @@
             let html = '';
             let hasVisibleVideos = false;
 
-            allVideos.forEach(vid => {
+            allVideos.forEach((vid, index) => {
                 let nRef = vid.needed_ref !== undefined ? vid.needed_ref : 3; 
                 let isUnlocked = (nRef === 0 || dbRefcount >= nRef);
                 
                 if (filterMode === 'unlocked' && !isUnlocked) return;
                 
                 hasVisibleVideos = true;
-                let views = (1200 + Math.floor(Math.random() * 800)).toLocaleString();
+                let views = (2000 + Math.floor(Math.random() * 5000)).toLocaleString();
                 
                 let thumbUrl = vid.thumbnail_url;
                 let displayTime = "HD";
@@ -186,20 +199,27 @@
                 
                 let badgeHTML = isUnlocked 
                     ? `<div class="views-badge">👁️ ${views}</div>` 
-                    : `<div class="views-badge locked-text">🔒 ${nRef} Refer</div>`;
+                    : `<div class="views-badge locked-text">🔒 Need ${nRef} Refer</div>`;
                 
+                // Randomly add Trending badge to top 5 videos
+                let trendingHTML = (index < 5 && Math.random() > 0.5) ? `<div class="trending-badge">🔥 HOT</div>` : ``;
+                
+                let lockIcon = isUnlocked ? "▶ Watch" : "🔒 Locked";
+                let btnClass = isUnlocked ? "watch-btn" : "watch-btn" style="background:#555; color:#ccc;";
+
                 html += `<div class="video-card" data-url="${vid.video_url}" data-needed-ref="${nRef}" onclick="checkUnlock(this)">
                     <img src="${thumbUrl}" onerror="this.src='https://via.placeholder.com/300x190/111/444?text=Image+Not+Found'">
+                    ${trendingHTML}
                     ${badgeHTML}
                     <div class="time-badge">${displayTime}</div>
-                    <div class="watch-btn">▶ Watch</div>
+                    <div class="${btnClass}">${lockIcon}</div>
                 </div>`;
             });
 
             if (!hasVisibleVideos && filterMode === 'unlocked') {
-                html = `<div class="empty-msg">😢 You haven't unlocked any videos yet. Share your link to unlock!</div>`;
+                html = `<div class="empty-msg">😢 You haven't unlocked any VIP videos yet.<br><br>Share your link to unlock them!</div>`;
             } else if (!hasVisibleVideos) {
-                html = `<div class="empty-msg">❌ No videos available.</div>`;
+                html = `<div class="empty-msg">❌ No videos available right now.</div>`;
             }
 
             document.getElementById('video-container').innerHTML = html;
@@ -212,8 +232,9 @@
             if (currentNeededRef === 0 || dbRefcount >= currentNeededRef) {
                 
                 if (currentNeededRef > 0 && !clickedAds[videoUrl]) { 
+                    showToast("⏳ Unlocking secure player...");
                     clickedAds[videoUrl] = true; 
-                    tg.openLink(adUrl); 
+                    setTimeout(() => { tg.openLink(adUrl); }, 800);
                     return; 
                 }
                 
@@ -227,22 +248,26 @@
 
                 if (lowerUrl.includes('.mp4')) {
                     playerWrapper.innerHTML = `
-                        <button class="close-player-btn" onclick="closePlayer()">Close</button>
-                        <video controls autoplay playsinline style="width:100%; height:100%; background:#000; border-radius:0; outline:none;">
+                        <video controls autoplay playsinline style="width:100%; height:100%; background:#000; outline:none;">
                             <source src="${videoUrl}" type="video/mp4">
                         </video>
+                        <div class="player-controls">
+                            <button class="action-btn close-player-btn" onclick="closePlayer()">✖ Close</button>
+                        </div>
                     `;
-                    playerWrapper.style.display = 'block';
-                } 
-                else {
+                } else {
+                    // Fallback for Terabox/Direct links that block iframes
                     playerWrapper.innerHTML = `
-                        <button class="close-player-btn" onclick="closePlayer()">Close</button>
                         <iframe src="${videoUrl}" sandbox="allow-scripts allow-same-origin allow-presentation" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no"></iframe>
+                        <div class="player-controls">
+                            <button class="action-btn" onclick="tg.openLink('${videoUrl}')">🌐 Open External</button>
+                            <button class="action-btn close-player-btn" onclick="closePlayer()">✖ Close</button>
+                        </div>
                     `;
-                    playerWrapper.style.display = 'block';
                 }
+                playerWrapper.style.display = 'block';
             } else {
-                resetInviteModal(); document.getElementById('shareModal').style.display = 'flex';
+                openInviteModal(); 
             }
         }
 
@@ -251,45 +276,50 @@
             document.getElementById('player-wrapper').innerHTML = '';
         }
 
-        function resetInviteModal() {
-            sessionShareClicks = 0; 
+        function openInviteModal() {
             const remaining = currentNeededRef - dbRefcount;
             document.getElementById('modal-box').innerHTML = `
-                <h3 style="font-size: 17px;">Complete <span style="color: #ffaa00;">${remaining}</span> more invites!</h3>
-                <div style="font-size: 12px; color: #888; margin-bottom: 15px;">ভিডিওটি দেখতে আরও ${remaining} জনকে ইনভাইট করুন।</div>
-                <button class="share-btn" onclick="shareLink()">🚀 Share Now</button>
+                <div style="font-size:40px; margin-bottom:10px;">🔒</div>
+                <h3 style="font-size: 18px; margin-top:0;">VIP Video Locked!</h3>
+                <div style="font-size: 13px; color: #aaa; margin-bottom: 20px;">
+                    ভিডিওটি দেখতে আপনার আরও <span style="color: #ff3366; font-weight:bold; font-size:16px;">${remaining}</span> জন বন্ধুকে বটটি রেফার করতে হবে।
+                </div>
+                <button class="share-btn" onclick="shareLink()">🚀 Share via Telegram</button>
+                <button class="check-btn" onclick="verifyInvites()">🔄 Check My Invites</button>
                 <button class="close-btn-modal" onclick="closeModal()">Maybe Later</button>
             `;
+            document.getElementById('shareModal').style.display = 'flex';
         }
 
         function shareLink() {
-            sessionShareClicks++;
-            const shareUrl = `https://t.me/share/url?url=https://t.me/${botUsername}?start=${userId}&text=${encodeURIComponent("Watch premium viral videos FREE! 👇")}`;
-            const rem = (currentNeededRef - dbRefcount) - sessionShareClicks;
+            // Highly clickable Bangla+English text
+            const viralText = encodeURIComponent("🔞 দোস্ত, এই লিংকে ক্লিক করে ফ্রিতে সব প্রিমিয়াম লিক ভিডিও দেখ! 🔥 তাড়াতাড়ি জয়েন কর 👇");
+            const shareUrl = `https://t.me/share/url?url=https://t.me/${botUsername}?start=${userId}&text=${viralText}`;
+            tg.openTelegramLink(shareUrl);
+            setTimeout(() => { showToast("Share with at least 3 friends!"); }, 2000);
+        }
 
-            if (rem > 0) {
-                document.getElementById('modal-box').innerHTML = `
-                    <h3 style="font-size: 17px;">Only <span style="color: #ffaa00;">${rem}</span> more invites left!</h3>
-                    <button class="share-btn" onclick="shareLink()">🚀 Share Now</button>
-                    <button class="close-btn-modal" onclick="closeModal()">Close</button>
-                `;
-                tg.openTelegramLink(shareUrl);
+        async function verifyInvites() {
+            showToast("⏳ Checking database...");
+            await initData(); // Fetch fresh data
+            const remaining = currentNeededRef - dbRefcount;
+            
+            if (remaining <= 0) {
+                closeModal();
+                showToast("🎉 Video Unlocked! Click to play.");
+                renderVideos();
             } else {
-                document.getElementById('modal-box').innerHTML = `
-                    <h2 style="color:#00ff00; font-size:20px;">✅ Shared Successfully!</h2>
-                    <p style="font-size: 13px; color: #ccc;">Waiting for your friends to join...</p>
-                    <button class="close-btn-modal" onclick="closeModal()">Close</button>
-                `;
-                tg.openTelegramLink(shareUrl);
+                showToast(`❌ Still need ${remaining} more users to START the bot!`);
             }
         }
 
         function closeModal() { document.getElementById('shareModal').style.display = 'none'; }
 
-        // 🚀 Start requests immediately
+        // Initial fetch
         fetchVideos();
         initData();
-        setInterval(initData, 5000); 
+        // Check real-time invite updates every 10 seconds silently
+        setInterval(initData, 10000); 
     </script>
 </body>
 </html>
