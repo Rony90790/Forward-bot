@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">	
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Video Unlocker Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -303,7 +304,7 @@
                     `;
                 } else {
                     playerWrapper.innerHTML = `
-                        <iframe src="${videoUrl}" sandbox="allow-scripts allow-same-origin allow-presentation" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no"></iframe>
+                        <iframe src="${videoUrl}" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no"></iframe>
                         <div class="player-controls">
                             <button class="action-btn" onclick="tg.openLink('${videoUrl}')">🌐 Open External</button>
                             <button class="action-btn close-player-btn" onclick="closePlayer()">✖ Close</button>
