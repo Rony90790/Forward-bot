@@ -274,48 +274,39 @@
         }
 
         function checkUnlock(element) {
-            const videoUrl = element.getAttribute('data-url');
-            currentNeededRef = parseInt(element.getAttribute('data-needed-ref') || "3");
+    const videoUrl = element.getAttribute('data-url');
+    currentNeededRef = parseInt(element.getAttribute('data-needed-ref') || "3");
 
-            if (currentNeededRef === 0 || dbRefcount >= currentNeededRef) {
-                
-                if (currentNeededRef > 0 && !clickedAds[videoUrl]) { 
-                    showToast("⏳ Unlocking secure player...");
-                    clickedAds[videoUrl] = true; 
-                    setTimeout(() => { tg.openLink(adUrl); }, 800);
-                    return; 
-                }
-                
-                const playerWrapper = document.getElementById('player-wrapper');
-                const lowerUrl = videoUrl.toLowerCase();
+    if (currentNeededRef === 0 || dbRefcount >= currentNeededRef) {
+        
+        if (currentNeededRef > 0 && !clickedAds[videoUrl]) { 
+            showToast("⏳ Unlocking secure player...");
+            clickedAds[videoUrl] = true; 
+            setTimeout(() => { tg.openLink(adUrl); }, 800);
+            return; 
+        }
+        
+        const playerWrapper = document.getElementById('player-wrapper');
+        
+        // অটো-প্লে করার জন্য লিংকের সাথে autoplay প্যারামিটার যোগ করা
+        let autoPlayUrl = videoUrl.includes('?') ? videoUrl + '&autoplay=1' : videoUrl + '?autoplay=1';
 
-                if (lowerUrl.includes('t.me/') || lowerUrl.includes('telegram.me/')) {
-                    tg.openTelegramLink(videoUrl);
-                    return;
-                }
-
-                if (lowerUrl.includes('.mp4')) {
-                    playerWrapper.innerHTML = `
-                        <video controls autoplay playsinline style="width:100%; height:100%; background:#000; outline:none;">
-                            <source src="${videoUrl}" type="video/mp4">
-                        </video>
-                        <div class="player-controls">
-                            <button class="action-btn close-player-btn" onclick="closePlayer()">✖ Close</button>
-                        </div>
-                    `;
-                } else {
-                    playerWrapper.innerHTML = `
-    <iframe src="${videoUrl}" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no" style="border:none; width:100%; height:100%;"></iframe>
-    <div class="player-controls">
-        <button class="action-btn" onclick="tg.openLink('${videoUrl}')">🌐 Open External</button>
-        <button class="action-btn close-player-btn" onclick="closePlayer()">✖ Close</button>
-    </div>
-`;
-                }
-                playerWrapper.style.display = 'block';
-            } else {
-                openInviteModal(); 
-            }
+        // 'Open External' রিমুভ করা হয়েছে এবং 'Close' বাটন কোনায় নেওয়া হয়েছে
+        playerWrapper.innerHTML = `
+            <iframe src="${autoPlayUrl}" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no" style="border:none; width:100%; height:100%;"></iframe>
+            
+            <div style="position: absolute; top: 15px; right: 15px; z-index: 100003;">
+                <button class="action-btn close-player-btn" onclick="closePlayer()" 
+                    style="border-radius: 50%; width: 40px; height: 40px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 20px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.3); backdrop-filter: blur(10px);">
+                    ✖
+                </button>
+            </div>
+        `;
+        
+        playerWrapper.style.display = 'block';
+    } else {
+        openInviteModal(); 
+    }
         }
 
         function closePlayer() {
