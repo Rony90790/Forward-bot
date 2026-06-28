@@ -288,27 +288,24 @@
         
         const playerWrapper = document.getElementById('player-wrapper');
         
-        // অটো-প্লে করার জন্য লিংকের সাথে autoplay প্যারামিটার যোগ করা
-        let autoPlayUrl = videoUrl.includes('?') ? videoUrl + '&autoplay=1' : videoUrl + '?autoplay=1';
-
-        // 'Open External' রিমুভ করা হয়েছে এবং 'Close' বাটন কোনায় নেওয়া হয়েছে
+        // বাটন রিমুভ করে নিচে ডান পাশের কোনায় সেট করা হয়েছে
         playerWrapper.innerHTML = `
-            <iframe src="${autoPlayUrl}" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no" style="border:none; width:100%; height:100%;"></iframe>
+            <iframe src="${videoUrl}" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no" style="border:none; width:100%; height:100%;"></iframe>
             
-            <div style="position: absolute; top: 15px; right: 15px; z-index: 100003;">
+            <div style="position: absolute; bottom: 20px; right: 20px; z-index: 100005;">
                 <button class="action-btn close-player-btn" onclick="closePlayer()" 
-                    style="border-radius: 50%; width: 40px; height: 40px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 20px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.3); backdrop-filter: blur(10px);">
-                    ✖
+                    style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(15px); padding: 10px 25px; border-radius: 10px; color: white; font-weight: bold; cursor: pointer;">
+                    ✖ Close
                 </button>
             </div>
         `;
         
         playerWrapper.style.display = 'block';
+        showToast("💡 ভিডিও প্লে করতে ১-২ বার প্লে বাটনে ক্লিক করে ব্যাক দিন।");
     } else {
         openInviteModal(); 
     }
         }
-
         function closePlayer() {
             document.getElementById('player-wrapper').style.display = 'none';
             document.getElementById('player-wrapper').innerHTML = '';
