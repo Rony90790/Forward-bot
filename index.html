@@ -275,10 +275,13 @@
 
         function checkUnlock(element) {
     const videoUrl = element.getAttribute('data-url');
+    currfunction checkUnlock(element) {
+    const videoUrl = element.getAttribute('data-url');
     currentNeededRef = parseInt(element.getAttribute('data-needed-ref') || "3");
 
     if (currentNeededRef === 0 || dbRefcount >= currentNeededRef) {
         
+        // শর্টলিংক বা অন্য লিংকে পাঠাতে চাইলে এটি কাজ করবে
         if (currentNeededRef > 0 && !clickedAds[videoUrl]) { 
             showToast("⏳ Unlocking secure player...");
             clickedAds[videoUrl] = true; 
@@ -287,65 +290,39 @@
         }
         
         const playerWrapper = document.getElementById('player-wrapper');
-        
-        // বাটন রিমুভ করে নিচে ডান পাশের কোনায় সেট করা হয়েছে
-        playerWrapper.innerHTML = `
-            <iframe src="${videoUrl}" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no" style="border:none; width:100%; height:100%;"></iframe>
-            
-            <div style="position: absolute; bottom: 20px; right: 20px; z-index: 100005;">
-                <button class="action-btn close-player-btn" onclick="closePlayer()" 
-                    style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(15px); padding: 10px 25px; border-radius: 10px; color: white; font-weight: bold; cursor: pointer;">
-                    ✖ Close
-                </button>
-            </div>
-        `;
+        const lowerUrl = videoUrl.toLowerCase();
+
+        // যদি ভিডিও লিংকটি সরাসরি .mp4 হয় (Blogger বা Catbox), তবে এটি সুপার ফাস্ট চলবে
+        if (lowerUrl.includes('.mp4')) {
+            playerWrapper.innerHTML = `
+                <video controls autoplay playsinline style="width:100%; height:100%; background:#000;">
+                    <source src="${videoUrl}" type="video/mp4">
+                </video>
+                <div style="position: absolute; bottom: 20px; right: 20px; z-index: 100005;">
+                    <button class="action-btn close-player-btn" onclick="closePlayer()" 
+                        style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(15px); padding: 10px 25px; border-radius: 10px; color: white; font-weight: bold; cursor: pointer;">
+                        ✖ Close
+                    </button>
+                </div>
+            `;
+        } else {
+            // ডজস্ট্রিম বা অন্য এমবেড লিংকের জন্য
+            playerWrapper.innerHTML = `
+                <iframe src="${videoUrl}" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no" style="border:none; width:100%; height:100%;"></iframe>
+                <div style="position: absolute; bottom: 20px; right: 20px; z-index: 100005;">
+                    <button class="action-btn close-player-btn" onclick="closePlayer()" 
+                        style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(15px); padding: 10px 25px; border-radius: 10px; color: white; font-weight: bold; cursor: pointer;">
+                        ✖ Close
+                    </button>
+                </div>
+            `;
+        }
         
         playerWrapper.style.display = 'block';
-        showToast("💡 ভিডিও প্লে করতে ১-২ বার প্লে বাটনে ক্লিক করে ব্যাক দিন।");
     } else {
         openInviteModal(); 
     }
-        }
-        function closePlayer() {
-            document.getElementById('player-wrapper').style.display = 'none';
-            document.getElementById('player-wrapper').innerHTML = '';
-        }
-
-        function openInviteModal() {
-            const remaining = currentNeededRef - dbRefcount;
-            document.getElementById('modal-box').innerHTML = `
-                <div style="font-size:45px; margin-bottom:10px;">👑</div>
-                <h3 style="font-size: 19px; margin-top:0; color:#ffcc00;">Premium Video Locked!</h3>
-                <div style="font-size: 14px; color: #ddd; margin-bottom: 20px;">
-                    এই প্রিমিয়াম ভিডিওটি দেখতে আপনার আরও <span style="color: #ff3366; font-weight:bold; font-size:18px;">${remaining}</span> জন বন্ধুকে রেফার করতে হবে!
-                </div>
-                <button class="share-btn" onclick="shareLink()">🚀 Share via Telegram</button>
-                <button class="check-btn" onclick="verifyInvites()">🔄 Check My Invites</button>
-                <button class="close-btn-modal" onclick="closeModal()">Maybe Later</button>
-            `;
-            document.getElementById('shareModal').style.display = 'flex';
-        }
-
-        function shareLink() {
-            const viralText = encodeURIComponent("🔞 দোস্ত, এই লিংকে ক্লিক করে ফ্রিতে সব প্রিমিয়াম লিক ভিডিও দেখ! 🔥 তাড়াতাড়ি জয়েন কর 👇");
-            const shareUrl = `https://t.me/share/url?url=https://t.me/${botUsername}?start=${userId}&text=${viralText}`;
-            tg.openTelegramLink(shareUrl);
-            setTimeout(() => { showToast("Share link with your friends!"); }, 2000);
-        }
-
-        async function verifyInvites() {
-            showToast("⏳ Checking database...");
-            await initData();
-            const remaining = currentNeededRef - dbRefcount;
-            
-            if (remaining <= 0) {
-                closeModal();
-                showToast("🎉 Video Unlocked! Click to play.");
-                renderVideos();
-            } else {
-                showToast(`❌ Still need ${remaining} more users! Share more.`);
-            }
-        }
+}
 
         function closeModal() { document.getElementById('shareModal').style.display = 'none'; }
 
