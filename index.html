@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="referrer" content="no-referrer">	
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Video Unlocker Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -17,66 +16,76 @@
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
         /* Invite Box Styling */
-        .status-container { background: linear-gradient(145deg, #1a1a1a, #222); padding: 12px; border-radius: 12px; border: 1px solid #444; text-align: center; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.6);}
-        .progress-bg { background: #000; border-radius: 10px; height: 10px; width: 100%; overflow: hidden; margin: 8px 0; border: 1px solid #333; }
+        .status-container { background: linear-gradient(145deg, #1a1a1a, #222); padding: 12px 10px; border-radius: 12px; border: 1px solid #444; text-align: center; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.6);}
+        
+        /* Progress Bar */
+        .progress-bg { background: #000; border-radius: 10px; height: 6px; width: 100%; overflow: hidden; margin: 12px 0 6px 0; border: 1px solid #333; }
         .progress-bar { background: linear-gradient(90deg, #00ffaa, #00aaff); height: 100%; width: 0%; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        /* 🔥 Premium 2x2 Grid Buttons 🔥 */
-        .filter-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+        /* Tiers/Level inside Box - 4 in one row */
+        .vip-tiers-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 5px; }
+        .tier-btn { padding: 6px 2px; border-radius: 6px; border: 1px solid transparent; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 10px; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .tier-btn span { font-size: 16px; margin-bottom: 3px; }
         
-        .filter-btn { padding: 12px 5px; border-radius: 12px; border: none; font-weight: 800; cursor: pointer; transition: 0.3s; font-size: 13px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; position: relative; overflow: hidden; text-transform: uppercase; letter-spacing: 0.5px;}
-        .filter-btn span { font-size: 20px; } 
-
-        /* Button Colors */
-        .cat-all { background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; }
-        .cat-free { background: linear-gradient(135deg, #11998e, #38ef7d); color: white; }
-        .cat-basic { background: linear-gradient(135deg, #f2994a, #f2c94c); color: black; }
-        .cat-premium { background: linear-gradient(135deg, #fc4a1a, #f7b733); color: white; animation: goldShine 2s infinite; }
+        .cat-bronze { background: linear-gradient(135deg, #cd7f32, #8b5a2b); }
+        .cat-silver { background: linear-gradient(135deg, #a8a9ad, #7d7e80); color: black !important;}
+        .cat-gold { background: linear-gradient(135deg, #d4af37, #aa8529); color: black !important;}
+        .cat-premium { background: linear-gradient(135deg, #ff0055, #ff00aa); animation: goldShine 2s infinite; }
 
         @keyframes goldShine {
-            0% { box-shadow: 0 0 5px rgba(252, 74, 26, 0.5); transform: scale(1); }
-            50% { box-shadow: 0 0 18px rgba(247, 183, 51, 1); transform: scale(1.02); }
-            100% { box-shadow: 0 0 5px rgba(252, 74, 26, 0.5); transform: scale(1); }
+            0% { box-shadow: 0 0 4px rgba(255, 0, 85, 0.4); transform: scale(1); }
+            50% { box-shadow: 0 0 12px rgba(255, 0, 170, 0.8); transform: scale(1.02); }
+            100% { box-shadow: 0 0 4px rgba(255, 0, 85, 0.4); transform: scale(1); }
         }
 
-        /* Active & Inactive States */
-        .btn-active { border: 2px solid #fff; box-shadow: inset 0 0 15px rgba(0,0,0,0.5); transform: scale(0.96) !important; }
-        .btn-inactive { border: 2px solid transparent; opacity: 0.6; }
-        
-        .empty-msg { grid-column: span 2; text-align: center; color: #aaa; padding: 40px 10px; font-size: 15px; background: #1a1a1a; border-radius: 10px; border: 1px dashed #444;}
+        /* Outside general buttons */
+        .filter-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .filter-btn { padding: 10px 5px; border-radius: 10px; border: none; font-weight: 800; cursor: pointer; transition: 0.3s; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 6px; text-transform: uppercase;}
+        .cat-all { background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; }
+        .cat-free { background: linear-gradient(135deg, #11998e, #38ef7d); color: white; }
 
-        .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-bottom: 20px;}
+        /* Button States */
+        .btn-active { border: 2px solid #fff; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); transform: scale(0.96) !important; opacity: 1 !important;}
+        .btn-inactive { opacity: 0.5; border: 2px solid transparent;}
         
-        .video-card { background: #111; border-radius: 12px; overflow: hidden; position: relative; border: 1px solid #333; cursor: pointer; height: 190px; transform: translateZ(0); box-shadow: 0 4px 8px rgba(0,0,0,0.6);}
+        .empty-msg { grid-column: span 2; text-align: center; color: #aaa; padding: 40px 10px; font-size: 14px; background: #1a1a1a; border-radius: 10px; border: 1px dashed #444;}
+
+        .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-bottom: 20px;}
+        .video-card { background: #111; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #333; cursor: pointer; height: 180px; transform: translateZ(0); box-shadow: 0 4px 8px rgba(0,0,0,0.6);}
         .video-card:active { transform: scale(0.96); transition: 0.1s; }
         
-        .video-card img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; z-index: 1; opacity: 0.85; transition: 0.3s;}
+        .video-card img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; z-index: 1; opacity: 0.9; transition: 0.3s;}
         .video-card:hover img { opacity: 1; transform: scale(1.05);}
         
-        .views-badge { background: rgba(0, 0, 0, 0.85); color: #fff; padding: 4px 8px; font-size: 11px; position: absolute; top: 8px; right: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); font-weight: bold; z-index: 3; }
-        .locked-text { color: #ff3366; background: rgba(0,0,0,0.9); border-color: #ff3366;}
-        
-        .trending-badge { background: linear-gradient(90deg, #ff9900, #ff3300); color: #fff; padding: 3px 6px; font-size: 10px; position: absolute; top: 8px; left: 8px; border-radius: 4px; font-weight: bold; z-index: 3; animation: pulse 2s infinite;}
+        /* Smaller Video Overlay Badges */
+        .views-badge { background: rgba(0, 0, 0, 0.7); color: #fff; padding: 2px 4px; font-size: 9px; position: absolute; top: 6px; right: 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.15); font-weight: bold; z-index: 3; }
+        .locked-text { color: #ff3366; background: rgba(0,0,0,0.85); border-color: #ff3366;}
+        .trending-badge { background: linear-gradient(90deg, #ff9900, #ff3300); color: #fff; padding: 2px 4px; font-size: 9px; position: absolute; top: 6px; left: 6px; border-radius: 4px; font-weight: bold; z-index: 3; animation: pulse 2s infinite;}
+        .time-badge { background: rgba(0, 0, 0, 0.7); color: #fff; padding: 2px 4px; font-size: 9px; position: absolute; bottom: 6px; right: 6px; border-radius: 4px; font-weight: bold; z-index: 3; }
+        .watch-btn { background: linear-gradient(90deg, #00ffaa, #00aaff); color: #000; padding: 3px 6px; font-size: 9px; position: absolute; bottom: 6px; left: 6px; border-radius: 4px; font-weight: 800; z-index: 3;}
 
-        .time-badge { background: rgba(0, 0, 0, 0.85); color: #fff; padding: 4px 7px; font-size: 11px; position: absolute; bottom: 8px; right: 8px; border-radius: 6px; font-weight: bold; z-index: 3; }
-        
-        .watch-btn { background: linear-gradient(90deg, #00ffaa, #00aaff); color: #000; padding: 5px 10px; font-size: 12px; position: absolute; bottom: 8px; left: 8px; border-radius: 6px; font-weight: 800; z-index: 3;}
-
-        /* Modal styling */
+        /* Modal & Player styling */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px);}
-        .modal-content { background: #1a1a1a; padding: 30px 20px; border-radius: 20px; width: 85%; max-width: 350px; text-align: center; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.8);}
-        .share-btn { background: linear-gradient(90deg, #0088cc, #00aaff); color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 20px; font-weight: bold; box-shadow: 0 4px 15px rgba(0, 170, 255, 0.4);}
-        .check-btn { background: #333; color: white; border: 1px solid #555; padding: 12px; border-radius: 12px; width: 100%; font-size: 14px; cursor: pointer; margin-top: 10px; font-weight: bold; }
-        .close-btn-modal { background: transparent; color: #888; border: none; margin-top: 15px; cursor: pointer; font-size: 14px; text-decoration: underline;}
+        .modal-content { background: #1a1a1a; padding: 25px 20px; border-radius: 16px; width: 85%; max-width: 320px; text-align: center; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.8);}
+        .share-btn { background: linear-gradient(90deg, #0088cc, #00aaff); color: white; border: none; padding: 12px; border-radius: 10px; width: 100%; font-size: 15px; cursor: pointer; margin-top: 15px; font-weight: bold; box-shadow: 0 4px 15px rgba(0, 170, 255, 0.4);}
+        .check-btn { background: #333; color: white; border: 1px solid #555; padding: 10px; border-radius: 10px; width: 100%; font-size: 13px; cursor: pointer; margin-top: 8px; font-weight: bold; }
+        .close-btn-modal { background: transparent; color: #888; border: none; margin-top: 12px; cursor: pointer; font-size: 13px; text-decoration: underline;}
         
-        /* Player styling */
         #player-wrapper { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 99999; }
         #player-wrapper iframe { width: 100%; height: 100%; border: none; }
         .player-controls { position: absolute; bottom: 25px; left: 0; width: 100%; display: flex; justify-content: center; gap: 15px; z-index: 100000; }
-        .action-btn { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); color: #fff; padding: 10px 20px; border-radius: 10px; font-weight: bold; font-size: 14px; cursor: pointer; border: 1px solid rgba(255,255,255,0.3);}
-        .close-player-btn { background: #ff3366; border: none;}
+        
+        /* Glassmorphism Button for Close Player */
+        .action-btn { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); color: #fff; padding: 8px 18px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; border: 1px solid rgba(255,255,255,0.3);}
+        .close-player-btn { 
+            background: rgba(255, 255, 255, 0.15) !important; 
+            backdrop-filter: blur(15px); 
+            -webkit-backdrop-filter: blur(15px);
+            color: #fff !important; 
+            border: 1px solid rgba(255,255,255,0.3) !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
 
-        /* Toast Notification */
         #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 8px; padding: 12px; position: fixed; z-index: 999999; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s, bottom 0.3s; border: 1px solid #555;}
         #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
     </style>
@@ -89,33 +98,44 @@
         <div class="online-badge"><span class="dot"></span> <span id="online-count">1,240</span> users active</div>
     </div>
     
+    <!-- Top Level Filter -->
+    <div class="filter-container">
+        <button id="btn-all" class="filter-btn cat-all btn-active" onclick="setFilter('all')">
+            <span>🌐</span> All Videos
+        </button>
+        <button id="btn-free" class="filter-btn cat-free btn-inactive" onclick="setFilter('free')">
+            <span>👀</span> Free (Preview)
+        </button>
+    </div>
+
+    <!-- Status & Level Unlock Box -->
     <div class="status-container">
         <div id="progress-text" style="font-size: 15px; font-weight: bold; color: #fff;">Your Total Invites: <span style="color:#00ffaa; font-size:18px;">0</span></div>
         <div style="font-size: 11px; color: #bbb; margin-top: 4px;">🚀 Refer friends to unlock <span style="color:#ffcc00; font-weight:bold;">PREMIUM VIP</span> videos!</div>
+        
+        <!-- Progress bar aligned with 4 tiers -->
         <div class="progress-bg"><div class="progress-bar" id="bar-fill"></div></div>
+        
+        <div class="vip-tiers-grid">
+            <button id="btn-bronze" class="tier-btn cat-bronze btn-inactive" onclick="setFilter('bronze')">
+                <span>🥉</span> 1 Ref
+            </button>
+            <button id="btn-silver" class="tier-btn cat-silver btn-inactive" onclick="setFilter('silver')">
+                <span>🥈</span> 2 Ref
+            </button>
+            <button id="btn-gold" class="tier-btn cat-gold btn-inactive" onclick="setFilter('gold')">
+                <span>🥇</span> 3 Ref
+            </button>
+            <button id="btn-premium" class="tier-btn cat-premium btn-inactive" onclick="setFilter('premium')">
+                <span>💎</span> 4+ Ref
+            </button>
+        </div>
     </div>
 
     <div id="player-wrapper"></div>
     <div id="toast">Message here</div>
-    
-    <!-- 🌟 Attractive Level Buttons 🌟 -->
-    <div class="filter-container">
-        <button id="btn-all" class="filter-btn cat-all btn-active" onclick="setFilter('all')">
-            <span>🌐</span> All Video
-        </button>
-        <button id="btn-free" class="filter-btn cat-free btn-inactive" onclick="setFilter('free')">
-            <span>👀</span> Preview
-        </button>
-        <button id="btn-basic" class="filter-btn cat-basic btn-inactive" onclick="setFilter('basic')">
-            <span>🥉</span> Basic (1-3 Ref-user)
-        </button>
-        <button id="btn-premium" class="filter-btn cat-premium btn-inactive" onclick="setFilter('premium')">
-            <span>👑</span> Premium VIP
-        </button>
-    </div>
 
     <div class="video-grid" id="video-container">
-        <!-- Skeleton loading -->
         <div class="video-card" style="background:#222;"><div style="padding:20px; text-align:center; color:#555; margin-top:50px;">Loading...</div></div>
         <div class="video-card" style="background:#222;"></div>
     </div>
@@ -142,11 +162,9 @@
         let allVideos = [];
         let clickedAds = {};
         
-        // ডিফল্টভাবে All Video সিলেক্ট থাকবে
         let filterMode = 'all'; 
         let currentNeededRef = 3;
 
-        // Fake live user counter
         setInterval(() => { document.getElementById('online-count').innerText = (1200 + Math.floor(Math.random() * 200)).toLocaleString(); }, 4000);
 
         function showToast(msg) {
@@ -173,7 +191,7 @@
         }
 
         function updateProgressUI() {
-            let maxTarget = 5; // প্রোগ্রেস বারের জন্য ৫ রেফার টার্গেট
+            let maxTarget = 4; // 4 Tiers setup (25%, 50%, 75%, 100%)
             let percent = Math.min((dbRefcount / maxTarget) * 100, 100);
             document.getElementById('bar-fill').style.width = percent + "%";
             document.getElementById('progress-text').innerHTML = `Your Total Invites: <span style="color:#00ffaa; font-size:18px;">${dbRefcount}</span>`;
@@ -198,19 +216,21 @@
             return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
         }
 
-        // বাটন সিলেক্ট লজিক
+        // Tier Level Select Logic
         function setFilter(mode) {
             filterMode = mode;
-            const buttons = ['all', 'free', 'basic', 'premium'];
+            const buttons = ['all', 'free', 'bronze', 'silver', 'gold', 'premium'];
             
             buttons.forEach(btn => {
                 let element = document.getElementById('btn-' + btn);
-                if (mode === btn) {
-                    element.classList.add('btn-active');
-                    element.classList.remove('btn-inactive');
-                } else {
-                    element.classList.add('btn-inactive');
-                    element.classList.remove('btn-active');
+                if (element) {
+                    if (mode === btn) {
+                        element.classList.add('btn-active');
+                        element.classList.remove('btn-inactive');
+                    } else {
+                        element.classList.add('btn-inactive');
+                        element.classList.remove('btn-active');
+                    }
                 }
             });
             renderVideos();
@@ -224,12 +244,14 @@
                 let nRef = vid.needed_ref !== undefined ? vid.needed_ref : 3; 
                 let isUnlocked = (nRef === 0 || dbRefcount >= nRef);
                 
-                // ক্যাটাগরি ফিল্টার লজিক
+                // Tier Level Matching Logic
                 let show = false;
                 if (filterMode === 'all') show = true;
                 else if (filterMode === 'free' && nRef === 0) show = true;
-                else if (filterMode === 'basic' && nRef > 0 && nRef <= 3) show = true; 
-                else if (filterMode === 'premium' && nRef > 3) show = true;
+                else if (filterMode === 'bronze' && nRef === 1) show = true; 
+                else if (filterMode === 'silver' && nRef === 2) show = true;
+                else if (filterMode === 'gold' && nRef === 3) show = true;
+                else if (filterMode === 'premium' && nRef >= 4) show = true;
                 
                 if (!show) return;
                 
@@ -249,9 +271,9 @@
                 
                 let badgeHTML = isUnlocked 
                     ? `<div class="views-badge">👁️ ${views}</div>` 
-                    : `<div class="views-badge locked-text">🔒 Need ${nRef} Refer</div>`;
+                    : `<div class="views-badge locked-text">🔒 Need ${nRef} Ref</div>`;
                 
-                let trendingHTML = (nRef > 3 || (index < 5 && Math.random() > 0.5)) ? `<div class="trending-badge">🔥 HOT</div>` : ``;
+                let trendingHTML = (nRef >= 4 || (index < 5 && Math.random() > 0.5)) ? `<div class="trending-badge">🔥 HOT</div>` : ``;
                 
                 let lockIcon = isUnlocked ? "▶ Watch" : "🔒 Locked";
                 let btnStyle = isUnlocked ? "" : "background:#555; color:#ccc;";
@@ -304,7 +326,7 @@
                     `;
                 } else {
                     playerWrapper.innerHTML = `
-                        <iframe src="${videoUrl}" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no"></iframe>
+                        <iframe src="${videoUrl}" sandbox="allow-scripts allow-same-origin allow-presentation" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no"></iframe>
                         <div class="player-controls">
                             <button class="action-btn" onclick="tg.openLink('${videoUrl}')">🌐 Open External</button>
                             <button class="action-btn close-player-btn" onclick="closePlayer()">✖ Close</button>
