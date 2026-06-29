@@ -20,7 +20,7 @@
         .progress-bg { background: #000; border-radius: 10px; height: 10px; width: 100%; overflow: hidden; margin: 10px 0; border: 1px solid #333; }
         .progress-bar { background: linear-gradient(90deg, #00ffaa, #00aaff); height: 100%; width: 0%; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        /* Tiers/Level inside Box - 4 in one row */
+        /* Tiers/Level inside Box */
         .vip-tiers-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 5px; }
         .tier-btn { padding: 6px 2px; border-radius: 6px; border: 1px solid transparent; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 10px; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; line-height: 1.3; }
         .tier-btn span { font-size: 16px; margin-bottom: 3px; }
@@ -42,7 +42,6 @@
         .cat-all { background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; }
         .cat-free { background: linear-gradient(135deg, #11998e, #38ef7d); color: white; }
 
-        /* Button States */
         .btn-active { border: 2px solid #fff; box-shadow: inset 0 0 15px rgba(0,0,0,0.5); transform: scale(0.96) !important; opacity: 1 !important;}
         .btn-inactive { opacity: 0.5; border: 2px solid transparent;}
         
@@ -52,7 +51,6 @@
         .video-card { background: #111; border-radius: 12px; overflow: hidden; position: relative; border: 1px solid #333; cursor: pointer; height: 190px; transform: translateZ(0); box-shadow: 0 4px 8px rgba(0,0,0,0.6);}
         .video-card:active { transform: scale(0.96); transition: 0.1s; }
         
-        /* Thumbnail opacity set to 90% (0.9) */
         .video-card img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; z-index: 1; opacity: 0.9; transition: 0.3s;}
         .video-card:hover img { opacity: 1; transform: scale(1.05);}
         
@@ -71,34 +69,36 @@
         
         #player-wrapper { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 99999; }
         #player-wrapper iframe { width: 100%; height: 100%; border: none; }
-        .player-controls { position: absolute; bottom: 25px; left: 0; width: 100%; display: flex; justify-content: center; gap: 15px; z-index: 100000; }
         .action-btn { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); color: #fff; padding: 10px 20px; border-radius: 10px; font-weight: bold; font-size: 14px; cursor: pointer; border: 1px solid rgba(255,255,255,0.3);}
-        .close-player-btn { background: #ff3366; border: none;}
+        
+        /* 🚀 নতুন ভাসমান টেক্সট (Floating Text) অ্যানিমেশন */
+        .floating-text {
+            position: absolute;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            background: rgba(0, 0, 0, 0.5); /* হালকা স্বচ্ছ কালো ব্যাকগ্রাউন্ড যাতে টেক্সট পড়া যায় */
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            width: 80%;
+            z-index: 100005;
+            pointer-events: none;
+            backdrop-filter: blur(3px); /* পেছনের ভিডিও হালকা ঝাপসা করবে */
+            border: 0.5px solid rgba(255, 255, 255, 0.15);
+            animation: floatUp 8s ease-in-out forwards; /* ৮ সেকেন্ডের অ্যানিমেশন */
+        }
 
-        /* "34" ব্যাজ স্টাইল ওয়ার্নিং */
-.badge-warning {
-    position: absolute;
-    bottom: 60px; /* নিচ থেকে কতটা উপরে থাকবে */
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.7); /* কালো স্বচ্ছ ব্যাকগ্রাউন্ড */
-    color: #fff;
-    padding: 5px 15px;
-    border-radius: 25px; /* গোল কোণা */
-    font-size: 12px;
-    font-weight: 500;
-    z-index: 100005;
-    pointer-events: none;
-    border: 0.5px solid rgba(255,255,255,0.2);
-    animation: badgeFade 4s forwards;
-}
-
-@keyframes badgeFade {
-    0% { opacity: 0; bottom: 40px; }
-    15% { opacity: 1; bottom: 60px; }
-    85% { opacity: 1; bottom: 60px; }
-    100% { opacity: 0; bottom: 70px; }
-}
+        /* নিচ থেকে ভেসে ওঠার ম্যাজিক অ্যানিমেশন */
+        @keyframes floatUp {
+            0% { opacity: 0; bottom: 5%; transform: translateX(-50%) scale(0.9); }
+            10% { opacity: 1; bottom: 15%; transform: translateX(-50%) scale(1); }
+            85% { opacity: 1; bottom: 15%; transform: translateX(-50%) scale(1); }
+            100% { opacity: 0; bottom: 25%; transform: translateX(-50%) scale(0.9); visibility: hidden; }
+        }
 
         #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 8px; padding: 12px; position: fixed; z-index: 999999; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s, bottom 0.3s; border: 1px solid #555;}
         #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
@@ -112,17 +112,11 @@
         <div class="online-badge"><span class="dot"></span> <span id="online-count">1,240</span> users active</div>
     </div>
     
-    <!-- Top Level Filter -->
     <div class="filter-container">
-        <button id="btn-all" class="filter-btn cat-all btn-active" onclick="setFilter('all')">
-            <span>🌐</span> All Videos
-        </button>
-        <button id="btn-free" class="filter-btn cat-free btn-inactive" onclick="setFilter('free')">
-            <span>👀</span> Free (Preview)
-        </button>
+        <button id="btn-all" class="filter-btn cat-all btn-active" onclick="setFilter('all')"><span>🌐</span> All Videos</button>
+        <button id="btn-free" class="filter-btn cat-free btn-inactive" onclick="setFilter('free')"><span>👀</span> Free (Preview)</button>
     </div>
 
-    <!-- Status & Level Unlock Box -->
     <div class="status-container">
         <div id="progress-text" style="font-size: 15px; font-weight: bold; color: #fff;">Your Total Invites: <span style="color:#00ffaa; font-size:18px;">0</span></div>
         <div style="font-size: 11px; color: #bbb; margin-top: 4px;">🚀 Refer friends to unlock <span style="color:#ffcc00; font-weight:bold;">PREMIUM VIP</span> videos!</div>
@@ -197,10 +191,22 @@
         }
 
         function updateProgressUI() {
-            let maxTarget = 4; // 4 Refers for Premium Level
+            let maxTarget = 4; 
             let percent = Math.min((dbRefcount / maxTarget) * 100, 100);
             document.getElementById('bar-fill').style.width = percent + "%";
             document.getElementById('progress-text').innerHTML = `Your Total Invites: <span style="color:#00ffaa; font-size:18px;">${dbRefcount}</span>`;
+        }
+
+        function preloadContent(videos) {
+            videos.forEach(v => {
+                let nRef = v.needed_ref !== undefined ? v.needed_ref : 3;
+                if(nRef === 0) {
+                    let img = new Image();
+                    let thumb = v.thumbnail_url;
+                    if(thumb && thumb.includes('||')) thumb = thumb.split('||')[0]; 
+                    if(thumb) img.src = thumb; 
+                }
+            });
         }
 
         async function fetchVideos() {
@@ -210,6 +216,7 @@
                 if (videos) {
                     allVideos = videos; 
                     renderVideos();
+                    preloadContent(allVideos); 
                 }
             } catch (err) { 
                 document.getElementById('video-container').innerHTML = '<div class="empty-msg">⚠️ Failed to load videos. Check your internet connection.</div>';
@@ -328,18 +335,18 @@
                         </div>
                     `;
                 } else {
-    // পপআপের বদলে এখন এই ব্যাজটি দেখাবে
-    playerWrapper.innerHTML = `
-        <div class="badge-warning">⚠️ Ads open হলে BACK প্রেস করুন!</div>
-        <iframe src="${videoUrl}" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no" style="border:none; width:100%; height:100%;"></iframe>
-        <div style="position: absolute; bottom: 10px; right: 10px; z-index: 100005;">
-            <button class="action-btn close-player-btn" onclick="closePlayer()" 
-                style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(15px); padding: 6px 15px; border-radius: 8px; color: white; font-weight: bold; font-size: 12px; cursor: pointer;">
-                ✖ Close
-            </button>
-        </div>
-    `;
-}
+                    // 🚀 Added floating text animation
+                    playerWrapper.innerHTML = `
+                        <div class="floating-text">💡 Pro Tip: স্ক্রিনে প্রথম ২ বার টাচ করলে অ্যাড আসতে পারে, স্কিপ করে আবার প্লে (▶) বাটনে ক্লিক করুন!</div>
+                        <iframe src="${videoUrl}" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no" style="border:none; width:100%; height:100%;"></iframe>
+                        <div style="position: absolute; bottom: 10px; right: 10px; z-index: 100005;">
+                            <button class="action-btn close-player-btn" onclick="closePlayer()" 
+                                style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(15px); padding: 6px 15px; border-radius: 8px; color: white; font-weight: bold; font-size: 12px; cursor: pointer;">
+                                ✖ Close
+                            </button>
+                        </div>
+                    `;
+                }
                 
                 playerWrapper.style.display = 'block';
             } else {
