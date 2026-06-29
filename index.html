@@ -71,37 +71,37 @@
         
         #player-wrapper { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 99999; }
         #player-wrapper iframe { width: 100%; height: 100%; border: none; }
-        .player-controls { position: absolute; bottom: 25px; left: 0; width: 100%; display: flex; justify-content: center; gap: 15px; z-index: 100000; }
-        .action-btn { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); color: #fff; padding: 10px 20px; border-radius: 10px; font-weight: bold; font-size: 14px; cursor: pointer; border: 1px solid rgba(255,255,255,0.3);}
-        .close-player-btn { background: #ff3366; border: none;}
 
-        /* Video Ad Warning Popup */
+        /* Video Ad Warning Popup - Fish Jump Style */
         .ad-warning-popup {
             position: absolute;
-            top: 20px;
+            bottom: -100px; /* Start hidden below screen */
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(255, 51, 102, 0.95);
+            background: linear-gradient(90deg, #ff3366, #ff0055); /* Attractive red/pink */
             color: white;
-            padding: 10px 15px;
-            border-radius: 8px;
+            padding: 12px 18px;
+            border-radius: 30px; /* Pill shape */
             font-size: 13px;
             font-weight: bold;
             z-index: 100005;
             text-align: center;
             pointer-events: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
-            border: 1px solid rgba(255,255,255,0.3);
-            width: 85%;
-            max-width: 320px;
-            animation: popupFade 6s forwards;
+            box-shadow: 0 10px 25px rgba(255, 51, 102, 0.6);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            width: max-content;
+            max-width: 90%;
+            /* bouncy cubic-bezier creates the jump effect */
+            animation: fishJump 5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; 
         }
 
-        @keyframes popupFade {
-            0% { top: -50px; opacity: 0; }
-            10% { top: 20px; opacity: 1; }
-            80% { top: 20px; opacity: 1; }
-            100% { top: -50px; opacity: 0; }
+        /* Animation matching a fish jump */
+        @keyframes fishJump {
+            0% { bottom: -100px; opacity: 0; transform: translateX(-50%) scale(0.5); }
+            15% { bottom: 120px; opacity: 1; transform: translateX(-50%) scale(1.05); } /* Jumps up */
+            25% { bottom: 100px; transform: translateX(-50%) scale(1); } /* Settles mid air */
+            80% { bottom: 100px; opacity: 1; transform: translateX(-50%) scale(1); } /* Stays there */
+            100% { bottom: -100px; opacity: 0; transform: translateX(-50%) scale(0.5); } /* Dives back down */
         }
 
         #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 8px; padding: 12px; position: fixed; z-index: 999999; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s, bottom 0.3s; border: 1px solid #555;}
@@ -332,7 +332,7 @@
                         </div>
                     `;
                 } else {
-                    // এনিমেটেড পপআপ ওয়ার্নিং যোগ করা হয়েছে
+                    // Fish Jump Animated Popup
                     playerWrapper.innerHTML = `
                         <div class="ad-warning-popup">⚠️ If an ads opens, just press BACK and play again!</div>
                         <iframe src="${videoUrl}" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no" style="border:none; width:100%; height:100%;"></iframe>
