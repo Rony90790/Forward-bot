@@ -20,7 +20,7 @@
         .progress-bg { background: #000; border-radius: 10px; height: 10px; width: 100%; overflow: hidden; margin: 10px 0; border: 1px solid #333; }
         .progress-bar { background: linear-gradient(90deg, #00ffaa, #00aaff); height: 100%; width: 0%; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        /* Tiers/Level inside Box - 4 in one row */
+        /* Tiers/Level inside Box */
         .vip-tiers-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 5px; }
         .tier-btn { padding: 6px 2px; border-radius: 6px; border: 1px solid transparent; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 10px; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; line-height: 1.3; }
         .tier-btn span { font-size: 16px; margin-bottom: 3px; }
@@ -42,7 +42,6 @@
         .cat-all { background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; }
         .cat-free { background: linear-gradient(135deg, #11998e, #38ef7d); color: white; }
 
-        /* Button States */
         .btn-active { border: 2px solid #fff; box-shadow: inset 0 0 15px rgba(0,0,0,0.5); transform: scale(0.96) !important; opacity: 1 !important;}
         .btn-inactive { opacity: 0.5; border: 2px solid transparent;}
         
@@ -52,7 +51,6 @@
         .video-card { background: #111; border-radius: 12px; overflow: hidden; position: relative; border: 1px solid #333; cursor: pointer; height: 190px; transform: translateZ(0); box-shadow: 0 4px 8px rgba(0,0,0,0.6);}
         .video-card:active { transform: scale(0.96); transition: 0.1s; }
         
-        /* Thumbnail opacity set to 90% (0.9) */
         .video-card img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; z-index: 1; opacity: 0.9; transition: 0.3s;}
         .video-card:hover img { opacity: 1; transform: scale(1.05);}
         
@@ -72,36 +70,36 @@
         #player-wrapper { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 99999; }
         #player-wrapper iframe { width: 100%; height: 100%; border: none; }
 
-        /* Video Ad Warning Popup - Fish Jump Style */
+        /* Video Ad Warning Popup - Hook/Log Style (Behind to Front) */
         .ad-warning-popup {
             position: absolute;
-            bottom: -100px; /* Start hidden below screen */
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(90deg, #ff3366, #ff0055); /* Attractive red/pink */
-            color: white;
-            padding: 12px 18px;
-            border-radius: 30px; /* Pill shape */
+            background: rgba(20, 20, 20, 0.9); /* Dark hacker log background */
+            color: #00ffaa;
+            padding: 12px 20px;
+            border-radius: 8px;
             font-size: 13px;
+            font-family: monospace, sans-serif; /* Log font style */
             font-weight: bold;
             z-index: 100005;
             text-align: center;
             pointer-events: none;
-            box-shadow: 0 10px 25px rgba(255, 51, 102, 0.6);
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-left: 5px solid #ff3366; /* Red side border like a warning log */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             width: max-content;
-            max-width: 90%;
-            /* bouncy cubic-bezier creates the jump effect */
-            animation: fishJump 5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; 
+            max-width: 85%;
+            /* Starts scaling up from center */
+            animation: popFromBehind 4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
-        /* Animation matching a fish jump */
-        @keyframes fishJump {
-            0% { bottom: -100px; opacity: 0; transform: translateX(-50%) scale(0.5); }
-            15% { bottom: 120px; opacity: 1; transform: translateX(-50%) scale(1.05); } /* Jumps up */
-            25% { bottom: 100px; transform: translateX(-50%) scale(1); } /* Settles mid air */
-            80% { bottom: 100px; opacity: 1; transform: translateX(-50%) scale(1); } /* Stays there */
-            100% { bottom: -100px; opacity: 0; transform: translateX(-50%) scale(0.5); } /* Dives back down */
+        /* 3D Depth Animation: scale 0.2 means it comes from behind/inside */
+        @keyframes popFromBehind {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.2); }
+            15% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+            25% { transform: translate(-50%, -50%) scale(1); }
+            70% { opacity: 1; transform: translate(-50%, -60%) scale(1); } /* Floats slightly up */
+            100% { opacity: 0; transform: translate(-50%, -70%) scale(0.8); visibility: hidden; } /* Fades away */
         }
 
         #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 8px; padding: 12px; position: fixed; z-index: 999999; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s, bottom 0.3s; border: 1px solid #555;}
@@ -116,7 +114,6 @@
         <div class="online-badge"><span class="dot"></span> <span id="online-count">1,240</span> users active</div>
     </div>
     
-    <!-- Top Level Filter -->
     <div class="filter-container">
         <button id="btn-all" class="filter-btn cat-all btn-active" onclick="setFilter('all')">
             <span>🌐</span> All Videos
@@ -126,7 +123,6 @@
         </button>
     </div>
 
-    <!-- Status & Level Unlock Box -->
     <div class="status-container">
         <div id="progress-text" style="font-size: 15px; font-weight: bold; color: #fff;">Your Total Invites: <span style="color:#00ffaa; font-size:18px;">0</span></div>
         <div style="font-size: 11px; color: #bbb; margin-top: 4px;">🚀 Refer friends to unlock <span style="color:#ffcc00; font-weight:bold;">PREMIUM VIP</span> videos!</div>
@@ -332,9 +328,9 @@
                         </div>
                     `;
                 } else {
-                    // Fish Jump Animated Popup
+                    // 3D Hook/Log Pop-out Message (Behind to Front)
                     playerWrapper.innerHTML = `
-                        <div class="ad-warning-popup">⚠️ If an ads opens, just press BACK and play again!</div>
+                        <div class="ad-warning-popup">[!] If an ads opens, just press BACK and play again!</div>
                         <iframe src="${videoUrl}" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no" style="border:none; width:100%; height:100%;"></iframe>
                         <div style="position: absolute; bottom: 10px; right: 10px; z-index: 100005;">
                             <button class="action-btn close-player-btn" onclick="closePlayer()" 
