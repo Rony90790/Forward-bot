@@ -52,6 +52,7 @@
         .video-card { background: #111; border-radius: 12px; overflow: hidden; position: relative; border: 1px solid #333; cursor: pointer; height: 190px; transform: translateZ(0); box-shadow: 0 4px 8px rgba(0,0,0,0.6);}
         .video-card:active { transform: scale(0.96); transition: 0.1s; }
         
+        /* Thumbnail opacity set to 90% (0.9) */
         .video-card img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; z-index: 1; opacity: 0.9; transition: 0.3s;}
         .video-card:hover img { opacity: 1; transform: scale(1.05);}
         
@@ -70,19 +71,41 @@
         
         #player-wrapper { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 99999; }
         #player-wrapper iframe { width: 100%; height: 100%; border: none; }
+        .player-controls { position: absolute; bottom: 25px; left: 0; width: 100%; display: flex; justify-content: center; gap: 15px; z-index: 100000; }
         .action-btn { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); color: #fff; padding: 10px 20px; border-radius: 10px; font-weight: bold; font-size: 14px; cursor: pointer; border: 1px solid rgba(255,255,255,0.3);}
         .close-player-btn { background: #ff3366; border: none;}
 
+        /* Video Ad Warning Popup */
+        .ad-warning-popup {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 51, 102, 0.95);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: bold;
+            z-index: 100005;
+            text-align: center;
+            pointer-events: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.3);
+            width: 85%;
+            max-width: 320px;
+            animation: popupFade 6s forwards;
+        }
+
+        @keyframes popupFade {
+            0% { top: -50px; opacity: 0; }
+            10% { top: 20px; opacity: 1; }
+            80% { top: 20px; opacity: 1; }
+            100% { top: -50px; opacity: 0; }
+        }
+
         #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 8px; padding: 12px; position: fixed; z-index: 999999; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s, bottom 0.3s; border: 1px solid #555;}
         #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
-
-        /* ভিডিওর ভেতরে ভেসে ওঠার এনিমেশন */
-        @keyframes floatFade {
-            0% { transform: translate(-50%, 30px); opacity: 0; }
-            15% { transform: translate(-50%, -50%); opacity: 1; }
-            85% { transform: translate(-50%, -50%); opacity: 1; }
-            100% { transform: translate(-50%, -130px); opacity: 0; }
-        }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -178,7 +201,7 @@
         }
 
         function updateProgressUI() {
-            let maxTarget = 4; 
+            let maxTarget = 4; // 4 Refers for Premium Level
             let percent = Math.min((dbRefcount / maxTarget) * 100, 100);
             document.getElementById('bar-fill').style.width = percent + "%";
             document.getElementById('progress-text').innerHTML = `Your Total Invites: <span style="color:#00ffaa; font-size:18px;">${dbRefcount}</span>`;
@@ -301,25 +324,21 @@
                         <video controls autoplay playsinline style="width:100%; height:100%; background:#000;">
                             <source src="${videoUrl}" type="video/mp4">
                         </video>
-                        <div style="position: absolute; top: 20px; right: 20px; z-index: 100005;">
+                        <div style="position: absolute; bottom: 10px; right: 10px; z-index: 100005;">
                             <button class="action-btn close-player-btn" onclick="closePlayer()" 
-                                style="background: rgba(0, 0, 0, 0.7); border: 1px solid rgba(255, 255, 255, 0.4); backdrop-filter: blur(15px); padding: 8px 20px; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+                                style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(15px); padding: 6px 15px; border-radius: 8px; color: white; font-weight: bold; font-size: 12px; cursor: pointer;">
                                 ✖ Close
                             </button>
                         </div>
                     `;
                 } else {
-                    // Embed লিংকের জন্য ভিডিওর মাঝখানে ভেসে ওঠা মেসেজ ও উপরের ডানদিকে Close বাটন
+                    // এনিমেটেড পপআপ ওয়ার্নিং যোগ করা হয়েছে
                     playerWrapper.innerHTML = `
+                        <div class="ad-warning-popup">⚠️ If an ads opens, just press BACK and play again!</div>
                         <iframe src="${videoUrl}" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no" style="border:none; width:100%; height:100%;"></iframe>
-                        
-                        <div style="position: absolute; top: 50%; left: 50%; background: rgba(0,0,0,0.85); color: #ffcc00; padding: 15px 25px; border-radius: 12px; border: 1px solid #ffcc00; font-weight: bold; font-size: 15px; text-align: center; z-index: 100010; pointer-events: none; animation: floatFade 4.5s forwards; width: 80%; max-width: 300px; box-shadow: 0 5px 20px rgba(0,0,0,0.8);">
-                            ⚠️ If an ad opens, just press BACK and play again!
-                        </div>
-
-                        <div style="position: absolute; top: 20px; right: 20px; z-index: 100005;">
+                        <div style="position: absolute; bottom: 10px; right: 10px; z-index: 100005;">
                             <button class="action-btn close-player-btn" onclick="closePlayer()" 
-                                style="background: rgba(0, 0, 0, 0.7); border: 1px solid rgba(255, 255, 255, 0.4); backdrop-filter: blur(15px); padding: 8px 20px; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+                                style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(15px); padding: 6px 15px; border-radius: 8px; color: white; font-weight: bold; font-size: 12px; cursor: pointer;">
                                 ✖ Close
                             </button>
                         </div>
