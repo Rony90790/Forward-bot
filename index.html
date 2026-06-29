@@ -22,7 +22,7 @@
 
         /* Tiers/Level inside Box - 4 in one row */
         .vip-tiers-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 5px; }
-        .tier-btn { padding: 6px 2px; border-radius: 6px; border: 1px solid transparent; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 10px; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .tier-btn { padding: 6px 2px; border-radius: 6px; border: 1px solid transparent; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 10px; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; line-height: 1.3; }
         .tier-btn span { font-size: 16px; margin-bottom: 3px; }
         
         .cat-bronze { background: linear-gradient(135deg, #cd7f32, #8b5a2b); }
@@ -52,7 +52,8 @@
         .video-card { background: #111; border-radius: 12px; overflow: hidden; position: relative; border: 1px solid #333; cursor: pointer; height: 190px; transform: translateZ(0); box-shadow: 0 4px 8px rgba(0,0,0,0.6);}
         .video-card:active { transform: scale(0.96); transition: 0.1s; }
         
-        .video-card img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; z-index: 1; opacity: 0.85; transition: 0.3s;}
+        /* Thumbnail opacity set to 90% (0.9) */
+        .video-card img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; z-index: 1; opacity: 0.9; transition: 0.3s;}
         .video-card:hover img { opacity: 1; transform: scale(1.05);}
         
         .views-badge { background: rgba(0, 0, 0, 0.85); color: #fff; padding: 4px 8px; font-size: 11px; position: absolute; top: 8px; right: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); font-weight: bold; z-index: 3; }
@@ -105,10 +106,10 @@
         <div style="margin-top: 15px; font-size: 12px; font-weight: bold; color: #999;">👇 VIP UNLOCK TIERS 👇</div>
         
         <div class="vip-tiers-grid">
-            <button id="btn-bronze" class="tier-btn cat-bronze btn-inactive" onclick="setFilter('bronze')">🥉 Bronze (1 Ref)</button>
-            <button id="btn-silver" class="tier-btn cat-silver btn-inactive" onclick="setFilter('silver')">🥈 Silver (2 Ref)</button>
-            <button id="btn-gold" class="tier-btn cat-gold btn-inactive" onclick="setFilter('gold')">🥇 Gold (3 Ref)</button>
-            <button id="btn-premium" class="tier-btn cat-premium btn-inactive" onclick="setFilter('premium')">💎 Premium (4+ Ref)</button>
+            <button id="btn-bronze" class="tier-btn cat-bronze btn-inactive" onclick="setFilter('bronze')">🥉 Bronze<br>(1 Ref)</button>
+            <button id="btn-silver" class="tier-btn cat-silver btn-inactive" onclick="setFilter('silver')">🥈 Silver<br>(2 Ref)</button>
+            <button id="btn-gold" class="tier-btn cat-gold btn-inactive" onclick="setFilter('gold')">🥇 Gold<br>(3 Ref)</button>
+            <button id="btn-premium" class="tier-btn cat-premium btn-inactive" onclick="setFilter('premium')">💎 Premium<br>(4+ Ref)</button>
         </div>
     </div>
 
@@ -151,7 +152,7 @@
             const toast = document.getElementById("toast");
             toast.innerText = msg;
             toast.className = "show";
-            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 4000);
         }
 
         async function initData() {
@@ -196,7 +197,6 @@
             return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
         }
 
-        // Tier Level Select Logic
         function setFilter(mode) {
             filterMode = mode;
             const buttons = ['all', 'free', 'bronze', 'silver', 'gold', 'premium'];
@@ -224,7 +224,6 @@
                 let nRef = vid.needed_ref !== undefined ? vid.needed_ref : 3; 
                 let isUnlocked = (nRef === 0 || dbRefcount >= nRef);
                 
-                // Tier Level Matching Logic
                 let show = false;
                 if (filterMode === 'all') show = true;
                 else if (filterMode === 'free' && nRef === 0) show = true;
@@ -268,7 +267,7 @@
             });
 
             if (!hasVisibleVideos) {
-                html = `<div class="empty-msg">❌ এই ক্যাটাগরিতে এখনো কোনো ভিডিও নেই।<br><br>অন্য কোনো বাটনে ক্লিক করুন!</div>`;
+                html = `<div class="empty-msg">❌ No videos in this category yet.<br><br>Please click another button!</div>`;
             }
 
             document.getElementById('video-container').innerHTML = html;
@@ -277,10 +276,12 @@
         function checkUnlock(element) {
             const videoUrl = element.getAttribute('data-url');
             currentNeededRef = parseInt(element.getAttribute('data-needed-ref') || "3");
+            const lowerUrl = videoUrl.toLowerCase();
+            const isMp4 = lowerUrl.includes('.mp4');
 
             if (currentNeededRef === 0 || dbRefcount >= currentNeededRef) {
                 
-                if (currentNeededRef > 0 && !clickedAds[videoUrl]) { 
+                if (currentNeededRef > 0 && !clickedAds[videoUrl] && isMp4) { 
                     showToast("⏳ Unlocking secure player...");
                     clickedAds[videoUrl] = true; 
                     setTimeout(() => { tg.openLink(adUrl); }, 800);
@@ -288,10 +289,8 @@
                 }
                 
                 const playerWrapper = document.getElementById('player-wrapper');
-                const lowerUrl = videoUrl.toLowerCase();
 
-                // ভিডিওর ধরন অনুযায়ী প্লেয়ার সেটআপ
-                if (lowerUrl.includes('.mp4')) {
+                if (isMp4) {
                     playerWrapper.innerHTML = `
                         <video controls autoplay playsinline style="width:100%; height:100%; background:#000;">
                             <source src="${videoUrl}" type="video/mp4">
@@ -304,6 +303,8 @@
                         </div>
                     `;
                 } else {
+                    showToast("⚠️ If an ad opens, just press BACK and play again!");
+                    
                     playerWrapper.innerHTML = `
                         <iframe src="${videoUrl}" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no" style="border:none; width:100%; height:100%;"></iframe>
                         <div style="position: absolute; bottom: 20px; right: 20px; z-index: 100005;">
@@ -332,7 +333,7 @@
                 <div style="font-size:45px; margin-bottom:10px;">👑</div>
                 <h3 style="font-size: 19px; margin-top:0; color:#ffcc00;">Premium Video Locked!</h3>
                 <div style="font-size: 14px; color: #ddd; margin-bottom: 20px;">
-                    এই প্রিমিয়াম ভিডিওটি দেখতে আপনার আরও <span style="color: #ff3366; font-weight:bold; font-size:18px;">${remaining}</span> জন বন্ধুকে রেফার করতে হবে!
+                    To watch this premium video, you need to refer <span style="color: #ff3366; font-weight:bold; font-size:18px;">${remaining}</span> more friends!
                 </div>
                 <button class="share-btn" onclick="shareLink()">🚀 Share via Telegram</button>
                 <button class="check-btn" onclick="verifyInvites()">🔄 Check My Invites</button>
@@ -342,7 +343,7 @@
         }
 
         function shareLink() {
-            const viralText = encodeURIComponent("🔞 দোস্ত, এই লিংকে ক্লিক করে ফ্রিতে সব প্রিমিয়াম লিক ভিডিও দেখ! 🔥 তাড়াতাড়ি জয়েন কর 👇");
+            const viralText = encodeURIComponent("🔞 Bro, click this link to watch all premium leaked videos for free! 🔥 Join fast 👇");
             const shareUrl = `https://t.me/share/url?url=https://t.me/${botUsername}?start=${userId}&text=${viralText}`;
             tg.openTelegramLink(shareUrl);
         }
