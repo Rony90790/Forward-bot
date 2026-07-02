@@ -15,12 +15,10 @@
         .dot { height: 8px; width: 8px; background-color: #00ff00; border-radius: 50%; display: inline-block; animation: blink 1s infinite; box-shadow: 0 0 8px #00ff00;}
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
-        /* Invite Box Styling */
         .status-container { background: linear-gradient(145deg, #1a1a1a, #222); padding: 15px; border-radius: 12px; border: 1px solid #444; text-align: center; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.6);}
         .progress-bg { background: #000; border-radius: 10px; height: 10px; width: 100%; overflow: hidden; margin: 10px 0; border: 1px solid #333; }
         .progress-bar { background: linear-gradient(90deg, #00ffaa, #00aaff); height: 100%; width: 0%; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        /* Tiers/Level inside Box */
         .vip-tiers-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 5px; }
         .tier-btn { padding: 6px 2px; border-radius: 6px; border: 1px solid transparent; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 10px; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; line-height: 1.3; }
         .tier-btn span { font-size: 16px; margin-bottom: 3px; }
@@ -36,7 +34,6 @@
             100% { box-shadow: 0 0 5px rgba(255, 0, 85, 0.5); transform: scale(1); }
         }
 
-        /* Outside general buttons */
         .filter-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
         .filter-btn { padding: 12px 5px; border-radius: 12px; border: none; font-weight: 800; cursor: pointer; transition: 0.3s; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 6px; text-transform: uppercase;}
         .cat-all { background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; }
@@ -60,7 +57,6 @@
         .time-badge { background: rgba(0, 0, 0, 0.85); color: #fff; padding: 4px 7px; font-size: 11px; position: absolute; bottom: 8px; right: 8px; border-radius: 6px; font-weight: bold; z-index: 3; }
         .watch-btn { background: linear-gradient(90deg, #00ffaa, #00aaff); color: #000; padding: 5px 10px; font-size: 12px; position: absolute; bottom: 8px; left: 8px; border-radius: 6px; font-weight: 800; z-index: 3;}
 
-        /* Modal & Player styling */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px);}
         .modal-content { background: #1a1a1a; padding: 30px 20px; border-radius: 20px; width: 85%; max-width: 350px; text-align: center; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.8);}
         .share-btn { background: linear-gradient(90deg, #0088cc, #00aaff); color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 20px; font-weight: bold; box-shadow: 0 4px 15px rgba(0, 170, 255, 0.4);}
@@ -71,14 +67,13 @@
         #player-wrapper iframe { width: 100%; height: 100%; border: none; }
         .action-btn { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); color: #fff; padding: 10px 20px; border-radius: 10px; font-weight: bold; font-size: 14px; cursor: pointer; border: 1px solid rgba(255,255,255,0.3);}
         
-        /* 🚀 নতুন ভাসমান টেক্সট (Floating Text) অ্যানিমেশন */
         .floating-text {
             position: absolute;
             bottom: 10%;
             left: 50%;
             transform: translateX(-50%);
             color: #fff;
-            background: rgba(0, 0, 0, 0.5); /* হালকা স্বচ্ছ কালো ব্যাকগ্রাউন্ড যাতে টেক্সট পড়া যায় */
+            background: rgba(0, 0, 0, 0.5); 
             padding: 8px 18px;
             border-radius: 20px;
             font-size: 12px;
@@ -87,12 +82,11 @@
             width: 80%;
             z-index: 100005;
             pointer-events: none;
-            backdrop-filter: blur(3px); /* পেছনের ভিডিও হালকা ঝাপসা করবে */
+            backdrop-filter: blur(3px); 
             border: 0.5px solid rgba(255, 255, 255, 0.15);
-            animation: floatUp 8s ease-in-out forwards; /* ৮ সেকেন্ডের অ্যানিমেশন */
+            animation: floatUp 8s ease-in-out forwards; 
         }
 
-        /* নিচ থেকে ভেসে ওঠার ম্যাজিক অ্যানিমেশন */
         @keyframes floatUp {
             0% { opacity: 0; bottom: 5%; transform: translateX(-50%) scale(0.9); }
             10% { opacity: 1; bottom: 15%; transform: translateX(-50%) scale(1); }
@@ -335,7 +329,6 @@
                         </div>
                     `;
                 } else {
-                    // 🚀 Added floating text animation
                     playerWrapper.innerHTML = `
                         <div class="floating-text">💡 Pro Tip: high speed server play if you redirect ads use back button and click again (▶) play button!</div>
                         <iframe src="${videoUrl}" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no" style="border:none; width:100%; height:100%;"></iframe>
@@ -397,7 +390,8 @@
 
         fetchVideos();
         initData();
-        setInterval(initData, 10000); 
+        // BUG FIX: API Rate limit protection (DDoS fix)
+        setInterval(initData, 60000); // প্রতি ৬০ সেকেন্ডে রিফ্রেশ হবে (আগে ১০ সেকেন্ড ছিল)
     </script>
 </body>
 </html>
