@@ -96,6 +96,37 @@
 
         #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 8px; padding: 12px; position: fixed; z-index: 999999; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s, bottom 0.3s; border: 1px solid #555;}
         #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+        
+        /* Secret Box (Original Color + Balanced Shape) */
+        .mystery-fab {
+            position: fixed;
+            bottom: 25px;
+            right: 15px;
+            background: linear-gradient(135deg, #ff0055, #ffcc00);
+            color: white;
+            border-radius: 14px; /* আধুনিক রাউন্ডেড বক্স শেপ */
+            padding: 12px 16px; /* পারফেক্ট মোটা সাইজ */
+            font-size: 13px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(255, 0, 85, 0.6);
+            cursor: pointer;
+            z-index: 99990;
+            border: 2px solid #fff; /* আগের সেই সাদা বর্ডার */
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            animation: redPulse 2s infinite;
+        }
+        @keyframes redPulse {
+            0%, 100% { 
+                box-shadow: 0 4px 15px rgba(255, 0, 85, 0.6); 
+                transform: translateY(0); 
+            }
+            50% { 
+                box-shadow: 0 4px 25px rgba(255, 0, 85, 0.95); /* গ্লো অ্যানিমেশন */
+                transform: translateY(-4px); 
+            }
+        }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -128,6 +159,11 @@
 
     <div id="player-wrapper"></div>
     <div id="toast">Message here</div>
+    
+    <!-- ভাসমান মিস্ট্রি বক্স -->
+    <div class="mystery-fab" onclick="openMysteryBox()">
+        🎁 Secret Box
+    </div>
 
     <div class="video-grid" id="video-container">
         <div class="video-card" style="background:#222;"><div style="padding:20px; text-align:center; color:#555; margin-top:50px;">Loading...</div></div>
@@ -353,12 +389,12 @@
         }
 
         function openInviteModal() {
-            const remaining = currentNeededRef - dbRefcount;
             document.getElementById('modal-box').innerHTML = `
                 <div style="font-size:45px; margin-bottom:10px;">👑</div>
                 <h3 style="font-size: 19px; margin-top:0; color:#ffcc00;">Premium Video Locked!</h3>
-                <div style="font-size: 14px; color: #ddd; margin-bottom: 20px;">
-                    To watch this premium video, you need to refer <span style="color: #ff3366; font-weight:bold; font-size:18px;">${remaining}</span> more friends!
+                <div style="font-size: 14px; color: #ddd; margin-bottom: 20px; line-height: 1.5;">
+                    To watch this premium video, you need a total of <span style="color: #ff3366; font-weight:bold; font-size:18px;">${currentNeededRef} invites</span> in your account.<br>
+                    <span style="font-size: 12px; color: #aaa;">(Your current invites: ${dbRefcount})</span>
                 </div>
                 <button class="share-btn" onclick="shareLink()">🚀 Share via Telegram</button>
                 <button class="check-btn" onclick="verifyInvites()">🔄 Check My Invites</button>
@@ -387,6 +423,39 @@
         }
 
         function closeModal() { document.getElementById('shareModal').style.display = 'none'; }
+
+        // মিস্ট্রি বক্স ওপেন করার ফাংশন
+        function openMysteryBox() {
+            const requiredRefForBox = 10; // মিস্ট্রি বক্স খোলার জন্য ১০টি রেফার লাগবে
+            
+            if (dbRefcount < requiredRefForBox) {
+                document.getElementById('modal-box').innerHTML = `
+                    <div style="font-size:55px; margin-bottom:10px; animation: floatBounce 1.5s infinite;">🎁</div>
+                    <h3 style="font-size: 20px; margin-top:0; color:#ffcc00;">Admin's Secret Box!</h3>
+                    <div style="font-size: 14px; color: #ddd; margin-bottom: 20px; line-height: 1.5;">
+                        This secret folder contains <b style="color:#00ffaa;">100+ Ultra Premium Leaked Videos!</b> 🔞<br><br>
+                        🔒 You need a total of <span style="color: #ff3366; font-weight:bold; font-size:18px;">${requiredRefForBox} invites</span> in your account to open this box.<br>
+                        <span style="font-size: 12px; color: #aaa;">(Your current invites: ${dbRefcount})</span>
+                    </div>
+                    <button class="share-btn" onclick="shareLink()">🚀 Invite Friends to Unlock</button>
+                    <button class="close-btn-modal" onclick="closeModal()">Maybe Later</button>
+                `;
+                document.getElementById('shareModal').style.display = 'flex';
+            } else {
+                // ১০ জন রেফার হয়ে গেলে যা দেখাবে
+                document.getElementById('modal-box').innerHTML = `
+                    <div style="font-size:55px; margin-bottom:10px;">🔓</div>
+                    <h3 style="font-size: 20px; margin-top:0; color:#00ffaa;">Box Unlocked!</h3>
+                    <div style="font-size: 14px; color: #ddd; margin-bottom: 20px;">
+                        Congratulations! 🎉 You have unlocked the Admin's Secret Folder.
+                    </div>
+                    <!-- আপনার প্রাইভেট চ্যানেল লিংক -->
+                    <button class="share-btn" style="background: linear-gradient(90deg, #00ffaa, #00aaff); color:#000;" onclick="tg.openTelegramLink('https://t.me/+eBji6OYdsnY4N2Vk')">🔥 Open Secret Folder</button>
+                    <button class="close-btn-modal" onclick="closeModal()">Close</button>
+                `;
+                document.getElementById('shareModal').style.display = 'flex';
+            }
+        }
 
         fetchVideos();
         initData();
