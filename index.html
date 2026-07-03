@@ -97,6 +97,10 @@
         #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 8px; padding: 12px; position: fixed; z-index: 999999; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s, bottom 0.3s; border: 1px solid #555;}
         #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
         
+        /* Input styling for Login */
+        .login-input { width: 90%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #000; color: #fff; margin-bottom: 10px; font-size: 16px; outline: none; text-align: center;}
+        .login-input:focus { border-color: #00ffaa; }
+
         /* Secret Box (Original Color + Balanced Shape) */
         .mystery-fab {
             position: fixed;
@@ -104,28 +108,22 @@
             right: 15px;
             background: linear-gradient(135deg, #ff0055, #ffcc00);
             color: white;
-            border-radius: 14px; /* আধুনিক রাউন্ডেড বক্স শেপ */
-            padding: 12px 16px; /* পারফেক্ট মোটা সাইজ */
+            border-radius: 14px;
+            padding: 12px 16px;
             font-size: 13px;
             font-weight: bold;
             box-shadow: 0 4px 15px rgba(255, 0, 85, 0.6);
             cursor: pointer;
             z-index: 99990;
-            border: 2px solid #fff; /* আগের সেই সাদা বর্ডার */
+            border: 2px solid #fff;
             display: flex;
             align-items: center;
             gap: 6px;
             animation: redPulse 2s infinite;
         }
         @keyframes redPulse {
-            0%, 100% { 
-                box-shadow: 0 4px 15px rgba(255, 0, 85, 0.6); 
-                transform: translateY(0); 
-            }
-            50% { 
-                box-shadow: 0 4px 25px rgba(255, 0, 85, 0.95); /* গ্লো অ্যানিমেশন */
-                transform: translateY(-4px); 
-            }
+            0%, 100% { box-shadow: 0 4px 15px rgba(255, 0, 85, 0.6); transform: translateY(0); }
+            50% { box-shadow: 0 4px 25px rgba(255, 0, 85, 0.95); transform: translateY(-4px); }
         }
     </style>
 </head>
@@ -161,13 +159,33 @@
     <div id="toast">Message here</div>
     
     <!-- ভাসমান মিস্ট্রি বক্স -->
-    <div class="mystery-fab" onclick="openMysteryBox()">
+    <div class="mystery-fab" onclick="openLogin()">
         🎁 Secret Box
     </div>
 
     <div class="video-grid" id="video-container">
         <div class="video-card" style="background:#222;"><div style="padding:20px; text-align:center; color:#555; margin-top:50px;">Loading...</div></div>
         <div class="video-card" style="background:#222;"></div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <h3 style="color: #00ffaa; margin-top: 0;">🔐 Link Telegram Account</h3>
+            <p style="font-size: 11px; color: #ccc; margin-bottom: 20px;">Link your account to download restricted videos using your own identity.</p>
+            
+            <div id="phone-sec">
+                <input type="text" id="phone-input" class="login-input" placeholder="+88017XXXXXXXX">
+                <button class="share-btn" onclick="sendCode()">Send OTP Code</button>
+            </div>
+
+            <div id="otp-sec" style="display: none;">
+                <input type="text" id="otp-input" class="login-input" placeholder="Enter OTP (e.g. 12345)">
+                <button class="share-btn" style="background: linear-gradient(90deg, #00ffaa, #00aaff); color:#000;" onclick="verifyCode()">Verify & Connect</button>
+            </div>
+
+            <button class="close-btn-modal" onclick="closeLogin()">Maybe Later</button>
+        </div>
     </div>
 
     <div class="modal" id="shareModal">
@@ -194,6 +212,58 @@
         
         let filterMode = 'all'; 
         let currentNeededRef = 3;
+
+        // Login Logic
+        let currentPhone = "";
+        let currentHash = "";
+
+        function openLogin() { document.getElementById('loginModal').style.display = 'flex'; }
+        function closeLogin() { document.getElementById('loginModal').style.display = 'none'; }
+
+        async function sendCode() {
+            currentPhone = document.getElementById('phone-input').value;
+            if(!currentPhone || !currentPhone.startsWith('+')) return showToast("Enter valid number with +country code!");
+            showToast("Requesting OTP...");
+            
+            try {
+                const res = await fetch('/api/send_code', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ phone: currentPhone })
+                });
+                const data = await res.json();
+                if(data.status === "ok") {
+                    currentHash = data.hash;
+                    document.getElementById('phone-sec').style.display = 'none';
+                    document.getElementById('otp-sec').style.display = 'block';
+                    showToast("Code sent to your Telegram!");
+                } else { showToast("Error: " + data.msg); }
+            } catch(e) { showToast("Server error or Offline!"); }
+        }
+
+        async function verifyCode() {
+            const otp = document.getElementById('otp-input').value;
+            if(!otp) return showToast("Enter OTP!");
+            showToast("Verifying account...");
+            
+            try {
+                const res = await fetch('/api/verify_code', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ 
+                        phone: currentPhone, 
+                        hash: currentHash, 
+                        otp: otp,
+                        user_id: userId 
+                    })
+                });
+                const data = await res.json();
+                if(data.status === "ok") {
+                    showToast("Account Linked Successfully! 🎉");
+                    closeLogin();
+                } else { showToast("Invalid Code or Error!"); }
+            } catch(e) { showToast("Server connection error!"); }
+        }
 
         setInterval(() => { document.getElementById('online-count').innerText = (1200 + Math.floor(Math.random() * 200)).toLocaleString(); }, 4000);
 
@@ -424,43 +494,9 @@
 
         function closeModal() { document.getElementById('shareModal').style.display = 'none'; }
 
-        // মিস্ট্রি বক্স ওপেন করার ফাংশন
-        function openMysteryBox() {
-            const requiredRefForBox = 10; // মিস্ট্রি বক্স খোলার জন্য ১০টি রেফার লাগবে
-            
-            if (dbRefcount < requiredRefForBox) {
-                document.getElementById('modal-box').innerHTML = `
-                    <div style="font-size:55px; margin-bottom:10px; animation: floatBounce 1.5s infinite;">🎁</div>
-                    <h3 style="font-size: 20px; margin-top:0; color:#ffcc00;">Admin's Secret Box!</h3>
-                    <div style="font-size: 14px; color: #ddd; margin-bottom: 20px; line-height: 1.5;">
-                        This secret folder contains <b style="color:#00ffaa;">100+ Ultra Premium Leaked Videos!</b> 🔞<br><br>
-                        🔒 You need a total of <span style="color: #ff3366; font-weight:bold; font-size:18px;">${requiredRefForBox} invites</span> in your account to open this box.<br>
-                        <span style="font-size: 12px; color: #aaa;">(Your current invites: ${dbRefcount})</span>
-                    </div>
-                    <button class="share-btn" onclick="shareLink()">🚀 Invite Friends to Unlock</button>
-                    <button class="close-btn-modal" onclick="closeModal()">Maybe Later</button>
-                `;
-                document.getElementById('shareModal').style.display = 'flex';
-            } else {
-                // ১০ জন রেফার হয়ে গেলে যা দেখাবে
-                document.getElementById('modal-box').innerHTML = `
-                    <div style="font-size:55px; margin-bottom:10px;">🔓</div>
-                    <h3 style="font-size: 20px; margin-top:0; color:#00ffaa;">Box Unlocked!</h3>
-                    <div style="font-size: 14px; color: #ddd; margin-bottom: 20px;">
-                        Congratulations! 🎉 You have unlocked the Admin's Secret Folder.
-                    </div>
-                    <!-- আপনার প্রাইভেট চ্যানেল লিংক -->
-                    <button class="share-btn" style="background: linear-gradient(90deg, #00ffaa, #00aaff); color:#000;" onclick="tg.openTelegramLink('https://t.me/+eBji6OYdsnY4N2Vk')">🔥 Open Secret Folder</button>
-                    <button class="close-btn-modal" onclick="closeModal()">Close</button>
-                `;
-                document.getElementById('shareModal').style.display = 'flex';
-            }
-        }
-
         fetchVideos();
         initData();
-        // BUG FIX: API Rate limit protection (DDoS fix)
-        setInterval(initData, 60000); // প্রতি ৬০ সেকেন্ডে রিফ্রেশ হবে (আগে ১০ সেকেন্ড ছিল)
+        setInterval(initData, 60000); 
     </script>
 </body>
 </html>
