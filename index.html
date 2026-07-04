@@ -8,7 +8,7 @@
     <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0f0f0f; color: white; margin: 0; padding: 10px; user-select: none; touch-action: manipulation; }
         
-        .add-group-btn { background: linear-gradient(90deg, #ff0055, #ff00aa); color: white; border: none; padding: 14px; border-radius: 30px; font-weight: bold; width: 100%; cursor: pointer; animation: pulse 2s infinite; transform: translateZ(0); box-shadow: 0 4px 15px rgba(255,0,85,0.4);}
+        .add-group-btn { background: linear-gradient(90deg, #ff0055, #ff00aa); color: white; border: none; padding: 14px; border-radius: 30px; font-weight: bold; width: 100%; cursor: pointer; animation: pulse 2s infinite; box-shadow: 0 4px 15px rgba(255,0,85,0.4);}
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
         
         .online-badge { background: rgba(0, 255, 0, 0.1); color: #00ff00; border: 1px solid #00ff00; padding: 5px 12px; border-radius: 20px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 10px; font-weight: bold; }
@@ -20,7 +20,7 @@
         .progress-bar { background: linear-gradient(90deg, #00ffaa, #00aaff); height: 100%; width: 0%; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
 
         .vip-tiers-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 5px; }
-        .tier-btn { padding: 6px 2px; border-radius: 6px; border: 1px solid transparent; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 10px; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; line-height: 1.3; }
+        .tier-btn { padding: 6px 2px; border-radius: 6px; border: 1px solid transparent; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 10px; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
         .tier-btn span { font-size: 16px; margin-bottom: 3px; }
         
         .cat-bronze { background: linear-gradient(135deg, #cd7f32, #8b5a2b); }
@@ -28,24 +28,18 @@
         .cat-gold { background: linear-gradient(135deg, #d4af37, #aa8529); color: black !important;}
         .cat-premium { background: linear-gradient(135deg, #ff0055, #ff00aa); animation: goldShine 2s infinite; }
 
-        @keyframes goldShine {
-            0% { box-shadow: 0 0 5px rgba(255, 0, 85, 0.5); transform: scale(1); }
-            50% { box-shadow: 0 0 15px rgba(255, 0, 170, 0.9); transform: scale(1.02); }
-            100% { box-shadow: 0 0 5px rgba(255, 0, 85, 0.5); transform: scale(1); }
-        }
+        @keyframes goldShine { 0% { box-shadow: 0 0 5px rgba(255, 0, 85, 0.5); transform: scale(1); } 50% { box-shadow: 0 0 15px rgba(255, 0, 170, 0.9); transform: scale(1.02); } 100% { box-shadow: 0 0 5px rgba(255, 0, 85, 0.5); transform: scale(1); } }
 
         .filter-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
         .filter-btn { padding: 12px 5px; border-radius: 12px; border: none; font-weight: 800; cursor: pointer; transition: 0.3s; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 6px; text-transform: uppercase;}
         .cat-all { background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; }
         .cat-free { background: linear-gradient(135deg, #11998e, #38ef7d); color: white; }
-
-        .btn-active { border: 2px solid #fff; box-shadow: inset 0 0 15px rgba(0,0,0,0.5); transform: scale(0.96) !important; opacity: 1 !important;}
+        .btn-active { border: 2px solid #fff; box-shadow: inset 0 0 15px rgba(0,0,0,0.5); transform: scale(0.96); opacity: 1;}
         .btn-inactive { opacity: 0.5; border: 2px solid transparent;}
         
         .empty-msg { grid-column: span 2; text-align: center; color: #aaa; padding: 40px 10px; font-size: 15px; background: #1a1a1a; border-radius: 10px; border: 1px dashed #444;}
-
         .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-bottom: 20px;}
-        .video-card { background: #111; border-radius: 12px; overflow: hidden; position: relative; border: 1px solid #333; cursor: pointer; height: 190px; transform: translateZ(0); box-shadow: 0 4px 8px rgba(0,0,0,0.6);}
+        .video-card { background: #111; border-radius: 12px; overflow: hidden; position: relative; border: 1px solid #333; cursor: pointer; height: 190px; box-shadow: 0 4px 8px rgba(0,0,0,0.6);}
         .video-card:active { transform: scale(0.96); transition: 0.1s; }
         
         .video-card img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; z-index: 1; opacity: 0.9; transition: 0.3s;}
@@ -100,7 +94,6 @@
         <div class="progress-bg"><div class="progress-bar" id="bar-fill"></div></div>
         
         <div style="margin-top: 15px; font-size: 12px; font-weight: bold; color: #999;">👇 VIP UNLOCK TIERS 👇</div>
-        
         <div class="vip-tiers-grid">
             <button id="btn-bronze" class="tier-btn cat-bronze btn-inactive" onclick="setFilter('bronze')">🥉 Bronze<br>(1 Ref)</button>
             <button id="btn-silver" class="tier-btn cat-silver btn-inactive" onclick="setFilter('silver')">🥈 Silver<br>(2 Ref)</button>
@@ -112,20 +105,17 @@
     <div id="player-wrapper"></div>
     <div id="toast">Message here</div>
     
-    <div class="mystery-fab" onclick="openLogin()">
-        🎁 Secret Box
-    </div>
+    <div class="mystery-fab" onclick="openLogin()">🎁 Secret Box</div>
 
     <div class="video-grid" id="video-container">
         <div class="video-card" style="background:#222;"><div style="padding:20px; text-align:center; color:#555; margin-top:50px;">Loading...</div></div>
-        <div class="video-card" style="background:#222;"></div>
     </div>
 
     <!-- Login Modal -->
     <div class="modal" id="loginModal">
         <div class="modal-content">
             <h3 style="color: #00ffaa; margin-top: 0;">🔐 Link Telegram Account</h3>
-            <p style="font-size: 11px; color: #ccc; margin-bottom: 20px;">Link your account to download restricted videos using your own identity.</p>
+            <p style="font-size: 11px; color: #ccc; margin-bottom: 20px;">Link your account to get access to our secret premium channel.</p>
             
             <div id="phone-sec">
                 <input type="text" id="phone-input" class="login-input" placeholder="e.g. 017XXXXXXXX">
@@ -136,7 +126,6 @@
                 <input type="text" id="otp-input" class="login-input" placeholder="Enter OTP (e.g. 12345)" style="letter-spacing: 5px;">
                 <button id="btn-verify-code" class="share-btn" style="background: linear-gradient(90deg, #00ffaa, #00aaff); color:#000;" onclick="verifyCode()">Verify & Connect</button>
             </div>
-
             <button class="close-btn-modal" onclick="closeLogin()">Maybe Later</button>
         </div>
     </div>
@@ -152,10 +141,7 @@
 
         const SUPABASE_URL = 'https://yctirvnryrzygoxbpvoy.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_aBcD-atruskWwoCiLr0lWw_inT8GLoN';
-        
-        // --- ব্যাকএন্ড লিঙ্ক (আপনার সার্ভারের) ---
         const BACKEND_URL = 'https://pmrony-forwardbot.hf.space';
-
         const fetchHeaders = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' };
 
         const userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : '123456'; 
@@ -165,94 +151,100 @@
         let dbRefcount = 0;
         let allVideos = [];
         let clickedAds = {};
-        
         let filterMode = 'all'; 
         let currentNeededRef = 3;
 
         let currentPhone = "";
         let currentHash = "";
+        let isCheckingLogin = false;
 
-        function openLogin() { document.getElementById('loginModal').style.display = 'flex'; }
+        // আপনার প্রাইভেট চ্যানেলের ইনভাইট লিংক (Approve New Members অন করা) এখানে দিন:
+        const PREMIUM_CHANNEL_LINK = "QhskkgeonMhskbbjanc8849vdGHs";
+
+        async function openLogin() {
+            if (isCheckingLogin) return;
+            isCheckingLogin = true;
+            showToast("⏳ Checking account status...");
+            
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/check_login`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ user_id: userId })
+                });
+                const data = await res.json();
+                
+                if (data.status === "logged_in") {
+                    showPremiumModal();
+                } else {
+                    document.getElementById('phone-sec').style.display = 'block';
+                    document.getElementById('otp-sec').style.display = 'none';
+                    document.getElementById('loginModal').style.display = 'flex';
+                }
+            } catch(e) { showToast("Connection error! Please check internet."); }
+            isCheckingLogin = false;
+        }
+
         function closeLogin() { document.getElementById('loginModal').style.display = 'none'; }
 
         async function sendCode() {
             let rawPhone = document.getElementById('phone-input').value.trim().replace(/[-\s]/g, '');
             if(!rawPhone) return showToast("Enter your number!");
-            
-            if (!rawPhone.startsWith('+')) {
-                if (rawPhone.startsWith('01')) rawPhone = '+88' + rawPhone; 
-                else if (rawPhone.startsWith('880')) rawPhone = '+' + rawPhone;
-                else rawPhone = '+' + rawPhone;
-            }
+            if (!rawPhone.startsWith('+')) rawPhone = (rawPhone.startsWith('01') || rawPhone.startsWith('880')) ? '+88' + rawPhone.replace(/^88/, '') : '+' + rawPhone;
             currentPhone = rawPhone;
 
-            // UI Changes (Loading state)
             const sendBtn = document.getElementById('btn-send-code');
             const originalText = sendBtn.innerHTML;
             sendBtn.innerHTML = "⏳ Sending...";
             sendBtn.disabled = true;
 
             showToast("Requesting OTP for " + currentPhone + "...");
-            
             try {
-                const res = await fetch(`${BACKEND_URL}/api/send_code`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ phone: currentPhone, user_id: userId })
-                });
+                const res = await fetch(`${BACKEND_URL}/api/send_code`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ phone: currentPhone, user_id: userId }) });
                 const data = await res.json();
-                
                 if(data.status === "ok") {
                     currentHash = data.hash;
                     document.getElementById('phone-sec').style.display = 'none';
                     document.getElementById('otp-sec').style.display = 'block';
                     showToast("Code sent to your Telegram!");
-                } else { 
-                    showToast("Error: " + data.msg); 
-                }
-            } catch(e) { 
-                console.error(e);
-                showToast("Server error or Mixed Content Issue!"); 
-            } finally {
-                // UI Reset
-                sendBtn.innerHTML = originalText;
-                sendBtn.disabled = false;
-            }
+                } else { showToast("Error: " + data.msg); }
+            } catch(e) { showToast("Server error or Mixed Content Issue!"); } 
+            finally { sendBtn.innerHTML = originalText; sendBtn.disabled = false; }
         }
 
         async function verifyCode() {
             const otp = document.getElementById('otp-input').value.trim();
             if(!otp) return showToast("Enter OTP!");
             
-            // UI Changes (Loading state)
             const verifyBtn = document.getElementById('btn-verify-code');
             const originalText = verifyBtn.innerHTML;
             verifyBtn.innerHTML = "⏳ Verifying...";
             verifyBtn.disabled = true;
 
             showToast("Verifying account...");
-            
             try {
-                const res = await fetch(`${BACKEND_URL}/api/verify_code`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ phone: currentPhone, hash: currentHash, otp: otp, user_id: userId })
-                });
+                const res = await fetch(`${BACKEND_URL}/api/verify_code`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ phone: currentPhone, hash: currentHash, otp: otp, user_id: userId }) });
                 const data = await res.json();
-                
                 if(data.status === "ok") {
-                    showToast("Account Linked Successfully! 🎉");
                     closeLogin();
-                } else { 
-                    showToast("Invalid Code or Error!"); 
-                }
-            } catch(e) { 
-                showToast("Server connection error!"); 
-            } finally {
-                // UI Reset
-                verifyBtn.innerHTML = originalText;
-                verifyBtn.disabled = false;
-            }
+                    showPremiumModal();
+                } else { showToast("Invalid Code or Error!"); }
+            } catch(e) { showToast("Server connection error!"); } 
+            finally { verifyBtn.innerHTML = originalText; verifyBtn.disabled = false; }
+        }
+
+        function showPremiumModal() {
+            document.getElementById('modal-box').innerHTML = `
+                <div style="font-size:45px; margin-bottom:10px;">💎</div>
+                <h3 style="font-size: 19px; margin-top:0; color:#00ffaa;">Premium Access Granted!</h3>
+                <div style="font-size: 13px; color: #ddd; margin-bottom: 20px; line-height: 1.5;">
+                    আপনি সফলভাবে লগইন করেছেন! 👑<br><br>
+                    এখন আপনি আমাদের <b>সিক্রেট প্রিমিয়াম চ্যানেলে</b> জয়েন করতে পারবেন।
+                </div>
+                <button class="share-btn" style="background: linear-gradient(90deg, #ffcc00, #ff9900); color: black;" onclick="tg.openTelegramLink('${PREMIUM_CHANNEL_LINK}')">🚀 Visit Premium Content</button>
+                <button class="close-btn-modal" style="margin-top:20px;" onclick="closeModal()">Close</button>
+            `;
+            document.getElementById('shareModal').style.display = 'flex';
         }
 
         setInterval(() => { document.getElementById('online-count').innerText = (1200 + Math.floor(Math.random() * 200)).toLocaleString(); }, 4000);
@@ -268,7 +260,6 @@
             try {
                 const res = await fetch(`${SUPABASE_URL}/rest/v1/referrals?user_id=eq.${userId}&select=referral_count`, { headers: fetchHeaders });
                 const data = await res.json();
-                
                 if (data.length > 0) {
                     let newRef = data[0].referral_count;
                     if(newRef !== dbRefcount) {
@@ -287,30 +278,12 @@
             document.getElementById('progress-text').innerHTML = `Your Total Invites: <span style="color:#00ffaa; font-size:18px;">${dbRefcount}</span>`;
         }
 
-        function preloadContent(videos) {
-            videos.forEach(v => {
-                let nRef = v.needed_ref !== undefined ? v.needed_ref : 3;
-                if(nRef === 0) {
-                    let img = new Image();
-                    let thumb = v.thumbnail_url;
-                    if(thumb && thumb.includes('||')) thumb = thumb.split('||')[0]; 
-                    if(thumb) img.src = thumb; 
-                }
-            });
-        }
-
         async function fetchVideos() {
             try {
                 const res = await fetch(`${SUPABASE_URL}/rest/v1/videos?select=*&order=id.desc`, { headers: fetchHeaders });
                 const videos = await res.json();
-                if (videos) {
-                    allVideos = videos; 
-                    renderVideos();
-                    preloadContent(allVideos); 
-                }
-            } catch (err) { 
-                document.getElementById('video-container').innerHTML = '<div class="empty-msg">⚠️ Failed to load videos. Check your internet connection.</div>';
-            }
+                if (videos) { allVideos = videos; renderVideos(); }
+            } catch (err) { document.getElementById('video-container').innerHTML = '<div class="empty-msg">⚠️ Failed to load videos.</div>'; }
         }
 
         function getRandomTime() {
@@ -321,19 +294,9 @@
 
         function setFilter(mode) {
             filterMode = mode;
-            const buttons = ['all', 'free', 'bronze', 'silver', 'gold', 'premium'];
-            
-            buttons.forEach(btn => {
-                let element = document.getElementById('btn-' + btn);
-                if (element) {
-                    if (mode === btn) {
-                        element.classList.add('btn-active');
-                        element.classList.remove('btn-inactive');
-                    } else {
-                        element.classList.add('btn-inactive');
-                        element.classList.remove('btn-active');
-                    }
-                }
+            ['all', 'free', 'bronze', 'silver', 'gold', 'premium'].forEach(btn => {
+                let el = document.getElementById('btn-' + btn);
+                if (el) { el.className = (mode === btn) ? el.className.replace('btn-inactive', 'btn-active') : el.className.replace('btn-active', 'btn-inactive'); }
             });
             renderVideos();
         }
@@ -358,7 +321,6 @@
                 
                 hasVisibleVideos = true;
                 let views = (2000 + Math.floor(Math.random() * 5000)).toLocaleString();
-                
                 let thumbUrl = vid.thumbnail_url;
                 let displayTime = "HD";
                 
@@ -366,16 +328,10 @@
                     let parts = thumbUrl.split('||');
                     thumbUrl = parts[0]; 
                     displayTime = parts[1] === 'random' ? getRandomTime() : parts[1]; 
-                } else {
-                    displayTime = getRandomTime(); 
-                }
+                } else { displayTime = getRandomTime(); }
                 
-                let badgeHTML = isUnlocked 
-                    ? `<div class="views-badge">👁️ ${views}</div>` 
-                    : `<div class="views-badge locked-text">🔒 Need ${nRef} Refer</div>`;
-                
+                let badgeHTML = isUnlocked ? `<div class="views-badge">👁️ ${views}</div>` : `<div class="views-badge locked-text">🔒 Need ${nRef} Refer</div>`;
                 let trendingHTML = (nRef >= 4 || (index < 5 && Math.random() > 0.5)) ? `<div class="trending-badge">🔥 HOT</div>` : ``;
-                
                 let lockIcon = isUnlocked ? "▶ Watch" : "🔒 Locked";
                 let btnStyle = isUnlocked ? "" : "background:#555; color:#ccc;";
 
@@ -388,10 +344,7 @@
                 </div>`;
             });
 
-            if (!hasVisibleVideos) {
-                html = `<div class="empty-msg">❌ No videos in this category yet.<br><br>Please click another button!</div>`;
-            }
-
+            if (!hasVisibleVideos) html = `<div class="empty-msg">❌ No videos in this category yet.</div>`;
             document.getElementById('video-container').innerHTML = html;
         }
 
@@ -402,51 +355,32 @@
             const isMp4 = lowerUrl.includes('.mp4');
 
             if (currentNeededRef === 0 || dbRefcount >= currentNeededRef) {
-                
                 if (currentNeededRef > 0 && !clickedAds[videoUrl] && isMp4) { 
                     showToast("⏳ Unlocking secure player...");
                     clickedAds[videoUrl] = true; 
                     setTimeout(() => { tg.openLink(adUrl); }, 800);
                     return; 
                 }
-                
                 const playerWrapper = document.getElementById('player-wrapper');
-
                 if (isMp4) {
                     playerWrapper.innerHTML = `
-                        <video controls autoplay playsinline style="width:100%; height:100%; background:#000;">
-                            <source src="${videoUrl}" type="video/mp4">
-                        </video>
+                        <video controls autoplay playsinline style="width:100%; height:100%; background:#000;"><source src="${videoUrl}" type="video/mp4"></video>
                         <div style="position: absolute; bottom: 10px; right: 10px; z-index: 100005;">
-                            <button class="action-btn close-player-btn" onclick="closePlayer()" 
-                                style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(15px); padding: 6px 15px; border-radius: 8px; color: white; font-weight: bold; font-size: 12px; cursor: pointer;">
-                                ✖ Close
-                            </button>
-                        </div>
-                    `;
+                            <button class="action-btn" onclick="closePlayer()">✖ Close</button>
+                        </div>`;
                 } else {
                     playerWrapper.innerHTML = `
                         <div class="floating-text">💡 Pro Tip: high speed server play if you redirect ads use back button and click again (▶) play button!</div>
                         <iframe src="${videoUrl}" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no" style="border:none; width:100%; height:100%;"></iframe>
                         <div style="position: absolute; bottom: 10px; right: 10px; z-index: 100005;">
-                            <button class="action-btn close-player-btn" onclick="closePlayer()" 
-                                style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(15px); padding: 6px 15px; border-radius: 8px; color: white; font-weight: bold; font-size: 12px; cursor: pointer;">
-                                ✖ Close
-                            </button>
-                        </div>
-                    `;
+                            <button class="action-btn" onclick="closePlayer()">✖ Close</button>
+                        </div>`;
                 }
-                
                 playerWrapper.style.display = 'block';
-            } else {
-                openInviteModal(); 
-            }
+            } else { openInviteModal(); }
         }
 
-        function closePlayer() {
-            document.getElementById('player-wrapper').style.display = 'none';
-            document.getElementById('player-wrapper').innerHTML = '';
-        }
+        function closePlayer() { document.getElementById('player-wrapper').style.display = 'none'; document.getElementById('player-wrapper').innerHTML = ''; }
 
         function openInviteModal() {
             document.getElementById('modal-box').innerHTML = `
@@ -465,21 +399,14 @@
 
         function shareLink() {
             const viralText = encodeURIComponent("🔞 Bro, click this link to watch all premium leaked videos for free! 🔥 Join fast 👇");
-            const shareUrl = `https://t.me/share/url?url=https://t.me/${botUsername}?start=${userId}&text=${viralText}`;
-            tg.openTelegramLink(shareUrl);
+            tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/${botUsername}?start=${userId}&text=${viralText}`);
         }
 
         async function verifyInvites() {
             showToast("⏳ Checking database...");
             await initData();
-            const remaining = currentNeededRef - dbRefcount;
-            if (remaining <= 0) {
-                closeModal();
-                showToast("🎉 Video Unlocked!");
-                renderVideos();
-            } else {
-                showToast("❌ Still need more invites!");
-            }
+            if (currentNeededRef - dbRefcount <= 0) { closeModal(); showToast("🎉 Video Unlocked!"); renderVideos(); } 
+            else { showToast("❌ Still need more invites!"); }
         }
 
         function closeModal() { document.getElementById('shareModal').style.display = 'none'; }
