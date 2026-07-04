@@ -443,7 +443,7 @@
         // পেজ রিলোড হলে অটোমেটিক লগিন স্টেট চেক করবে
         let savedState = localStorage.getItem("loginState");
         if (savedState === "otp") {
-            openLogin();
+            setTimeout(() => { openLogin(); }, 500);
         }
 
         fetchVideos();
