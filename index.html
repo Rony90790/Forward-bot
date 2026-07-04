@@ -158,8 +158,8 @@
         let currentHash = "";
         let isCheckingLogin = false;
 
-        // আপনার প্রাইভেট চ্যানেলের ইনভাইট লিংক (Approve New Members অন করা) এখানে দিন:
-        const PREMIUM_CHANNEL_LINK = "QhskkgeonMhskbbjanc8849vdGHs";
+        // আপনার প্রাইভেট চ্যানেলের ইনভাইট লিংক
+        const PREMIUM_CHANNEL_LINK = "https://t.me/+snT3FqTlgmJlNDQ1";
 
         async function openLogin() {
             if (isCheckingLogin) return;
@@ -238,10 +238,11 @@
                 <div style="font-size:45px; margin-bottom:10px;">💎</div>
                 <h3 style="font-size: 19px; margin-top:0; color:#00ffaa;">Premium Access Granted!</h3>
                 <div style="font-size: 13px; color: #ddd; margin-bottom: 20px; line-height: 1.5;">
-                    আপনি সফলভাবে লগইন করেছেন! 👑<br><br>
-                    এখন আপনি আমাদের <b>সিক্রেট প্রিমিয়াম চ্যানেলে</b> জয়েন করতে পারবেন।
+                    You have successfully logged in! 👑<br><br>
+                    Now you can join our <b>Secret Premium Channel</b>.
                 </div>
-                <button class="share-btn" style="background: linear-gradient(90deg, #ffcc00, #ff9900); color: black;" onclick="tg.openTelegramLink('${PREMIUM_CHANNEL_LINK}')">🚀 Visit Premium Content</button>
+                <!-- tg.openLink is used instead of openTelegramLink to properly load private invite links -->
+                <button class="share-btn" style="background: linear-gradient(90deg, #ffcc00, #ff9900); color: black;" onclick="tg.openLink('${PREMIUM_CHANNEL_LINK}')">🚀 Visit Premium Content</button>
                 <button class="close-btn-modal" style="margin-top:20px;" onclick="closeModal()">Close</button>
             `;
             document.getElementById('shareModal').style.display = 'flex';
@@ -370,7 +371,7 @@
                         </div>`;
                 } else {
                     playerWrapper.innerHTML = `
-                        <div class="floating-text">💡 Pro Tip: high speed server play if you redirect ads use back button and click again (▶) play button!</div>
+                        <div class="floating-text">💡 Pro Tip: For high speed server play, if you are redirected to ads, use the back button and click the play (▶) button again!</div>
                         <iframe src="${videoUrl}" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no" style="border:none; width:100%; height:100%;"></iframe>
                         <div style="position: absolute; bottom: 10px; right: 10px; z-index: 100005;">
                             <button class="action-btn" onclick="closePlayer()">✖ Close</button>
