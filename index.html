@@ -440,12 +440,7 @@
 
         function closeModal() { document.getElementById('shareModal').style.display = 'none'; }
 
-        // পেজ রিলোড হলে অটোমেটিক লগিন স্টেট চেক করবে
-        let savedState = localStorage.getItem("loginState");
-        if (savedState === "otp") {
-            setTimeout(() => { openLogin(); }, 500);
-        }
-
+        // Start initialization
         fetchVideos();
         initData();
         setInterval(initData, 60000); 
