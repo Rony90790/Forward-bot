@@ -289,7 +289,7 @@
             try {
                 const res = await fetch(`${SUPABASE_URL}/rest/v1/referrals?user_id=eq.${userId}&select=referral_count`, { headers: fetchHeaders });
                 const data = await res.json();
-                if (data.length > 0) {
+                if (Array.isArray(data) && data.length > 0) {
                     let newRef = data[0].referral_count;
                     if(newRef !== dbRefcount) {
                         dbRefcount = newRef;
