@@ -335,7 +335,7 @@
             let hasVisibleVideos = false;
 
             allVideos.forEach((vid, index) => {
-                let nRef = vid.needed_ref !== undefined ? vid.needed_ref : 3; 
+                let nRef = (vid.needed_ref !== undefined && vid.needed_ref !== null) ? parseInt(vid.needed_ref) : 3; 
                 let isUnlocked = (nRef === 0 || dbRefcount >= nRef);
                 
                 let show = false;
@@ -350,22 +350,27 @@
                 
                 hasVisibleVideos = true;
                 let views = (2000 + Math.floor(Math.random() * 5000)).toLocaleString();
-                let thumbUrl = vid.thumbnail_url;
+                
+                // CRASH-FREE FIX: Ensure thumbUrl is always a string
+                let thumbUrl = vid.thumbnail_url || "";
                 let displayTime = "HD";
                 
                 if (thumbUrl && thumbUrl.includes('||')) {
                     let parts = thumbUrl.split('||');
                     thumbUrl = parts[0]; 
                     displayTime = parts[1] === 'random' ? getRandomTime() : parts[1]; 
-                } else { displayTime = getRandomTime(); }
+                } else { 
+                    displayTime = getRandomTime(); 
+                }
                 
+                let videoUrl = vid.video_url || "";
                 let badgeHTML = isUnlocked ? `<div class="views-badge">👁️ ${views}</div>` : `<div class="views-badge locked-text">🔒 Need ${nRef} Refer</div>`;
                 let trendingHTML = (nRef >= 4 || (index < 5 && Math.random() > 0.5)) ? `<div class="trending-badge">🔥 HOT</div>` : ``;
                 let lockIcon = isUnlocked ? "▶ Watch" : "🔒 Locked";
                 let btnStyle = isUnlocked ? "" : "background:#555; color:#ccc;";
 
-                html += `<div class="video-card" data-url="${vid.video_url}" data-needed-ref="${nRef}" onclick="checkUnlock(this)">
-                    <img src="${thumbUrl}" onerror="this.src='https://via.placeholder.com/300x190/111/444?text=Image+Not+Found'">
+                html += `<div class="video-card" data-url="${videoUrl}" data-needed-ref="${nRef}" onclick="checkUnlock(this)">
+                    <img src="${thumbUrl || 'https://via.placeholder.com/300x190/111/444?text=No+Image'}" onerror="this.src='https://via.placeholder.com/300x190/111/444?text=Image+Not+Found'">
                     ${trendingHTML}
                     ${badgeHTML}
                     <div class="time-badge">${displayTime}</div>
@@ -381,7 +386,9 @@
             const videoUrl = element.getAttribute('data-url') || "";
             currentNeededRef = parseInt(element.getAttribute('data-needed-ref') || "3");
             const lowerUrl = videoUrl.toLowerCase();
-            const isMp4 = lowerUrl.includes('.mp4');
+            
+            // STREAM PLAYER FIX: URL-এ /stream/ বা /download/ থাকলেও সেটিকে ডিরেক্ট প্লেয়ারে ওপেন করবে
+            const isMp4 = lowerUrl.includes('.mp4') || lowerUrl.includes('/stream/') || lowerUrl.includes('/download/');
 
             if (currentNeededRef === 0 || dbRefcount >= currentNeededRef) {
                 if (currentNeededRef > 0 && !clickedAds[videoUrl] && isMp4) { 
