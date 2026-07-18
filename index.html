@@ -259,7 +259,10 @@
                     }
                     document.getElementById('loginModal').style.display = 'flex';
                 }
-            } catch(e) { showToast("Connection error!"); }
+            } catch(e) { 
+                showToast("Connection error!"); 
+                alert("API Error: " + e.message + "\n\n(Note: If it says 'Failed to fetch', it's because GitHub is HTTPS and your server is HTTP. Browsers block this.)"); 
+            }
             isCheckingLogin = false;
         }
 
@@ -290,7 +293,10 @@
                     document.getElementById('otp-sec').style.display = 'block';
                     showToast("Code sent to your Telegram!");
                 } else { showToast("Error: " + (data ? data.msg : 'Unknown')); }
-            } catch(e) { showToast("Server error!"); } 
+            } catch(e) { 
+                showToast("Server error!"); 
+                alert("API Error: " + e.message); 
+            } 
             finally { sendBtn.innerHTML = originalText; sendBtn.disabled = false; }
         }
 
@@ -314,7 +320,10 @@
                     closeLogin();
                     showPremiumModal();
                 } else { showToast(data ? data.msg : "Invalid Code or Error!"); }
-            } catch(e) { showToast("Server connection error!"); } 
+            } catch(e) { 
+                showToast("Server connection error!"); 
+                alert("API Error: " + e.message); 
+            } 
             finally { verifyBtn.innerHTML = originalText; verifyBtn.disabled = false; }
         }
 
