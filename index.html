@@ -198,7 +198,7 @@
                 let data = await res.json();
                 
                 if (data && data.status === "logged_in") {
-                    showToast("Session Active! Redirecting...");
+                    showToast("account Active! Redirecting...");
                     setTimeout(() => { safeOpenLink(PREMIUM_LINK); }, 1500);
                     return; // Stop here, user is logged in
                 }
